@@ -175,3 +175,48 @@ void psibydede(PetscReal* arraypsi_dede){
 	  else  psi_dede[a][b][g][d]=0.0;
 	}
 }
+
+void residualAndJacobian(){
+  PetscReal P[DIM][DIM]; 
+  PetscReal B[DIM][DIM][DIM];
+  PetscReal PbyF[DIM][DIM][DIM][DIM]; 
+  PetscReal PbydF[DIM][DIM][DIM][DIM][DIM];
+  PetscReal BbyF[DIM][DIM][DIM][DIM][DIM];
+  PetscReal BbydF[DIM][DIM][DIM][DIM][DIM][DIM];
+ 
+  //compute P, Beta
+  for (unsigned int i=0; i<DIM; i++)
+    for (unsigned int J=0; J<DIM; J++){
+      PetscReal phibyFiJ=0.0, psibyFij=0.0;
+      for (unsigned int a=0; a<6; a++)
+	phibyFiJ+=phi_e[a]*e_F[a][i][J];
+      for (unsigned int a=0; a<2; a++) 
+	for (unsigned int b=0; b<3; b++)
+	  psibyFiJ+=psi_de[a][b]*de_F[a][b][i][J]; //check range of a,b for de_F 
+      P[i][J]=phibyFiJ+psibyFiJ; //P
+      for (unsigned int K=0; K<DIM; K++){
+	PetscReeal psibyFiJK=0.0;
+	for (unsigned int a=0; a<2; a++) 
+	  for (unsigned int b=0; b<3; b++)
+	    psibyFiJK+=psi_de[a][b]*de_dF[a][b][i][J][K]; //check range of a,b for de_F 
+	B[i][J][K]=psibyFiJK; //Beta
+      }	
+    }
+  
+  //Compute P_F, P_dF, B_F, B_dF
+  for (unsigned int i=0; i<DIM; i++)
+    for (unsigned int J=0; J<DIM; J++)
+      for (unsigned int l=0; l<DIM; l++)
+	for (unsigned int M=0; M<DIM; M++){
+	  PetscReal phibyFiJFlM=0.0, psibyFiJFlM=0.0;
+	  for (unsigned int a=0; a<6; a++){
+	    phibyFiJFlM+=phibye[a]*e_FF[a][i][J][l][M];
+	    for (unsigned int g=0; g<6; g++){
+	      phibyFiJFlM+=phibyee[a][g]*e_F[a][i][J]*e_F[g][l][M];
+	      for (unsigned int b=0; b<3; b++)
+		for (unsigned int d=0; d<6; d++)
+		  psibyFiJFlM+=psibydede[a][b][g][d]
+	    }
+	  }
+	}
+}
