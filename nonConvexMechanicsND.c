@@ -439,6 +439,7 @@ int main(int argc, char *argv[]) {
   user.dt=0.01;
   user.C=5.0;
 
+
   /* Set discretization options */
   PetscInt nsteps = 100;
   PetscInt N=10, p=2, C=PETSC_DECIDE, resStep=0;
