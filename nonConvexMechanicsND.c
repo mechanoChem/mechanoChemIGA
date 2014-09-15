@@ -4,7 +4,7 @@ extern "C" {
 }
 #include "fields.h"
 #include "petigaksp2.h"
-#define ADSacado
+//#define ADSacado
 
 //include automatic differentiation library
 #ifdef ADSacado
@@ -22,7 +22,7 @@ typedef adept::adouble doubleAD;
 
 typedef struct {
   IGA iga;
-  PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg, Eh, El;
+  PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg, El;
   PetscReal c, dt;
   PetscReal C, he;
   AppCtxKSP* appCtxKSP;
@@ -58,7 +58,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal Eii=user->Eii;
   PetscReal Eij=user->Eij;
   PetscReal Eg=user->Eg;
-  PetscReal Eh=user->Eh;
   PetscReal El=user->El;
   PetscReal c=user->c+2*t0;
   PetscReal C=user->C;
@@ -89,17 +88,19 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     }
   }
   //new strain metrics
-  T e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
+  T e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0)-Es;
   T e2=(E[0][0]-E[1][1])/sqrt(2.0);
   T e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
   T e4=E[1][2], e5=E[2][0], e6=E[0][1];
 
-  T e2_1=0.0, e2_2=0.0, e3_1=0.0, e3_2=0.0;
+  T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
   for (unsigned int i=0; i<DIM; ++i){
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0])/sqrt(2.0);
     e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1])/sqrt(2.0);
+    e2_3+=(F[i][0]*dF[i][0][2]-F[i][1]*dF[i][1][2])/sqrt(2.0);
     e3_1+=(F[i][0]*dF[i][0][0]+F[i][1]*dF[i][1][0]-2*F[i][2]*dF[i][2][0])/sqrt(6.0);
     e3_2+=(F[i][0]*dF[i][0][1]+F[i][1]*dF[i][1][1]-2*F[i][2]*dF[i][2][1])/sqrt(6.0);
+    e3_3+=(F[i][0]*dF[i][0][2]+F[i][1]*dF[i][1][2]-2*F[i][2]*dF[i][2][2])/sqrt(6.0);
   }
   
   //phi=E4(e2^2+e3^2)^2+E3*e3*(e3^2-3*e2^2)+E2*(e2^2+e3^2)+Eii*(e1^2)+Eij*(e4^2+e5^2+e6^2)
@@ -107,8 +108,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //   +Eh(e3_1^2+e3_2^2-sqrt(3)*(e2_1*e3_1-e2_2*e3_2))
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  //T minusC=0.5*(1-c), plusC=0.5*(1+c);
-  //T E2c=E2*minusC,  E3c=E3*plusC, E4c=E4*plusC;
   PetscReal E2c=E2, E3c=E3, E4c=E4;
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
@@ -120,8 +119,10 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       T e6_FiJ=(F[i][1]*(0==J)+F[i][0]*(1==J))/2.0;
       T e2_1_FiJ=((0==J)*dF[i][0][0]-(1==J)*dF[i][1][0])/sqrt(2.0);
       T e2_2_FiJ=((0==J)*dF[i][0][1]-(1==J)*dF[i][1][1])/sqrt(2.0);
+      T e2_3_FiJ=((0==J)*dF[i][0][2]-(1==J)*dF[i][1][2])/sqrt(2.0);     
       T e3_1_FiJ=((0==J)*dF[i][0][0]+(1==J)*dF[i][1][0]-2*(2==J)*dF[i][2][0])/sqrt(6.0);
       T e3_2_FiJ=((0==J)*dF[i][0][1]+(1==J)*dF[i][1][1]-2*(2==J)*dF[i][2][1])/sqrt(6.0);
+      T e3_3_FiJ=((0==J)*dF[i][0][2]+(1==J)*dF[i][1][2]-2*(2==J)*dF[i][2][2])/sqrt(6.0);
 
       //P
       P[i][J]=(2*Eii*e1)*e1_FiJ						\
@@ -130,22 +131,28 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	+(2*Eij*e4)*e4_FiJ						\
 	+(2*Eij*e5)*e5_FiJ						\
 	+(2*Eij*e6)*e6_FiJ						\
-	+(2*Eg*e2_1+(2.0/sqrt(3.0))*Eg*e3_1 - sqrt(3.0)*Eh*e3_1)*e2_1_FiJ \
-	+(2*Eg*e2_2-(2.0/sqrt(3.0))*Eg*e3_2 + sqrt(3.0)*Eh*e3_2)*e2_2_FiJ \
-	+(2*Eg*e3_1/3.0 + (2.0/sqrt(3.0))*Eg*e2_1 + 2*Eh*e3_1 - sqrt(3)*Eh*e2_1)*e3_1_FiJ \
-	+(2*Eg*e3_2/3.0 - (2.0/sqrt(3.0))*Eg*e2_2 + 2*Eh*e3_2 + sqrt(3)*Eh*e2_2)*e3_2_FiJ;
+	+ 2*Eg*e2_1*e2_1_FiJ \
+	+ 2*Eg*e2_2*e2_2_FiJ \
+	+ 2*Eg*e2_3*e2_3_FiJ \
+	+ 2*Eg*e3_1*e3_1_FiJ \
+	+ 2*Eg*e3_2*e3_2_FiJ \
+	+ 2*Eg*e3_3*e3_3_FiJ;
 	
       //gradient terms
       for (unsigned int K=0; K<DIM; ++K){
 	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K)/sqrt(2.0);
 	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K)/sqrt(2.0);
+	T e2_3_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(2==K)/sqrt(2.0);
 	T e3_1_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(0==K)/sqrt(6.0);
 	T e3_2_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(1==K)/sqrt(6.0);
+	T e3_3_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(2==K)/sqrt(6.0);
 	//Beta
-	Beta[i][J][K]= (2*Eg*e2_1 + 2*Eg*e3_1/sqrt(3.0) - sqrt(3.0)*Eh*e3_1)*e2_1_FiJK \
-	  + (2*Eg*e2_2 - 2*Eg*e3_2/sqrt(3.0) + sqrt(3.0)*Eh*e3_2)*e2_2_FiJK \
-	  + (2*Eg*e3_1/3.0 + 2*Eg*e2_1/sqrt(3.0) + 2*Eh*e3_1 - sqrt(3.0)*Eh*e2_1)*e3_1_FiJK \
-	  + (2*Eg*e3_2/3.0 - 2*Eg*e2_2/sqrt(3.0) + 2*Eh*e3_2 + sqrt(3.0)*Eh*e2_2)*e3_2_FiJK;
+	Beta[i][J][K]= 2*Eg*e2_1*e2_1_FiJK \
+	  + 2*Eg*e2_2*e2_2_FiJK \
+	  + 2*Eg*e2_3*e2_3_FiJK \
+	  + 2*Eg*e3_1*e3_1_FiJK \
+	  + 2*Eg*e3_2*e3_2_FiJK \
+	  + 2*Eg*e3_3*e3_3_FiJK;
       }
     }
   }
@@ -232,7 +239,7 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 #else
   adept::Stack s;
   std::vector<doubleAD> U_AD(nen*DIM);
-  adept::set_values(U_AD,nen*dof,U);
+  adept::set_values(&U_AD[0],nen*dof,U);
   s.new_recording();
   std::vector<doubleAD> R(nen*dof);
   Function<doubleAD> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
@@ -410,7 +417,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
 
   //Set load parameter
-  double dVal=user->Es*c_time;
+  double dVal=user->Es*c_time*10;
   ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
   PetscFunctionReturn(0);
@@ -425,7 +432,7 @@ int main(int argc, char *argv[]) {
   AppCtx user; AppCtxKSP userKSP;
 
   //problem parameters
-  user.c=-1.0;
+  user.c=1.0;
   user.Es=0.01;
   user.Ed=1.0;
   user.E4=1.5*user.Ed/pow(user.Es,4.0);
@@ -435,7 +442,6 @@ int main(int argc, char *argv[]) {
   user.Eij=user.Ed/pow(user.Es,2.0);
   user.El=1.0;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
-  user.Eh=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   user.dt=0.01;
   user.C=5.0;
 
