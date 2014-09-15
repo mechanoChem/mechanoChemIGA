@@ -4,10 +4,18 @@ extern "C" {
 }
 #include "fields.h"
 #include "petigaksp2.h"
+#define ADSacado
+
+//include automatic differentiation library
+#ifdef ADSacado
 #include <Sacado.hpp>
-//typedef Sacado::Fad::DFad<double> doubleAD;
 #define numVars 81
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
+//typedef Sacado::Fad::DFad<double> doubleAD;
+#else
+#include "adept.h"
+typedef adept::adouble doubleAD;
+#endif
 
 #define DIM 3
 #define PI 3.14159265
@@ -19,7 +27,6 @@ typedef struct {
   PetscReal C, he;
   AppCtxKSP* appCtxKSP;
   PetscReal f0Norm;
-  PetscReal ta,tb,tc;
 } AppCtx;
 
 #undef  __FUNCT__
@@ -174,35 +181,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	Ra[a][i] = Ru_i;
       }
     }
-    else{
-      //Neumann traction
-      PetscReal dVal=100*Es*t0;
-      if ((p->point[0]==10.0) and (n[0]==1)){
-	Ra[a][0] = 0*N[a]*dVal;
-	Ra[a][1] = N[a]*dVal;
-	Ra[a][2] = N[a]*dVal;
-      }
-      
-      //Weak Dirchlet BC
-      if (n[0]!=1.0) break;
-      //Std::cout << "n\n"; 
-      for (unsigned int i=0; i<DIM; i++){
-	T Ru_i=0.0;
-	for (unsigned int A=0; A<DIM; A++){
-	  //-Na_A*(B_iJK*N_J*N_K*N_A) + (C/he)*Na_A*(u_iJ*N_J*N_A)
-	  T BNNN_A=0.0, uNN_A=0.0;
-	  for (unsigned int j=0; j<DIM; j++){
-	    uNN_A+=ux[i][j]*n[j]*n[A];
-	    for (unsigned int k=0; k<DIM; k++){
-	      BNNN_A += Beta[i][j][k]*n[j]*n[k]*n[A];
-	    }
-	  }
-	  Ru_i += -N1[A]*BNNN_A + (C/he)*N1[A]*uNN_A;
-	}
-	Ra[a][i] += Ru_i;
-      }
-      
-    }
   }
   return 0;
 }
@@ -230,34 +208,38 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 {
   AppCtx *user = (AppCtx *)ctx;
   const PetscInt nen=p->nen, dof=DIM;
+  const PetscReal (*U2)[DIM] = (PetscReal (*)[DIM])U;
+#ifdef ADSacado
   if (dof*nen!=numVars) {
     PetscPrintf(PETSC_COMM_WORLD,"\ndof*nen!=numVars.... Set numVars = %u\n",dof*nen); exit(-1);
   }
-  doubleAD *U_AD=new doubleAD[nen*(DIM)];
-  const PetscReal (*U2)[DIM] = (PetscReal (*)[DIM])U;
-  for(int n=0; n<nen; n++){
-    for(int d=0; d<dof; d++){
-      U_AD[n*dof+d]=U2[n][d];
-      U_AD[n*dof+d].diff(n*dof+d, dof*nen);
-    }
-  }
-  double ta=0.0; 
-  doubleAD *R= new doubleAD[nen*dof];
-  Function (p, dt, shift, V, t, U_AD, t0, U0, R, ctx);
+ std::vector<doubleAD> U_AD(nen*DIM);
+  for(int i=0; i<nen*dof; i++){
+    U_AD[i]=U[i];
+    U_AD[i].diff(i, dof*nen);
+  } 
+  std::vector<doubleAD> R(nen*dof);
+  Function<doubleAD> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
   for(int n1=0; n1<nen; n1++){
     for(int d1=0; d1<dof; d1++){
       for(int n2=0; n2<nen; n2++){
 	for(int d2=0; d2<dof; d2++){
-	  //ta= MPI_Wtime();
-	  K[n1*dof*nen*dof + d1*nen*dof + n2*dof + d2] = R[n1*dof+d1].dx(n2*dof+d2);
-	  //user->ta+= MPI_Wtime() -ta;
+      	  K[n1*dof*nen*dof + d1*nen*dof + n2*dof + d2] = R[n1*dof+d1].dx(n2*dof+d2);
 	}
       }
     }				
   }
-  delete []R;
-  delete []U_AD;
-  //std::cout << user->ta << " ";
+#else
+  adept::Stack s;
+  std::vector<doubleAD> U_AD(nen*DIM);
+  adept::set_values(U_AD,nen*dof,U);
+  s.new_recording();
+  std::vector<doubleAD> R(nen*dof);
+  Function<doubleAD> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
+  s.independent(&U_AD[0],nen*dof);
+  s.dependent(&R[0],nen*dof);
+  s.jacobian(K);
+#endif  
   return 0;    
 }
 
@@ -269,10 +251,6 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
   computeField<PetscReal,DIM,DIM>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
-  for(int n1=0; n1<nen*dof; n1++){
-    //PetscPrintf(PETSC_COMM_WORLD,"%6.2e, ",user->localU0[n1]);
-  }
-  //PetscPrintf(PETSC_COMM_WORLD,"%d \n", user->test);
   //Compute F
   PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -280,7 +258,6 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       F[i][j]=(i==j)+ux[i][j];
     }
   }
-  
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
   PetscReal E[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++){
@@ -434,7 +411,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
   //Set load parameter
   double dVal=user->Es*c_time;
-  //ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
   PetscFunctionReturn(0);
 }
@@ -446,7 +423,7 @@ int main(int argc, char *argv[]) {
  
   /* Define simulation specific parameters */
   AppCtx user; AppCtxKSP userKSP;
-  user.ta=0.0;  
+
   //problem parameters
   user.c=-1.0;
   user.Es=0.01;
@@ -456,7 +433,7 @@ int main(int argc, char *argv[]) {
   user.E2=-1.5*user.Ed/pow(user.Es,2.0);
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=0.4;
+  user.El=1.0;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   user.Eh=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   user.dt=0.01;
@@ -497,7 +474,7 @@ int main(int argc, char *argv[]) {
   ierr = IGAGetAxis(iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
   ierr = IGAAxisInitUniform(axis0,N,0.0,1.0,C);CHKERRQ(ierr);
-  user.he=10.0/N; //set he=L/N, by selecting the correct problem length L
+  user.he=1.0/N; //set he=L/N, by selecting the correct problem length L
   IGAAxis axis1;
   ierr = IGAGetAxis(iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
@@ -550,34 +527,10 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es;
+  double dVal=user.Es*0.1;
   ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,0,0,2,0.0);CHKERRQ(ierr);
-  //ierr = IGASetBoundaryValue(iga,0,1,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);
-  /*
-  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,0,2,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,1,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,1,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,1,2,0.0);CHKERRQ(ierr);
-  //
-  ierr = IGASetBoundaryValue(iga,1,0,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,1,0,2,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,1,1,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,1,1,2,0.0);CHKERRQ(ierr);
-  //
-  ierr = IGASetBoundaryValue(iga,2,0,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,2,0,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,2,1,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,2,1,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,2,1,2,0.0);CHKERRQ(ierr);
-  */
   //
   ierr = IGASetFormIEFunction(iga,Residual,&user);CHKERRQ(ierr);
   ierr = IGASetFormIEJacobian(iga,Jacobian,&user);CHKERRQ(ierr);
@@ -588,12 +541,11 @@ int main(int argc, char *argv[]) {
   TS ts;
   ierr = IGACreateTS(iga,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,1000,1.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,100,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
-  if (output) {
-    ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
-  }
+  ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
+  
   /*
   SNES snes;
   TSGetSNES(ts,&snes);
