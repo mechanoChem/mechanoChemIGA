@@ -17,7 +17,7 @@ typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 typedef adept::adouble doubleAD;
 #endif
 
-#define DIM 2
+#define DIM 3
 #define PI 3.14159265
 
 typedef struct {
@@ -455,8 +455,19 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
 
   //Set load parameter
-  double dVal=user->Es*c_time*10;
-  ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);
+  double dVal=user->Es*c_time;
+#if DIM==3
+  ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,2,0,0,0.0);CHKERRQ(ierr);  
+#elif DIM==2 
+  ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
+#endif
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
   PetscFunctionReturn(0);
 }
@@ -577,11 +588,18 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*0.1;
-  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);
+  double dVal=user.Es*0.01;
 #if DIM==3
-  ierr = IGASetBoundaryValue(iga,0,0,2,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,2,0,0,0.0);CHKERRQ(ierr);  
+#elif DIM==2 
+  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
 #endif
   //
   ierr = IGASetFormIEFunction(iga,Residual,&user);CHKERRQ(ierr);
