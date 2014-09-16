@@ -9,7 +9,7 @@ extern "C" {
 //include automatic differentiation library
 #ifdef ADSacado
 #include <Sacado.hpp>
-#define numVars 81
+#define numVars 18 //81 for 3D, 18 for 2D
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 //typedef Sacado::Fad::DFad<double> doubleAD;
 #else
@@ -17,7 +17,7 @@ typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 typedef adept::adouble doubleAD;
 #endif
 
-#define DIM 3
+#define DIM 2
 #define PI 3.14159265
 
 typedef struct {
@@ -64,35 +64,33 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal he=user->he;
   c=1.0;
 
-  //PetscPrintf(PETSC_COMM_WORLD,"c:%6.3e ",c);
   //Compute F
-  T F[3][3], dF[3][3][3];
-  for (unsigned int i=0; i<3; i++) {
-    for (unsigned int j=0; j<3; j++) {
-      if ((i<DIM) && (j<DIM))  F[i][j]=(i==j)+ux[i][j];
-      else  F[i][j]=(i==j);
-      for (unsigned int k=0; k<3; k++) {
-	if (((i<DIM) && (j<DIM)) && (k<DIM)) dF[i][j][k]=uxx[i][j][k];
-	else dF[i][j][k]=0.0;
+  T F[DIM][DIM], dF[DIM][DIM][DIM];
+  for (unsigned int i=0; i<DIM; i++) {
+    for (unsigned int J=0; J<DIM; J++) {
+      F[i][J]=(i==J)+ux[i][J];
+      for (unsigned int K=0; K<DIM; K++) {
+	dF[i][J][K]=uxx[i][J][K];
       }
     }
   }
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
-  T E[3][3];
-  for (unsigned int i=0; i<3; i++){
-    for (unsigned int j=0; j<3; j++){
-      E[i][j] = -0.5*(i==j);
-      for (unsigned int k=0; k<3; k++){
-	E[i][j] += 0.5*F[k][i]*F[k][j];
+  T E[DIM][DIM];
+  for (unsigned int I=0; I<DIM; I++){
+    for (unsigned int J=0; J<DIM; J++){
+      E[I][J] = -0.5*(I==J);
+      for (unsigned int k=0; k<DIM; k++){
+	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
     }
   }
+
   //new strain metrics
-  T e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0)-Es;
+#if DIM==3
+  T e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
   T e2=(E[0][0]-E[1][1])/sqrt(2.0);
   T e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
   T e4=E[1][2], e5=E[2][0], e6=E[0][1];
-
   T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
   for (unsigned int i=0; i<DIM; ++i){
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0])/sqrt(2.0);
@@ -102,10 +100,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     e3_2+=(F[i][0]*dF[i][0][1]+F[i][1]*dF[i][1][1]-2*F[i][2]*dF[i][2][1])/sqrt(6.0);
     e3_3+=(F[i][0]*dF[i][0][2]+F[i][1]*dF[i][1][2]-2*F[i][2]*dF[i][2][2])/sqrt(6.0);
   }
-  
-  //phi=E4(e2^2+e3^2)^2+E3*e3*(e3^2-3*e2^2)+E2*(e2^2+e3^2)+Eii*(e1^2)+Eij*(e4^2+e5^2+e6^2)
-  //   +Eg(e2_1^2+e2_2^2+(e3_1^2+e3_2^2)/3+ (2/sqrt(3))*(e2_1*e3_1-e2_2*e3_2))
-  //   +Eh(e3_1^2+e3_2^2-sqrt(3)*(e2_1*e3_1-e2_2*e3_2))
+
+  //Pi=E4(e2^2+e3^2)^2+E3*e3*(e3^2-3*e2^2)+E2*(e2^2+e3^2)+Eii*(e1^2)+Eij*(e4^2+e5^2+e6^2)
+  //   +Eg(e2_1^2+e2_2^2+e2_3^2+e3_1^2+e3_2^2+e3^2)
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
   PetscReal E2c=E2, E3c=E3, E4c=E4;
@@ -126,18 +123,13 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
       //P
       P[i][J]=(2*Eii*e1)*e1_FiJ						\
-	+(2*E2c*e2 -6*E3c*e2*e3 + 4*E4c*e2*(e2*e2+e3*e3))*e2_FiJ		\
-	+(2*E2c*e3 +3*E3c*(e3*e3-e2*e2) + 4*E4c*e3*(e2*e2+e3*e3))*e3_FiJ	\
+	+(2*E2c*e2 -6*E3c*e2*e3 + 4*E4c*e2*(e2*e2+e3*e3))*e2_FiJ	\
+	+(2*E2c*e3 +3*E3c*(e3*e3-e2*e2) + 4*E4c*e3*(e2*e2+e3*e3))*e3_FiJ \
 	+(2*Eij*e4)*e4_FiJ						\
 	+(2*Eij*e5)*e5_FiJ						\
 	+(2*Eij*e6)*e6_FiJ						\
-	+ 2*Eg*e2_1*e2_1_FiJ \
-	+ 2*Eg*e2_2*e2_2_FiJ \
-	+ 2*Eg*e2_3*e2_3_FiJ \
-	+ 2*Eg*e3_1*e3_1_FiJ \
-	+ 2*Eg*e3_2*e3_2_FiJ \
-	+ 2*Eg*e3_3*e3_3_FiJ;
-	
+	+ 2*Eg*(e2_1*e2_1_FiJ + e2_2*e2_2_FiJ + e2_3*e2_3_FiJ + e3_1*e3_1_FiJ + e3_2*e3_2_FiJ + e3_3*e3_3_FiJ);
+      
       //gradient terms
       for (unsigned int K=0; K<DIM; ++K){
 	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K)/sqrt(2.0);
@@ -147,16 +139,51 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T e3_2_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(1==K)/sqrt(6.0);
 	T e3_3_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(2==K)/sqrt(6.0);
 	//Beta
-	Beta[i][J][K]= 2*Eg*e2_1*e2_1_FiJK \
-	  + 2*Eg*e2_2*e2_2_FiJK \
-	  + 2*Eg*e2_3*e2_3_FiJK \
-	  + 2*Eg*e3_1*e3_1_FiJK \
-	  + 2*Eg*e3_2*e3_2_FiJK \
-	  + 2*Eg*e3_3*e3_3_FiJK;
+	Beta[i][J][K]= 	2*Eg*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK + e2_3*e2_3_FiJK + e3_1*e3_1_FiJK + e3_2*e3_2_FiJK + e3_3*e3_3_FiJK);
       }
     }
   }
 
+#elif DIM==2
+  T e1=(E[0][0]+E[1][1]);
+  T e2=(E[0][0]-E[1][1]);
+  T e3=E[0][1];
+  T e2_1=0.0, e2_2=0.0; 
+  for (unsigned int i=0; i<DIM; ++i){
+    e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0]);
+    e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1]);
+  }
+
+  //Pi=E4*e2^4+E2*e2^2++Eii*(e1^2)+Eij*(e3^2)
+  //   +Eg(e2_1^2+e2_2^2)
+  //compute P and Beta
+  T P[DIM][DIM], Beta[DIM][DIM][DIM];
+  PetscReal E2c=E2, E4c=E4;
+  for (unsigned int i=0; i<DIM; ++i){
+    for (unsigned int J=0; J<DIM; ++J){
+      T e1_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J));
+      T e2_FiJ=(F[i][0]*(0==J)-F[i][1]*(1==J));
+      T e3_FiJ=(F[i][1]*(0==J)+F[i][0]*(1==J))/2.0;
+      T e2_1_FiJ=((0==J)*dF[i][0][0]-(1==J)*dF[i][1][0]);
+      T e2_2_FiJ=((0==J)*dF[i][0][1]-(1==J)*dF[i][1][1]);
+
+      //P
+      P[i][J]=(2*Eii*e1)*e1_FiJ						\
+	+(2*E2c*e2 + 4*E4c*e2*e2*e2)*e2_FiJ				\
+	+(2*Eij*e3)*e3_FiJ						\
+	+ 2*Eg*(e2_1*e2_1_FiJ + e2_2*e2_2_FiJ);
+      
+      //gradient terms
+      for (unsigned int K=0; K<DIM; ++K){
+	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K);
+	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K);
+	//Beta
+	Beta[i][J][K]= 	2*Eg*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK);
+      }
+    }
+  }
+#endif 
+  
   /* //get shape function values */
   double (*N) = (double (*)) p->shape[0];
   double (*Nx)[DIM] = (double (*)[DIM]) p->shape[1];
@@ -275,7 +302,7 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       }
     }
   }
-  
+#if DIM==3  
  //new strain metrics
   PetscReal e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
   PetscReal e2=(E[0][0]-E[1][1])/sqrt(2.0);
@@ -297,6 +324,17 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       wellID=i+1;
     }
   }
+#elif DIM==2
+  //new strain metrics
+  PetscReal e1=(E[0][0]+E[1][1]);
+  PetscReal e2=(E[0][0]-E[1][1]);
+  PetscReal e3=E[0][1];
+  
+  //compute distance to nearest well
+  PetscReal Es=user->Es;
+  PetscReal dist=e2-Es;
+  unsigned int wellID=1;
+#endif
  
   //store L2 projection residual
   const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
@@ -435,16 +473,21 @@ int main(int argc, char *argv[]) {
   user.c=1.0;
   user.Es=0.01;
   user.Ed=1.0;
+#if DIM==3
   user.E4=1.5*user.Ed/pow(user.Es,4.0);
   user.E3=-user.Ed/pow(user.Es,3.0);
   user.E2=-1.5*user.Ed/pow(user.Es,2.0);
+#elif DIM==2
+  user.E4= user.Ed/pow(user.Es,4.0);
+  user.E3=0.0;
+  user.E2=-2.0*user.Ed/pow(user.Es,2.0);
+#endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
   user.El=1.0;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   user.dt=0.01;
   user.C=5.0;
-
 
   /* Set discretization options */
   PetscInt nsteps = 100;
@@ -537,7 +580,9 @@ int main(int argc, char *argv[]) {
   double dVal=user.Es*0.1;
   ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);
+#if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,2,0.0);CHKERRQ(ierr);
+#endif
   //
   ierr = IGASetFormIEFunction(iga,Residual,&user);CHKERRQ(ierr);
   ierr = IGASetFormIEJacobian(iga,Jacobian,&user);CHKERRQ(ierr);
