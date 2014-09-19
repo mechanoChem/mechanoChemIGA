@@ -1,5 +1,6 @@
 module load mkl
-fileName=nonConvexMechanicsND
+fileName=mechanoChemoND
+#fileName=nonConvexMechanicsND
 
 rm *.o $fileName
 #Compile according to AD type
@@ -11,7 +12,7 @@ rm *.o $fileName
 mpicxx -c -fPIC -DADEPT_RECORDING_PAUSABLE -Wall -Wwrite-strings -Wno-unused-variable -Wno-unused-value  -Wno-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas -O3 -pipe -I/$PETSC_DIR/$PETSC_ARCH/include -I/$PETSC_DIR/include -I$PETIGA_DIR/$PETSC_ARCH/include -I$PETIGA_DIR/include -I/opt/software/numerics/adept-1.0/include $fileName.c
 mpicxx -o $fileName $fileName.o -Wl,-rpath,$PETIGA_DIR/$PETSC_ARCH/lib -L$PETIGA_DIR/$PETSC_ARCH/lib -lpetiga -Wl,-rpath,$PETSC_DIR/$PETSC_ARCH/lib -L$PETSC_DIR/$PETSC_ARCH/lib  -lpetsc -Wl,-rpath,$PETSC_DIR/$PETSC_ARCH/lib /opt/software/numerics/adept-1.0/lib/libadept.a
 
-time mpiexec -np 4 ./$fileName -file_prefix "test" -N 8 -ch_monitor -ts_monitor -snes_monitor -snes_converged_reason -log_summary -dt 0.01 -ts_max_snes_failures 200 -snes_max_it 200  -snes_type newtontr -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps
+time mpiexec -np 4 ./$fileName -file_prefix "test" -N 50 -ch_monitor -ts_monitor -snes_monitor -snes_converged_reason -log_summary -dt 0.01 -ts_max_snes_failures 200 -snes_max_it 200  -snes_type newtontr -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps
 #-pc_type svd -pc_svd_monitor
 #-ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps
 
