@@ -233,7 +233,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K);
 #else
 	T e2_1_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(0==K);
-	T e2_2_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(0==K);
+	T e2_2_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(1==K);
 #endif
 	//Beta
 	Beta[i][J][K]= 	2*Eg*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK);

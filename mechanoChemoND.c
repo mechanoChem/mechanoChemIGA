@@ -5,8 +5,11 @@ extern "C" {
 #include "fields.h"
 #include "petigaksp2.h"
 
+//set Explicit or not
+#define EXPLICIT
+
 //set small strain or finite strain
-//#define finiteStrain
+#define finiteStrain
 
 //include automatic differentiation library
 //#define ADSacado
@@ -25,9 +28,10 @@ typedef adept::adouble doubleAD;
 
 typedef struct {
   IGA iga;
+  PetscReal Cs, Cd, C4, C2, Cg;
   PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg, El;
-  PetscReal c, dt;
-  PetscReal C, he;
+  PetscReal dt;
+  PetscReal gamma, C, he, cbar, D, flux;
   AppCtxKSP* appCtxKSP;
   PetscReal f0Norm;
 } AppCtx;
@@ -47,12 +51,21 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   IGAPointGetSizes(p,0,&nen,&dof);
   PetscReal *n = p->normal;
 
+  //concentration field variable
+  T c, cx[DIM], cxx[DIM][DIM]; PetscReal c0;
+  computeField<T,DIM,DIM+1>(SCALAR,DIM,p,U,&c,&cx[0],&cxx[0][0]);
+  computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U0,&c0);
+
   //displacement field variables
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
+  computeField<T,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //problem parameters
-
+  PetscReal Cs=user->Cs;
+  PetscReal Cd=user->Cd;
+  PetscReal C4=user->C4;
+  PetscReal C2=user->C2;
+  PetscReal Cg=user->Cg;
   PetscReal Es=user->Es;
   PetscReal Ed=user->Ed;
   PetscReal E4=user->E4;
@@ -62,10 +75,18 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal Eij=user->Eij;
   PetscReal Eg=user->Eg;
   PetscReal El=user->El;
-  PetscReal c=user->c+2*t0;
   PetscReal C=user->C;
   PetscReal he=user->he;
-  c=1.0;
+  PetscReal D=user->D;
+  PetscReal flux=user->flux;
+  PetscReal gamma=user->gamma;
+  PetscReal dt=dt2;
+
+#ifdef EXPLICIT
+  PetscReal minusC=(Cs+3*c0)/(4.0*Cs), plusC=(Cs+c0)/(2.0*Cs);
+#else
+  T minusC=(Cs+3*c)/(4.0*Cs), plusC=(Cs+c)/(2.0*Cs);
+#endif
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -123,7 +144,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //   +Eg(e2_1^2+e2_2^2+e2_3^2+e3_1^2+e3_2^2+e3^2)
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  PetscReal E2c=E2, E3c=E3, E4c=E4;
+  T E2c=E2*minusC,  E3c=E3*plusC, E4c=E4*plusC;
+  //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
 #ifdef finiteStrain
@@ -204,7 +226,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //   +Eg(e2_1^2+e2_2^2)
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  PetscReal E2c=E2, E4c=E4;
+  T E2c=E2*minusC,  E4c=E4*plusC;
+  //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
 #ifdef finiteStrain
@@ -242,6 +265,24 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
 #endif 
   
+  //phi(c,e)=C4*c^4 + C2*c^2 + Cg*(c_1^2+c_2^2) 
+  //        +E4c*e2^4 + E2c*e2^2 + Eii*e1^2 + Eij*e3^2 +Eg*(e2_1^2+e2_2^2)
+  //where E2c=E2*(Cs+3*c)/(4.0*Cs), E4c=E4*(Cs+c)/(2.0*Cs);
+  //chemical potential
+  T mu = 4.0*C4*c*c*c+2.0*C2*c;
+#ifdef EXPLICIT
+  mu+=0.0;
+#else
+  mu+= (E4/(2.0*Cs))*(e2*e2*e2*e2) + (3.0*E2/(4.0*Cs))*(e2*e2);
+#endif
+  T dmuc= 12.0*C4*c*c + 2.0*C2;
+  T dmue2=0.0;
+#ifdef EXPLICIT
+  dmue2+=0.0;
+#else
+  dmue2+=(E4/(2.0*Cs))*(4.0*e2*e2*e2) + (3.0*E2/(4.0*Cs))*(2*e2);
+#endif
+
   /* //get shape function values */
   double (*N) = (double (*)) p->shape[0];
   double (*Nx)[DIM] = (double (*)[DIM]) p->shape[1];
@@ -249,7 +290,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //Compute Residual
   bool surfaceFlag=p->atboundary;
-  T (*Ra)[DIM] = (T (*)[DIM])R;
+  T (*Ra)[DIM+1] = (T (*)[DIM+1])R;
   for (unsigned int a=0; a<(unsigned int)nen; a++) {
     double N1[DIM], N2[DIM][DIM];
     for (unsigned int i=0; i<DIM; i++){
@@ -273,6 +314,58 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	Ra[a][i] = Ru_i;
       }
     }
+
+    //Chemistry
+    T laplace_c=0;
+    for (unsigned int i=0; i<DIM; i++) laplace_c+=cxx[i][i];
+    T Rc=0.0;
+    if (!surfaceFlag){
+      // Na * c_t
+      Rc += N[a] * (c-c0)*(1.0/dt);
+      // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2))
+      double laplace_N=0.0;
+      for (unsigned int i=0; i<DIM; i++){
+	T e2x=0;
+	switch (i) {
+	case 0:
+	  e2x=e2_1; break;
+	case 1:
+	  e2x=e2_2; break;
+	}
+	Rc += N1[i]*D*(dmuc*cx[i]+dmue2*e2x);
+	laplace_N += N2[i][i];
+      }
+      // lambda * del2(Na) * D * del2(c)
+      Rc += Cg*laplace_N*D*laplace_c;
+    }
+    else{
+      // -grad(Na) . (D*del2(c)) n
+      T t1 = D*laplace_c;
+      double laplace_N=0.0;
+      for (unsigned int i=0; i<DIM; i++){
+	Rc += -N1[i]*t1*n[i];
+	laplace_N += N2[i][i];
+      }
+      // -(gamma*del2(Na)*D)*grad(C).n
+      T t2 = gamma*laplace_N*D;
+      for (unsigned int i=0; i<DIM; i++){
+	Rc += -t2*cx[i]*n[i];
+      }
+      // (C/he)*(grad(Na).n)*D*(grad(C).n)
+      double t3=0.0;
+      T t4 = (C/he)*D;
+      T t5=0.0;
+      for (unsigned int i=0; i<DIM; i++){
+	t3 += N1[i]*n[i];
+	t5 += cx[i]*n[i];
+      }
+      Rc += t3*t4*t5;
+      Rc *= Cg;
+      //flux term
+      // Na*J
+      Rc += -N[a]*flux;
+    }
+    Ra[a][DIM] = Rc;
   }
   return 0;
 }
@@ -299,13 +392,13 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 				PetscScalar *K,void *ctx)
 {
   AppCtx *user = (AppCtx *)ctx;
-  const PetscInt nen=p->nen, dof=DIM;
-  const PetscReal (*U2)[DIM] = (PetscReal (*)[DIM])U;
+  const PetscInt nen=p->nen, dof=DIM+1;
+  const PetscReal (*U2)[DIM+1] = (PetscReal (*)[DIM+1])U;
 #ifdef ADSacado
   if (dof*nen!=numVars) {
     PetscPrintf(PETSC_COMM_WORLD,"\ndof*nen!=numVars.... Set numVars = %u\n",dof*nen); exit(-1);
   }
- std::vector<doubleAD> U_AD(nen*DIM);
+  std::vector<doubleAD> U_AD(nen*dof);
   for(int i=0; i<nen*dof; i++){
     U_AD[i]=U[i];
     U_AD[i].diff(i, dof*nen);
@@ -323,7 +416,7 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
   }
 #else
   adept::Stack s;
-  std::vector<doubleAD> U_AD(nen*DIM);
+  std::vector<doubleAD> U_AD(nen*dof);
   adept::set_values(&U_AD[0],nen*dof,U);
   s.new_recording();
   std::vector<doubleAD> R(nen*dof);
@@ -342,7 +435,7 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   IGAPointGetSizes(p,0,&nen,&dof);
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,DIM>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
   //Compute F
   PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -458,7 +551,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, AppCtxKSP *user)
 }
 
 typedef struct {
-  PetscReal ux, uy;
+  PetscReal ux, uy, c;
 #if DIM==3  
   PetscReal uz;
 #endif
@@ -470,7 +563,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
   PetscFunctionBegin;
   std::srand(5);
   DM da;
-  ierr = IGACreateNodeDM(iga,DIM,&da);CHKERRQ(ierr);
+  ierr = IGACreateNodeDM(iga,DIM+1,&da);CHKERRQ(ierr);
 #if DIM==3
   Field ***u;
   ierr = DMDAVecGetArray(da,U,&u);CHKERRQ(ierr);
@@ -483,6 +576,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
 	u[k][j][i].ux=0.0;
 	u[k][j][i].uy=0.0;
 	u[k][j][i].uz=0.0;
+	u[k][j][i].c= user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
       }
     }
   }
@@ -496,6 +590,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
     for(j=info.ys;j<info.ys+info.ym;j++){
       u[j][i].ux=0.0;
       u[j][i].uy=0.0;
+      u[j][i].c= user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
     }
   }
 #endif
@@ -518,7 +613,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
 
   //Set load parameter
-  double dVal=user->Es*c_time;
+  double dVal=0.0*user->Es*c_time;
 #if DIM==3
   ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
@@ -544,7 +639,17 @@ int main(int argc, char *argv[]) {
   AppCtx user; AppCtxKSP userKSP;
 
   //problem parameters
-  user.c=1.0;
+  user.Cs=1.0;
+  user.Cd=1.0;
+  user.C4=user.Cd/pow(user.Cs,4.0); 
+  user.C2=-2*user.Cd/pow(user.Cs,2.0);
+  user.Cg=1.0e-2;
+  user.D=1.0;
+  user.flux=0.0;
+  user.cbar=-0.99;
+  user.gamma=1.0;
+  user.C=5.0;
+  //
   user.Es=0.01;
   user.Ed=1.0;
 #if DIM==3
@@ -560,8 +665,8 @@ int main(int argc, char *argv[]) {
   user.Eij=user.Ed/pow(user.Es,2.0);
   user.El=0.1;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
+  //
   user.dt=0.01;
-  user.C=5.0;
 
   /* Set discretization options */
   PetscInt nsteps = 100;
@@ -592,7 +697,7 @@ int main(int argc, char *argv[]) {
   IGA iga;
   ierr = IGACreate(PETSC_COMM_WORLD,&iga);CHKERRQ(ierr);
   ierr = IGASetDim(iga,DIM);CHKERRQ(ierr);
-  ierr = IGASetDof(iga,DIM);CHKERRQ(ierr);
+  ierr = IGASetDof(iga,DIM+1);CHKERRQ(ierr);
 
   IGAAxis axis0;
   ierr = IGAGetAxis(iga,0,&axis0);CHKERRQ(ierr);
