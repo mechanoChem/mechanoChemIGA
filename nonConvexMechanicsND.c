@@ -4,12 +4,15 @@ extern "C" {
 }
 #include "fields.h"
 #include "petigaksp2.h"
-//#define ADSacado
+
+//set small strain or finite strain
+//#define finiteStrain
 
 //include automatic differentiation library
+//#define ADSacado
 #ifdef ADSacado
 #include <Sacado.hpp>
-#define numVars 18 //81 for 3D, 18 for 2D
+#define numVars 81 //81 for 3D, 18 for 2D
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 //typedef Sacado::Fad::DFad<double> doubleAD;
 #else
@@ -64,7 +67,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal he=user->he;
   c=1.0;
 
-  //Compute F
+  //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
   for (unsigned int i=0; i<DIM; i++) {
     for (unsigned int J=0; J<DIM; J++) {
@@ -74,15 +77,21 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
-  //Compute strain metric, E  (E=0.5*(F^T*F-I))
+  //Compute strain metric, E  
+  // E=0.5*(F^T*F-I) (finite strain)
+  // E=0.5*(Ux+Ux^T)  (small strain)
   T E[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
     for (unsigned int J=0; J<DIM; J++){
+#ifdef finiteStrain
       E[I][J] = -0.5*(I==J);
       for (unsigned int k=0; k<DIM; k++){
 	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
-    }
+#else
+      E[I][J] = 0.5*(ux[I][J]+ux[J][I]);
+#endif 
+   }
   }
 
   //new strain metrics
@@ -92,6 +101,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
   T e4=E[1][2], e5=E[2][0], e6=E[0][1];
   T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
+#ifdef finiteStrain
   for (unsigned int i=0; i<DIM; ++i){
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0])/sqrt(2.0);
     e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1])/sqrt(2.0);
@@ -100,6 +110,14 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     e3_2+=(F[i][0]*dF[i][0][1]+F[i][1]*dF[i][1][1]-2*F[i][2]*dF[i][2][1])/sqrt(6.0);
     e3_3+=(F[i][0]*dF[i][0][2]+F[i][1]*dF[i][1][2]-2*F[i][2]*dF[i][2][2])/sqrt(6.0);
   }
+#else
+  e2_1=(dF[0][0][0]-dF[1][1][0])/sqrt(2.0);
+  e2_2=(dF[0][0][1]-dF[1][1][1])/sqrt(2.0);
+  e2_3=(dF[0][0][2]-dF[1][1][2])/sqrt(2.0);
+  e3_1=(dF[0][0][0]+dF[1][1][0]-2*dF[2][2][0])/sqrt(6.0);
+  e3_2=(dF[0][0][1]+dF[1][1][1]-2*dF[2][2][1])/sqrt(6.0);
+  e3_3=(dF[0][0][2]+dF[1][1][2]-2*dF[2][2][2])/sqrt(6.0);
+#endif
 
   //Pi=E4(e2^2+e3^2)^2+E3*e3*(e3^2-3*e2^2)+E2*(e2^2+e3^2)+Eii*(e1^2)+Eij*(e4^2+e5^2+e6^2)
   //   +Eg(e2_1^2+e2_2^2+e2_3^2+e3_1^2+e3_2^2+e3^2)
@@ -108,6 +126,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal E2c=E2, E3c=E3, E4c=E4;
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
+#ifdef finiteStrain
       T e1_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J)+F[i][2]*(2==J))/sqrt(3.0);
       T e2_FiJ=(F[i][0]*(0==J)-F[i][1]*(1==J))/sqrt(2.0);
       T e3_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))/sqrt(6.0);
@@ -120,7 +139,21 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       T e3_1_FiJ=((0==J)*dF[i][0][0]+(1==J)*dF[i][1][0]-2*(2==J)*dF[i][2][0])/sqrt(6.0);
       T e3_2_FiJ=((0==J)*dF[i][0][1]+(1==J)*dF[i][1][1]-2*(2==J)*dF[i][2][1])/sqrt(6.0);
       T e3_3_FiJ=((0==J)*dF[i][0][2]+(1==J)*dF[i][1][2]-2*(2==J)*dF[i][2][2])/sqrt(6.0);
-
+#else
+      //_FiJ here imples _UiJ
+      T e1_FiJ=((0==i)*(0==J) + (1==i)*(1==J) + (2==i)*(2==J))/sqrt(3.0);
+      T e2_FiJ=((0==i)*(0==J) - (1==i)*(1==J))/sqrt(2.0);
+      T e3_FiJ=((0==i)*(0==J) + (1==i)*(1==J) - 2*(2==i)*(2==J))/sqrt(6.0);
+      T e4_FiJ=((1==i)*(2==J) + (2==i)*(1==J))/2.0;
+      T e5_FiJ=((2==i)*(0==J) + (0==i)*(2==J))/2.0;
+      T e6_FiJ=((0==i)*(1==J) + (1==i)*(0==J))/2.0;
+      T e2_1_FiJ=0.0; 
+      T e2_2_FiJ=0.0; 
+      T e2_3_FiJ=0.0; 
+      T e3_1_FiJ=0.0; 
+      T e3_2_FiJ=0.0; 
+      T e3_3_FiJ=0.0; 
+#endif
       //P
       P[i][J]=(2*Eii*e1)*e1_FiJ						\
 	+(2*E2c*e2 -6*E3c*e2*e3 + 4*E4c*e2*(e2*e2+e3*e3))*e2_FiJ	\
@@ -132,12 +165,21 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       
       //gradient terms
       for (unsigned int K=0; K<DIM; ++K){
+#ifdef finiteStrain
 	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K)/sqrt(2.0);
 	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K)/sqrt(2.0);
 	T e2_3_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(2==K)/sqrt(2.0);
 	T e3_1_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(0==K)/sqrt(6.0);
 	T e3_2_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(1==K)/sqrt(6.0);
 	T e3_3_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(2==K)/sqrt(6.0);
+#else
+	T e2_1_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(0==K)/sqrt(2.0);
+	T e2_2_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(1==K)/sqrt(2.0);
+	T e2_3_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(2==K)/sqrt(2.0);
+	T e3_1_FiJK=((0==i)*(0==J)+(1==i)*(1==J) -2*(2==i)*(2==J))*(0==K)/sqrt(6.0);
+	T e3_2_FiJK=((0==i)*(0==J)+(1==i)*(1==J) -2*(2==i)*(2==J))*(1==K)/sqrt(6.0);
+	T e3_3_FiJK=((0==i)*(0==J)+(1==i)*(1==J) -2*(2==i)*(2==J))*(2==K)/sqrt(6.0);
+#endif
 	//Beta
 	Beta[i][J][K]= 	2*Eg*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK + e2_3*e2_3_FiJK + e3_1*e3_1_FiJK + e3_2*e3_2_FiJK + e3_3*e3_3_FiJK);
       }
@@ -149,11 +191,15 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T e2=(E[0][0]-E[1][1]);
   T e3=E[0][1];
   T e2_1=0.0, e2_2=0.0; 
+#ifdef finiteStrain
   for (unsigned int i=0; i<DIM; ++i){
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0]);
     e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1]);
   }
-
+#else
+  e2_1=(dF[0][0][0]-dF[1][1][0]);
+  e2_2=(dF[0][0][1]-dF[1][1][1]);
+#endif
   //Pi=E4*e2^4+E2*e2^2++Eii*(e1^2)+Eij*(e3^2)
   //   +Eg(e2_1^2+e2_2^2)
   //compute P and Beta
@@ -161,12 +207,19 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal E2c=E2, E4c=E4;
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
+#ifdef finiteStrain
       T e1_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J));
       T e2_FiJ=(F[i][0]*(0==J)-F[i][1]*(1==J));
       T e3_FiJ=(F[i][1]*(0==J)+F[i][0]*(1==J))/2.0;
       T e2_1_FiJ=((0==J)*dF[i][0][0]-(1==J)*dF[i][1][0]);
       T e2_2_FiJ=((0==J)*dF[i][0][1]-(1==J)*dF[i][1][1]);
-
+#else
+      T e1_FiJ=((0==i)*(0==J) + (1==i)*(1==J));
+      T e2_FiJ=((0==i)*(0==J) - (1==i)*(1==J));
+      T e3_FiJ=((0==i)*(1==J) + (1==i)*(0==J))/2.0;
+      T e2_1_FiJ=0.0; 
+      T e2_2_FiJ=0.0; 
+#endif
       //P
       P[i][J]=(2*Eii*e1)*e1_FiJ						\
 	+(2*E2c*e2 + 4*E4c*e2*e2*e2)*e2_FiJ				\
@@ -175,8 +228,13 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       
       //gradient terms
       for (unsigned int K=0; K<DIM; ++K){
+#ifdef finiteStrain
 	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K);
 	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K);
+#else
+	T e2_1_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(0==K);
+	T e2_2_FiJK=((0==i)*(0==J)-(1==i)*(1==J))*(0==K);
+#endif
 	//Beta
 	Beta[i][J][K]= 	2*Eg*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK);
       }
@@ -294,14 +352,19 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   }
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
   PetscReal E[DIM][DIM];
-  for (PetscInt i=0; i<DIM; i++){
-    for (PetscInt j=0; j<DIM; j++){
-      E[i][j] = -0.5*(i==j);
-      for (PetscInt k=0; k<DIM; k++){
-	E[i][j] += 0.5*F[k][i]*F[k][j];
+  for (unsigned int I=0; I<DIM; I++){
+    for (unsigned int J=0; J<DIM; J++){
+#ifdef finiteStrain
+      E[I][J] = -0.5*(I==J);
+      for (unsigned int k=0; k<DIM; k++){
+	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
-    }
+#else
+      E[I][J] = 0.5*(ux[I][J]+ux[J][I]);
+#endif 
+   }
   }
+
 #if DIM==3  
  //new strain metrics
   PetscReal e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
@@ -461,7 +524,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,2,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
   ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
@@ -490,12 +553,12 @@ int main(int argc, char *argv[]) {
   user.E2=-1.5*user.Ed/pow(user.Es,2.0);
 #elif DIM==2
   user.E4= user.Ed/pow(user.Es,4.0);
-  user.E3=0.0;
+  user.E3= 0.0;
   user.E2=-2.0*user.Ed/pow(user.Es,2.0);
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=1.0;
+  user.El=0.1;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   user.dt=0.01;
   user.C=5.0;
@@ -594,7 +657,7 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,2,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
