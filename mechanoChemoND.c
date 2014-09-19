@@ -646,7 +646,7 @@ int main(int argc, char *argv[]) {
   user.Cg=1.0e-2;
   user.D=1.0;
   user.flux=0.0;
-  user.cbar=-0.99;
+  user.cbar=0.0; //-0.99;
   user.gamma=1.0;
   user.C=5.0;
   //
@@ -666,7 +666,7 @@ int main(int argc, char *argv[]) {
   user.El=0.1;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
-  user.dt=0.01;
+  user.dt=1.0e-4;
 
   /* Set discretization options */
   PetscInt nsteps = 100;
