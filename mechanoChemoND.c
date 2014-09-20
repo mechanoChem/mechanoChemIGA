@@ -12,10 +12,10 @@ extern "C" {
 #define finiteStrain
 
 //include automatic differentiation library
-//#define ADSacado
+#define ADSacado
 #ifdef ADSacado
 #include <Sacado.hpp>
-#define numVars 81 //81 for 3D, 18 for 2D
+#define numVars 27 //81 for 3D, 27 for 2D
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 //typedef Sacado::Fad::DFad<double> doubleAD;
 #else
@@ -59,7 +59,16 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //displacement field variables
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
   computeField<T,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
-
+  /*
+  c=1.0;
+  cx[0]=0.5;
+  cx[1]=0.5;
+  cxx[0][0]=0.5;
+  cxx[0][1]=0.5;
+  cxx[1][0]=0.5;
+  cxx[1][1]=0.5;
+  c0=1.1;
+  */
   //problem parameters
   PetscReal Cs=user->Cs;
   PetscReal Cd=user->Cd;
@@ -304,11 +313,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     if (!surfaceFlag) {
       for (unsigned int i=0; i<DIM; i++){
 	T Ru_i=0.0;
-	for (unsigned int j=0; j<DIM; j++){
+	for (unsigned int J=0; J<DIM; J++){
 	  //grad(Na)*P
-	  Ru_i += N1[j]*P[i][j];
-	  for (unsigned int k=0; k<DIM; k++){
-	    Ru_i += N2[j][k]*Beta[i][j][k];
+	  Ru_i += N1[J]*P[i][J];
+	  for (unsigned int K=0; K<DIM; K++){
+	    Ru_i += N2[J][K]*Beta[i][J][K];
 	  }
 	}
 	Ra[a][i] = Ru_i;
@@ -366,7 +375,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       Rc += -N[a]*flux;
     }
     Ra[a][DIM] = Rc;
+    //std::cout << Rc << " ";
   }
+  //exit(1);
   return 0;
 }
 
@@ -551,10 +562,11 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, AppCtxKSP *user)
 }
 
 typedef struct {
-  PetscReal ux, uy, c;
+  PetscReal ux, uy;
 #if DIM==3  
   PetscReal uz;
 #endif
+  PetscReal c;
 } Field;
 
 PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
@@ -630,6 +642,29 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   PetscFunctionReturn(0);
 }
 
+PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx)
+{
+  AppCtx *user  = (AppCtx*) ctx;
+  Vec R;
+  SNESGetFunction(snes, &R, 0, 0);
+  PetscReal normC, normU, normUx, normUy;
+  //VecNorm(R, NORM_2, &norm);
+  VecSetBlockSize(R,DIM+1);  
+  VecStrideNorm(R,0,NORM_2,&normUx);
+  VecStrideNorm(R,1,NORM_2,&normUy);
+  VecStrideNorm(R,2,NORM_2,&normC);
+  normU=sqrt(pow(normUx,2)+pow(normUy,2));
+  //
+  if (it==0) user->f0Norm=fnorm;
+  //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
+  if (0 && (it>10) && (fnorm/user->f0Norm<1.0e-3)) {
+    //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
+    //*reason = SNES_CONVERGED_FNORM_ABS;
+    //return(0);
+  }
+  PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
+}
+
 int main(int argc, char *argv[]) {
   PetscErrorCode  ierr;
   ierr = PetscInitialize(&argc,&argv,0,0);CHKERRQ(ierr);
@@ -644,7 +679,7 @@ int main(int argc, char *argv[]) {
   user.C4=user.Cd/pow(user.Cs,4.0); 
   user.C2=-2*user.Cd/pow(user.Cs,2.0);
   user.Cg=1.0e-2;
-  user.D=1.0;
+  user.D=5.0;
   user.flux=0.0;
   user.cbar=0.0; //-0.99;
   user.gamma=1.0;
@@ -663,7 +698,7 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=0.1;
+  user.El=0.02;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
   user.dt=1.0e-4;
@@ -784,15 +819,16 @@ int main(int argc, char *argv[]) {
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
   
-  /*
+  
   SNES snes;
   TSGetSNES(ts,&snes);
-  SNESLineSearch ls;
-  SNESGetLineSearch(snes,&ls);
-  SNESLineSearchSetType(ls,SNESLINESEARCHBT);
-  ierr = SNESSetFromOptions(snes);CHKERRQ(ierr);
-  SNESLineSearchView(ls,NULL);
-  */
+  SNESSetConvergenceTest(snes,SNESConverged_Interactive,(void*)&user,NULL); 
+  //SNESLineSearch ls;
+  //SNESGetLineSearch(snes,&ls);
+  //SNESLineSearchSetType(ls,SNESLINESEARCHBT);
+  //ierr = SNESSetFromOptions(snes);CHKERRQ(ierr);
+  // SNESLineSearchView(ls,NULL);
+ 
   ierr = TSSetFromOptions(ts);CHKERRQ(ierr);
 #if PETSC_VERSION_LE(3,3,0)
   ierr = TSSolve(ts,U,NULL);CHKERRQ(ierr);
