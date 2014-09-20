@@ -6,16 +6,16 @@ extern "C" {
 #include "petigaksp2.h"
 
 //set Explicit or not
-#define EXPLICIT
+//#define EXPLICIT
 
 //set small strain or finite strain
-#define finiteStrain
+//#define finiteStrain
 
 //include automatic differentiation library
 #define ADSacado
 #ifdef ADSacado
 #include <Sacado.hpp>
-#define numVars 27 //81 for 3D, 27 for 2D
+#define numVars 27 //108 for 3D, 27 for 2D
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 //typedef Sacado::Fad::DFad<double> doubleAD;
 #else
@@ -435,7 +435,17 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
   Function<doubleAD> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
   s.independent(&U_AD[0],nen*dof);
   s.dependent(&R[0],nen*dof);
-  s.jacobian(K);
+  std::vector<double> K2(nen*dof*nen*dof);
+  s.jacobian(&K2[0]);
+  for(int n1=0; n1<nen; n1++){
+    for(int d1=0; d1<dof; d1++){
+      for(int n2=0; n2<nen; n2++){
+	for(int d2=0; d2<dof; d2++){
+      	  K[n1*dof*nen*dof + d1*nen*dof + n2*dof + d2] =  K2[n2*dof*nen*dof + d2*nen*dof + n1*dof + d1];
+	}
+      }
+    }				
+  }
 #endif  
   return 0;    
 }
@@ -626,7 +636,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
 
   //Set load parameter
-  double dVal=0.0*user->Es*c_time;
+  /*  double dVal=user->Es*c_time;
 #if DIM==3
   ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
@@ -639,7 +649,8 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
 #endif
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
+  */
+  //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
   PetscFunctionReturn(0);
 }
 
@@ -657,7 +668,7 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   normU=sqrt(pow(normUx,2)+pow(normUy,2));
   //
   if (it==0) user->f0Norm=fnorm;
-  //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
   if (0 && (it>10) && (fnorm/user->f0Norm<1.0e-3)) {
     //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
     //*reason = SNES_CONVERGED_FNORM_ABS;
@@ -789,7 +800,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*0.01;
+  double dVal=user.Es;
 #if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
