@@ -5,11 +5,14 @@ extern "C" {
 #include "fields.h"
 #include "petigaksp2.h"
 
+//CH/Fickian flux
+#define CH
+
 //set Explicit or not
-//#define EXPLICIT
+#define EXPLICIT
 
 //set small strain or finite strain
-//#define finiteStrain
+#define finiteStrain
 
 //include automatic differentiation library
 #define ADSacado
@@ -81,6 +84,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal flux=user->flux;
   PetscReal gamma=user->gamma;
   PetscReal dt=dt2;
+  //
+  PetscReal Ev=Es*0.01;
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -92,6 +97,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
+  //Add growth like terms
+  //for (unsigned int i=0; i<DIM; i++) {
+  // F[i][i]*=(1.0/(1.0+c0*Ev));
+  //}
+
   //Compute strain metric, E  
   // E=0.5*(F^T*F-I) (finite strain)
   // E=0.5*(Ux+Ux^T)  (small strain)
@@ -104,7 +114,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
 #else
-      E[I][J] = 0.5*(ux[I][J]+ux[J][I]);
+      E[I][J] = 0.5*(F[I][J]+F[J][I]-2*(I==J));
 #endif 
    }
   }
@@ -139,9 +149,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
 #ifdef EXPLICIT
-  PetscReal E2c=E2*(3*c0-1.0)*0.5,  E3c=E3*c0, E4c=E4*c0;
+  PetscReal E2c=E2*(5*c0-2.0)/3.0,  E3c=E3*c0, E4c=E4*c0;
 #else
-  T E2c=E2*(3*c-1.0)*0.5,  E3c=E3*c, E4c=E4*c;
+  T E2c=E2*(5*c-2.0)/3.0,  E3c=E3*c, E4c=E4*c;
 #endif
   //
   for (unsigned int i=0; i<DIM; ++i){
@@ -225,9 +235,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
 #ifdef EXPLICIT
-  PetscReal E2c=E2*(5*c0-2.0)/3.0,  E4c=E4*c0;
+  PetscReal E2c=E2*(3*c0-1.0)/2.0,  E4c=E4*c0;  
+  if (c0>1.0){
+    E2c=E2,  E4c=E4;
+  }
 #else
-  T E2c=E2*(5*c-2.0)/3.0, E4c=E4*c;
+  T E2c=E2*(3*c-1.0)/2.0, E4c=E4*c;
 #endif
   //
   for (unsigned int i=0; i<DIM; ++i){
@@ -269,17 +282,19 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   
   //phi(c,e)=C4*c^4 + C3*c^3 + C2*c^2 + Cg*(c_1^2+c_2^2) + strain dependent terms 
   //chemical potential
+#ifdef CH
   T mu = 4.0*C4*c*c*c + 3.0*C3*c*c + 2.0*C2*c;
   T dmuc= 12.0*C4*c*c + 6.0*C3*c + 2.0*C2;
   T dmue2=0.0, dmue3=0.0;
 #ifndef EXPLICIT
 #if DIM==3
-  mu+= E4*(e2*e2+e3*e3)*(e2*e2+e3*e3) + E3*e3*(e3*e3-3*e2*e2) + 1.5*E2*(e2*e2+e3*e3);
-  dmue2+= 4.0*E4*(e2*e2+e3*e3)*e2 - 6.0*E3*e3*e2 + 3.0*E2*e2;
-  dmue3+= 4.0*E4*(e2*e2+e3*e3)*e3 + 3.0*E3*e3*e3 + 3.0*E2*e3;
+  mu+= E4*(e2*e2+e3*e3)*(e2*e2+e3*e3) + E3*e3*(e3*e3-3*e2*e2) + E2*(5.0/3.0)*(e2*e2+e3*e3);
+  dmue2+= 4.0*E4*(e2*e2+e3*e3)*e2 - 6.0*E3*e3*e2 + 2.0*E2*(5.0/3.0)*e2;
+  dmue3+= 4.0*E4*(e2*e2+e3*e3)*e3 + 3.0*E3*e3*e3 + 2.0*E2*(5.0/3.0)*e3;
 #elif DIM==2
-  mu+= E4*(e2*e2*e2*e2) + E2*(5.0/3.0)*(e2*e2);
-  dmue2+=4.0*E4*(e2*e2*e2) + 2.0*E2*(5.0/3.0)*(e2);
+  mu+= E4*(e2*e2*e2*e2) + E2*1.5*(e2*e2);
+  dmue2+=4.0*E4*(e2*e2*e2) + 3.0*E2*e2;
+#endif
 #endif
 #endif
 
@@ -322,6 +337,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     if (!surfaceFlag){
       // Na * c_t
       Rc += N[a] * (c-c0)*(1.0/dt);
+#ifdef CH
       // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2)+dmue3*grad(e3))
       double laplace_N=0.0;
       for (unsigned int i=0; i<DIM; i++){
@@ -350,8 +366,16 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
       // lambda * del2(Na) * D * del2(c)
       Rc += Cg*laplace_N*D*laplace_c;
+#else
+      //Fickian flux
+      // grad(Na).D*grad(C)
+      for (unsigned int i=0; i<DIM; i++){
+	Rc += N1[i]*D*cx[i];
+      }
+#endif
     }
     else{
+#ifdef CH
       // -grad(Na) . (D*del2(c)) n
       T t1 = D*laplace_c;
       double laplace_N=0.0;
@@ -374,6 +398,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
       Rc += t3*t4*t5;
       Rc *= Cg;
+#endif
       //flux term
       // Na*J
       Rc += -N[a]*flux;
@@ -636,20 +661,20 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
 
   //Set load parameter
-  /*  double dVal=user->Es*c_time;
+  double dVal=user->Es*c_time;
 #if DIM==3
-  ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
-  ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,0,0,0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,1,0,1,0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
 #endif
-  */
+
   //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
   PetscFunctionReturn(0);
 }
@@ -669,11 +694,11 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   //
   if (it==0) user->f0Norm=fnorm;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
-  if (0 && (it>10) && (fnorm/user->f0Norm<1.0e-3)) {
-    //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
-    //*reason = SNES_CONVERGED_FNORM_ABS;
-    //return(0);
-  }
+  /*if ((it>10) && (fnorm/user->f0Norm<1.0e-2)) {
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
+    *reason = SNES_CONVERGED_FNORM_ABS;
+    return(0);
+    }*/
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -687,10 +712,10 @@ int main(int argc, char *argv[]) {
 
   //problem parameters
   user.Cd=1.0;
-  user.Cg=1.0e-2;
-  user.D=5.0;
-  user.flux=0.0;
-  user.cbar=0.5; 
+  user.Cg=4.0e-2;
+  user.D=1.0;
+  user.flux=10.0;
+  user.cbar=0.01; 
   user.gamma=1.0;
   user.C=5.0;
   //
@@ -707,7 +732,7 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=0.02;
+  user.El=2.0e-2;
   user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
   user.dt=1.0e-4;
@@ -800,7 +825,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es;
+  double dVal=user.Es*0.1;
 #if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
@@ -808,10 +833,12 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
-  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,dVal);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
 #endif
   //
   ierr = IGASetFormIEFunction(iga,Residual,&user);CHKERRQ(ierr);
@@ -823,7 +850,7 @@ int main(int argc, char *argv[]) {
   TS ts;
   ierr = IGACreateTS(iga,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,100,1.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,10000,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
