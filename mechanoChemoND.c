@@ -28,7 +28,7 @@ typedef adept::adouble doubleAD;
 
 typedef struct {
   IGA iga;
-  PetscReal Cs, Cd, C4, C2, Cg;
+  PetscReal Cd, Cg;
   PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg, El;
   PetscReal dt;
   PetscReal gamma, C, he, cbar, D, flux;
@@ -59,21 +59,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //displacement field variables
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
   computeField<T,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
-  /*
-  c=1.0;
-  cx[0]=0.5;
-  cx[1]=0.5;
-  cxx[0][0]=0.5;
-  cxx[0][1]=0.5;
-  cxx[1][0]=0.5;
-  cxx[1][1]=0.5;
-  c0=1.1;
-  */
+
   //problem parameters
-  PetscReal Cs=user->Cs;
   PetscReal Cd=user->Cd;
-  PetscReal C4=user->C4;
-  PetscReal C2=user->C2;
+  PetscReal C4=16*Cd;
+  PetscReal C3=-32*Cd;  
+  PetscReal C2=16*Cd;
   PetscReal Cg=user->Cg;
   PetscReal Es=user->Es;
   PetscReal Ed=user->Ed;
@@ -90,12 +81,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal flux=user->flux;
   PetscReal gamma=user->gamma;
   PetscReal dt=dt2;
-
-#ifdef EXPLICIT
-  PetscReal minusC=(Cs+3*c0)/(4.0*Cs), plusC=(Cs+c0)/(2.0*Cs);
-#else
-  T minusC=(Cs+3*c)/(4.0*Cs), plusC=(Cs+c)/(2.0*Cs);
-#endif
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -153,7 +138,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //   +Eg(e2_1^2+e2_2^2+e2_3^2+e3_1^2+e3_2^2+e3^2)
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  T E2c=E2*minusC,  E3c=E3*plusC, E4c=E4*plusC;
+#ifdef EXPLICIT
+  PetscReal E2c=E2*(3*c0-1.0)*0.5,  E3c=E3*c0, E4c=E4*c0;
+#else
+  T E2c=E2*(3*c-1.0)*0.5,  E3c=E3*c, E4c=E4*c;
+#endif
   //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
@@ -235,7 +224,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //   +Eg(e2_1^2+e2_2^2)
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  T E2c=E2*minusC,  E4c=E4*plusC;
+#ifdef EXPLICIT
+  PetscReal E2c=E2*(5*c0-2.0)/3.0,  E4c=E4*c0;
+#else
+  T E2c=E2*(5*c-2.0)/3.0, E4c=E4*c;
+#endif
   //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
@@ -274,22 +267,20 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
 #endif 
   
-  //phi(c,e)=C4*c^4 + C2*c^2 + Cg*(c_1^2+c_2^2) 
-  //        +E4c*e2^4 + E2c*e2^2 + Eii*e1^2 + Eij*e3^2 +Eg*(e2_1^2+e2_2^2)
-  //where E2c=E2*(Cs+3*c)/(4.0*Cs), E4c=E4*(Cs+c)/(2.0*Cs);
+  //phi(c,e)=C4*c^4 + C3*c^3 + C2*c^2 + Cg*(c_1^2+c_2^2) + strain dependent terms 
   //chemical potential
-  T mu = 4.0*C4*c*c*c+2.0*C2*c;
-#ifdef EXPLICIT
-  mu+=0.0;
-#else
-  mu+= (E4/(2.0*Cs))*(e2*e2*e2*e2) + (3.0*E2/(4.0*Cs))*(e2*e2);
+  T mu = 4.0*C4*c*c*c + 3.0*C3*c*c + 2.0*C2*c;
+  T dmuc= 12.0*C4*c*c + 6.0*C3*c + 2.0*C2;
+  T dmue2=0.0, dmue3=0.0;
+#ifndef EXPLICIT
+#if DIM==3
+  mu+= E4*(e2*e2+e3*e3)*(e2*e2+e3*e3) + E3*e3*(e3*e3-3*e2*e2) + 1.5*E2*(e2*e2+e3*e3);
+  dmue2+= 4.0*E4*(e2*e2+e3*e3)*e2 - 6.0*E3*e3*e2 + 3.0*E2*e2;
+  dmue3+= 4.0*E4*(e2*e2+e3*e3)*e3 + 3.0*E3*e3*e3 + 3.0*E2*e3;
+#elif DIM==2
+  mu+= E4*(e2*e2*e2*e2) + E2*(5.0/3.0)*(e2*e2);
+  dmue2+=4.0*E4*(e2*e2*e2) + 2.0*E2*(5.0/3.0)*(e2);
 #endif
-  T dmuc= 12.0*C4*c*c + 2.0*C2;
-  T dmue2=0.0;
-#ifdef EXPLICIT
-  dmue2+=0.0;
-#else
-  dmue2+=(E4/(2.0*Cs))*(4.0*e2*e2*e2) + (3.0*E2/(4.0*Cs))*(2*e2);
 #endif
 
   /* //get shape function values */
@@ -331,17 +322,30 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     if (!surfaceFlag){
       // Na * c_t
       Rc += N[a] * (c-c0)*(1.0/dt);
-      // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2))
+      // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2)+dmue3*grad(e3))
       double laplace_N=0.0;
       for (unsigned int i=0; i<DIM; i++){
+#if DIM==3
+	T e2x=0, e3x=0;
+	switch (i) {
+	case 0:
+	   e2x=e2_1; e3x=e3_1; break;
+	case 1:
+	   e2x=e2_2; e3x=e3_2; break;
+	case 2:
+	   e2x=e2_3; e3x=e3_3; break;
+	}
+	Rc += N1[i]*D*(dmuc*cx[i]+dmue2*e2x+dmue3*e3x);
+#elif DIM==2
 	T e2x=0;
 	switch (i) {
 	case 0:
-	  e2x=e2_1; break;
+	   e2x=e2_1; break;
 	case 1:
-	  e2x=e2_2; break;
+	   e2x=e2_2; break;
 	}
 	Rc += N1[i]*D*(dmuc*cx[i]+dmue2*e2x);
+#endif
 	laplace_N += N2[i][i];
       }
       // lambda * del2(Na) * D * del2(c)
@@ -375,12 +379,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       Rc += -N[a]*flux;
     }
     Ra[a][DIM] = Rc;
-    //std::cout << Rc << " ";
   }
-  //exit(1);
   return 0;
 }
-
 
 #undef  __FUNCT__
 #define __FUNCT__ "Residual"
@@ -674,14 +675,11 @@ int main(int argc, char *argv[]) {
   AppCtx user; AppCtxKSP userKSP;
 
   //problem parameters
-  user.Cs=1.0;
   user.Cd=1.0;
-  user.C4=user.Cd/pow(user.Cs,4.0); 
-  user.C2=-2*user.Cd/pow(user.Cs,2.0);
   user.Cg=1.0e-2;
   user.D=5.0;
   user.flux=0.0;
-  user.cbar=0.0; //-0.99;
+  user.cbar=0.5; 
   user.gamma=1.0;
   user.C=5.0;
   //
