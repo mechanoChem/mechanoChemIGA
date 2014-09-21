@@ -694,11 +694,12 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   //
   if (it==0) user->f0Norm=fnorm;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
-  /*if ((it>10) && (fnorm/user->f0Norm<1.0e-2)) {
+  if ( ((it>9) && (fnorm/user->f0Norm<1.0e-3)) || (it>15)){
+  //if ((it>20)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_ABS;
     return(0);
-    }*/
+  }
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -732,8 +733,8 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=2.0e-2;
-  user.Eg=pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
+  user.El=1.0e-2;
+  user.Eg=2.0; //pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
   user.dt=1.0e-4;
 
@@ -833,9 +834,10 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
-  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,0,1,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
