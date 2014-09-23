@@ -6,6 +6,7 @@ typedef struct {
   PetscScalar *localU0;
   PetscInt test;
   PetscReal Es;
+  void* microstructure;
 } AppCtxKSP;
 
 PETSC_STATIC_INLINE

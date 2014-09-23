@@ -29,6 +29,52 @@ typedef adept::adouble doubleAD;
 #define DIM 2
 #define PI 3.14159265
 
+//
+class microStructure{
+  unsigned int n;
+  std::vector<std::pair<std::pair<double,double>,double> > grains;
+  double distSqr(std::pair<double,double> pt1, std::pair<double,double> pt2) {
+    return std::pow(pt1.first-pt2.first,2.0)+ std::pow(pt1.second-pt2.second,2.0);
+  }
+ public:
+ microStructure(unsigned int _n, double x[], double y[], double theta[]): n(_n){
+    for (unsigned int i=0; i<n; i++){
+      grains.push_back(std::make_pair(std::make_pair(x[i],y[i]),theta[i]));
+    }
+  }
+  unsigned int whichGrain(IGAPoint p) {
+    std::pair<double,double> point (p->point[0],p->point[1]);
+    double dist=distSqr(point, grains[0].first);
+    unsigned int id=0;
+    for (unsigned int i=1; i<n; i++){
+      double dist2=distSqr(point, grains[i].first);
+      if (dist2<dist){
+	dist=dist2; id=i;
+      }
+    }
+    return id;
+  }
+  template<class T>
+  void QX(IGAPoint p, unsigned int id, T* _X){
+    T (*X)[DIM+1] = (T (*)[DIM+1])_X;
+    for (unsigned int a=0; a<p->nen; a++) {
+      T x[]={X[a][0],X[a][1]};
+      X[a][0]=std::cos(grains[id].second*PI/180.0)*x[0]+std::sin(grains[id].second*PI/180.0)*x[1];
+      X[a][1]=-std::sin(grains[id].second*PI/180.0)*x[0]+std::cos(grains[id].second*PI/180.0)*x[1];
+    }
+  }
+  template<class T>
+  void QTX(IGAPoint p, unsigned int id, T* _X){
+    T (*X)[DIM+1] = (T (*)[DIM+1])_X;
+    for (unsigned int a=0; a<p->nen; a++) {
+      T x[]={X[a][0],X[a][1]};
+      X[a][0]=std::cos(grains[id].second*PI/180.0)*x[0]-std::sin(grains[id].second*PI/180.0)*x[1];
+      X[a][1]=std::sin(grains[id].second*PI/180.0)*x[0]+std::cos(grains[id].second*PI/180.0)*x[1];
+    }
+  }
+};
+
+
 typedef struct {
   IGA iga;
   PetscReal Cd, Cg;
@@ -37,15 +83,17 @@ typedef struct {
   PetscReal gamma, C, he, cbar, D, flux;
   AppCtxKSP* appCtxKSP;
   PetscReal f0Norm;
+  microStructure* microstructure;
 } AppCtx;
+
 
 #undef  __FUNCT__
 #define __FUNCT__ "Function"
 template <class T>
 PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 				PetscReal shift,const PetscScalar *V,
-				PetscReal t,const T *U,
-				PetscReal t0,const PetscScalar *U0,
+				PetscReal t,const T * U,
+				PetscReal t0,const PetscScalar * U0,
 				T *R,void *ctx)
 {
   AppCtx *user = (AppCtx *)ctx;
@@ -59,9 +107,15 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   computeField<T,DIM,DIM+1>(SCALAR,DIM,p,U,&c,&cx[0],&cxx[0][0]);
   computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U0,&c0);
 
+  //Consider grain orientation
+  unsigned int grainID=user->microstructure->whichGrain(p);
+  
+  T _U[numVars];
+  for (unsigned int i=0; i<numVars; i++) _U[i]=U[i];
+  user->microstructure->QX(p, grainID, _U);
   //displacement field variables
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
+  computeField<T,DIM,DIM+1>(VECTOR,0,p,&_U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //problem parameters
   PetscReal Cd=user->Cd;
@@ -85,7 +139,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal gamma=user->gamma;
   PetscReal dt=dt2;
   //
-  PetscReal Ev=Es*0.01;
+  PetscReal Ev=Es*0.1;
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -99,7 +153,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
   //Add growth like terms
   //for (unsigned int i=0; i<DIM; i++) {
-  // F[i][i]*=(1.0/(1.0+c0*Ev));
+  //F[i][i]*=(1.0/(1.0+c0*Ev));
   //}
 
   //Compute strain metric, E  
@@ -305,7 +359,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //Compute Residual
   bool surfaceFlag=p->atboundary;
-  T (*Ra)[DIM+1] = (T (*)[DIM+1])R;
+  T _R[numVars];
+  for (unsigned int i=0; i<numVars; i++) _R[i]=0.0;
   for (unsigned int a=0; a<(unsigned int)nen; a++) {
     double N1[DIM], N2[DIM][DIM];
     for (unsigned int i=0; i<DIM; i++){
@@ -326,7 +381,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	    Ru_i += N2[J][K]*Beta[i][J][K];
 	  }
 	}
-	Ra[a][i] = Ru_i;
+	_R[a*dof+i] = Ru_i;
       }
     }
 
@@ -401,10 +456,15 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 #endif
       //flux term
       // Na*J
-      Rc += -N[a]*flux;
+      if (n[0]==0.0){
+	Rc += -N[a]*flux;
+      }
     }
-    Ra[a][DIM] = Rc;
+    _R[a*dof+DIM] = Rc;
   }
+  user->microstructure->QTX(p, grainID, _R);
+  for (unsigned int i=0; i<numVars; i++)  R[i]=_R[i];
+  //exit(1);
   return 0;
 }
 
@@ -478,11 +538,20 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
 {	
   AppCtxKSP *user = (AppCtxKSP *)ctx;
+  microStructure* microstructure= (microStructure*) user->microstructure;
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
+
+ //Consider grain orientation
+  unsigned int grainID=microstructure->whichGrain(p);
+  
+  PetscReal _U[numVars];
+  for (unsigned int i=0; i<numVars; i++) _U[i]=user->localU0[i];
+  microstructure->QX(p, grainID, _U);
+
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,_U,&u[0],&ux[0][0]);
   //Compute F
   PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -548,7 +617,8 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       case 0:
 	val=e2; break;
       case 1:
-	val=e3; break;
+	//val=e3; break;
+	val=microstructure->whichGrain(p); break;
       case 3: //only in 3D with concentration
 	val=dist; break;
       case 2: //only in 3D 
@@ -674,9 +744,11 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     //ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);  
     //ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
 #endif
-
-  //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
-  PetscFunctionReturn(0);
+    if (it_number>85) {
+      //ierr = TSSetTimeStep(ts,user->dt*0.1);CHKERRQ(ierr); 
+    }
+    //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
+    PetscFunctionReturn(0);
 }
 
 PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx)
@@ -692,14 +764,14 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   VecStrideNorm(R,2,NORM_2,&normC);
   normU=sqrt(pow(normUx,2)+pow(normUy,2));
   //
-  if (it==0) user->f0Norm=fnorm;
+  //if (it==0) user->f0Norm=fnorm;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
-  if ( ((it>9) && (fnorm/user->f0Norm<1.0e-3)) || (it>15)){
+  /*if ( ((it>9) && (fnorm/user->f0Norm<1.0e-3)) || (it>15)){
   //if ((it>20)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_ABS;
     return(0);
-  }
+    }*/
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -710,6 +782,15 @@ int main(int argc, char *argv[]) {
  
   /* Define simulation specific parameters */
   AppCtx user; AppCtxKSP userKSP;
+
+  //microstructure
+  double x[]={0.2,0.3,0.5,0.7,0.85};
+  double y[]={0.2,0.7,0.5,0.3,0.8};
+  //double theta[]={-45.0,60.0,0,45,90};
+  double theta[]={0,0,0,0,0};
+  microStructure grains(5, x, y, theta);
+  user.microstructure=&grains;
+  userKSP.microstructure=&grains;
 
   //problem parameters
   user.Cd=1.0;
@@ -733,8 +814,8 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=1.0e-2;
-  user.Eg=2.0; //pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
+  user.El=100.0e-2;
+  user.Eg=4*pow(user.El,2.0); //pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
   user.dt=1.0e-4;
 
@@ -834,10 +915,11 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
-  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
@@ -856,7 +938,8 @@ int main(int argc, char *argv[]) {
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
-  
+  ierr = TSAlphaSetRadius(ts,0.5);CHKERRQ(ierr);
+  ierr = TSAlphaSetAdapt(ts,TSAlphaAdaptDefault,NULL);CHKERRQ(ierr);  
   
   SNES snes;
   TSGetSNES(ts,&snes);

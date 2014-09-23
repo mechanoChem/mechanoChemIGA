@@ -1,0 +1,1 @@
+rsync -rv --include '*.dat' --exclude '*' --rsh=ssh rudraa@flux-xfer.engin.umich.edu:/scratch/prismsproject_flux/rudraa/mechanochemo/ .
