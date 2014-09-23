@@ -54,6 +54,9 @@ class microStructure{
     }
     return id;
   }
+  double getTheta(IGAPoint p){
+    return grains[whichGrain(p)].second;
+  }
   template<class T>
   void QX(IGAPoint p, unsigned int id, T* _X){
     T (*X)[DIM+1] = (T (*)[DIM+1])_X;
@@ -108,11 +111,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U0,&c0);
 
   //Consider grain orientation
-  unsigned int grainID=user->microstructure->whichGrain(p);
+  //unsigned int grainID=user->microstructure->whichGrain(p);
   
   T _U[numVars];
   for (unsigned int i=0; i<numVars; i++) _U[i]=U[i];
-  user->microstructure->QX(p, grainID, _U);
+  //user->microstructure->QX(p, grainID, _U);
   //displacement field variables
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
   computeField<T,DIM,DIM+1>(VECTOR,0,p,&_U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
@@ -141,16 +144,43 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //
   PetscReal Ev=Es*0.1;
 
+  //
+  PetscReal theta=user->microstructure->getTheta(p);
+  PetscReal Q[DIM][DIM];
+  Q[0][0]=std::cos(theta*PI/180.0);
+  Q[0][1]=std::sin(theta*PI/180.0);
+  Q[1][0]=-std::sin(theta*PI/180.0);
+  Q[1][1]=std::cos(theta*PI/180.0);
+
   //Compute F (I+Ux), dF (Uxx)
-  T F[DIM][DIM], dF[DIM][DIM][DIM];
+  T _F[DIM][DIM], _dF[DIM][DIM][DIM];
   for (unsigned int i=0; i<DIM; i++) {
     for (unsigned int J=0; J<DIM; J++) {
-      F[i][J]=(i==J)+ux[i][J];
+      _F[i][J]=(i==J)+ux[i][J];
       for (unsigned int K=0; K<DIM; K++) {
-	dF[i][J][K]=uxx[i][J][K];
+	_dF[i][J][K]=uxx[i][J][K];
       }
     }
   }
+
+  //rotate F, dF
+  T F[DIM][DIM], dF[DIM][DIM][DIM];
+  for (unsigned int i=0; i<DIM; i++) {
+    for (unsigned int J=0; J<DIM; J++) {
+      F[i][J]=0.0;
+      for (unsigned int a=0; a<DIM; a++)
+	for (unsigned int B=0; B<DIM; B++) 
+	  F[i][J]+=Q[i][a]*Q[J][B]*_F[a][B];
+      for (unsigned int K=0; K<DIM; K++) {
+	dF[i][J][K]=0.0;
+	for (unsigned int a=0; a<DIM; a++)
+	  for (unsigned int B=0; B<DIM; B++)
+	    for (unsigned int C=0; C<DIM; C++) 
+	      dF[i][J][K]+=Q[i][a]*Q[J][B]*Q[K][C]*_dF[a][B][C];
+      }
+    }
+  }
+
   //Add growth like terms
   //for (unsigned int i=0; i<DIM; i++) {
   //F[i][i]*=(1.0/(1.0+c0*Ev));
@@ -334,6 +364,23 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
 #endif 
   
+  T _P[DIM][DIM], _Beta[DIM][DIM][DIM];
+  for (unsigned int i=0; i<DIM; i++) {
+    for (unsigned int J=0; J<DIM; J++) {
+      _P[i][J]=0.0;
+      for (unsigned int a=0; a<DIM; a++)
+	for (unsigned int B=0; B<DIM; B++) 
+	  _P[i][J]+=Q[a][i]*Q[B][J]*P[a][B];
+      for (unsigned int K=0; K<DIM; K++) {
+	_Beta[i][J][K]=0.0;
+	for (unsigned int a=0; a<DIM; a++)
+	  for (unsigned int B=0; B<DIM; B++)
+	    for (unsigned int C=0; C<DIM; C++) 
+	      _Beta[i][J][K]+=Q[a][i]*Q[B][J]*Q[C][K]*Beta[a][B][C];
+      }
+    }
+  }
+  
   //phi(c,e)=C4*c^4 + C3*c^3 + C2*c^2 + Cg*(c_1^2+c_2^2) + strain dependent terms 
   //chemical potential
 #ifdef CH
@@ -376,9 +423,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T Ru_i=0.0;
 	for (unsigned int J=0; J<DIM; J++){
 	  //grad(Na)*P
-	  Ru_i += N1[J]*P[i][J];
+	  Ru_i += N1[J]*_P[i][J];
 	  for (unsigned int K=0; K<DIM; K++){
-	    Ru_i += N2[J][K]*Beta[i][J][K];
+	    Ru_i += N2[J][K]*_Beta[i][J][K];
 	  }
 	}
 	_R[a*dof+i] = Ru_i;
@@ -462,7 +509,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     }
     _R[a*dof+DIM] = Rc;
   }
-  user->microstructure->QTX(p, grainID, _R);
+  //user->microstructure->QTX(p, grainID, _R);
   for (unsigned int i=0; i<numVars; i++)  R[i]=_R[i];
   //exit(1);
   return 0;
@@ -543,20 +590,38 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   IGAPointGetSizes(p,0,&nen,&dof);
 
  //Consider grain orientation
-  unsigned int grainID=microstructure->whichGrain(p);
+  //unsigned int grainID=microstructure->whichGrain(p);
   
   PetscReal _U[numVars];
   for (unsigned int i=0; i<numVars; i++) _U[i]=user->localU0[i];
-  microstructure->QX(p, grainID, _U);
+  //microstructure->QX(p, grainID, _U);
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
   computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,_U,&u[0],&ux[0][0]);
   //Compute F
-  PetscReal F[DIM][DIM];
+  PetscReal _F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
-      F[i][j]=(i==j)+ux[i][j];
+      _F[i][j]=(i==j)+ux[i][j];
+    }
+  }
+  
+  PetscReal theta=microstructure->getTheta(p);
+  PetscReal Q[DIM][DIM];
+  Q[0][0]=std::cos(theta*PI/180.0);
+  Q[0][1]=std::sin(theta*PI/180.0);
+  Q[1][0]=-std::sin(theta*PI/180.0);
+  Q[1][1]=std::cos(theta*PI/180.0);
+
+  //rotate F
+  PetscReal F[DIM][DIM];
+  for (unsigned int i=0; i<DIM; i++) {
+    for (unsigned int J=0; J<DIM; J++) {
+      F[i][J]=0.0;
+      for (unsigned int a=0; a<DIM; a++)
+	for (unsigned int B=0; B<DIM; B++) 
+	  F[i][J]+=Q[i][a]*Q[J][B]*_F[a][B];
     }
   }
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
@@ -569,7 +634,7 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
 	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
 #else
-      E[I][J] = 0.5*(ux[I][J]+ux[J][I]);
+      E[I][J] = 0.5*(F[I][J]+F[J][I]-2*(I==J));
 #endif 
    }
   }
@@ -786,8 +851,9 @@ int main(int argc, char *argv[]) {
   //microstructure
   double x[]={0.2,0.3,0.5,0.7,0.85};
   double y[]={0.2,0.7,0.5,0.3,0.8};
-  //double theta[]={-45.0,60.0,0,45,90};
-  double theta[]={0,0,0,0,0};
+  double theta[]={-45.0,60.0,0,45,90};
+  //double theta[]={90,90,90,90,90};
+  //double theta[]={0,0,0,0,0};
   microStructure grains(5, x, y, theta);
   user.microstructure=&grains;
   userKSP.microstructure=&grains;
@@ -814,7 +880,7 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=100.0e-2;
+  user.El=50.0e-2;
   user.Eg=4*pow(user.El,2.0); //pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
   //
   user.dt=1.0e-4;
@@ -918,7 +984,7 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
