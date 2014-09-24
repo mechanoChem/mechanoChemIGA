@@ -53,8 +53,8 @@ PetscErrorCode IGAComputeSystem2(IGA iga,Mat matA,Vec vecB)
   while (IGANextElement(iga,element)) {
     ierr = IGAElementGetWorkMat(element,&A);CHKERRQ(ierr);
     ierr = IGAElementGetWorkVec(element,&B);CHKERRQ(ierr);
-    ierr = IGAElementGetWorkVal(element,&U0);CHKERRQ(ierr);
-    ierr = IGAElementGetValues(element,arrayU0,U0);CHKERRQ(ierr);
+    //ierr = IGAElementGetWorkVal(element,&U0);CHKERRQ(ierr);
+    ierr = IGAElementGetValues(element,arrayU0,&U0);CHKERRQ(ierr);
     ierr = IGAElementFixValues(element,U0);CHKERRQ(ierr);
     /* FormSystem loop */
     while (IGAElementNextFormSystem(element,&System,(void**)&ctx)) {

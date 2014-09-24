@@ -5,20 +5,9 @@ extern "C" {
 #include "fields.h"
 #include "petigaksp2.h"
 
-//CH/Fickian flux
-#define CH
-
-//set Explicit or not
-#define EXPLICIT
-
-//set small strain or finite strain
-#define finiteStrain
-
 //include automatic differentiation library
-#define ADSacado
 #ifdef ADSacado
 #include <Sacado.hpp>
-#define numVars 27 //108 for 3D, 27 for 2D
 typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 //typedef Sacado::Fad::DFad<double> doubleAD;
 #else
@@ -26,67 +15,17 @@ typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 typedef adept::adouble doubleAD;
 #endif
 
-#define DIM 2
+//#define DIM 2
 #define PI 3.14159265
-
-//
-class microStructure{
-  unsigned int n;
-  std::vector<std::pair<std::pair<double,double>,double> > grains;
-  double distSqr(std::pair<double,double> pt1, std::pair<double,double> pt2) {
-    return std::pow(pt1.first-pt2.first,2.0)+ std::pow(pt1.second-pt2.second,2.0);
-  }
- public:
- microStructure(unsigned int _n, double x[], double y[], double theta[]): n(_n){
-    for (unsigned int i=0; i<n; i++){
-      grains.push_back(std::make_pair(std::make_pair(x[i],y[i]),theta[i]));
-    }
-  }
-  unsigned int whichGrain(IGAPoint p) {
-    std::pair<double,double> point (p->point[0],p->point[1]);
-    double dist=distSqr(point, grains[0].first);
-    unsigned int id=0;
-    for (unsigned int i=1; i<n; i++){
-      double dist2=distSqr(point, grains[i].first);
-      if (dist2<dist){
-	dist=dist2; id=i;
-      }
-    }
-    return id;
-  }
-  double getTheta(IGAPoint p){
-    return grains[whichGrain(p)].second;
-  }
-  template<class T>
-  void QX(IGAPoint p, unsigned int id, T* _X){
-    T (*X)[DIM+1] = (T (*)[DIM+1])_X;
-    for (unsigned int a=0; a<p->nen; a++) {
-      T x[]={X[a][0],X[a][1]};
-      X[a][0]=std::cos(grains[id].second*PI/180.0)*x[0]+std::sin(grains[id].second*PI/180.0)*x[1];
-      X[a][1]=-std::sin(grains[id].second*PI/180.0)*x[0]+std::cos(grains[id].second*PI/180.0)*x[1];
-    }
-  }
-  template<class T>
-  void QTX(IGAPoint p, unsigned int id, T* _X){
-    T (*X)[DIM+1] = (T (*)[DIM+1])_X;
-    for (unsigned int a=0; a<p->nen; a++) {
-      T x[]={X[a][0],X[a][1]};
-      X[a][0]=std::cos(grains[id].second*PI/180.0)*x[0]-std::sin(grains[id].second*PI/180.0)*x[1];
-      X[a][1]=std::sin(grains[id].second*PI/180.0)*x[0]+std::cos(grains[id].second*PI/180.0)*x[1];
-    }
-  }
-};
-
 
 typedef struct {
   IGA iga;
   PetscReal Cd, Cg;
-  PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg, El;
+  PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg;
   PetscReal dt;
   PetscReal gamma, C, he, cbar, D, flux;
   AppCtxKSP* appCtxKSP;
   PetscReal f0Norm;
-  microStructure* microstructure;
 } AppCtx;
 
 
@@ -109,16 +48,10 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T c, cx[DIM], cxx[DIM][DIM]; PetscReal c0;
   computeField<T,DIM,DIM+1>(SCALAR,DIM,p,U,&c,&cx[0],&cxx[0][0]);
   computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U0,&c0);
-
-  //Consider grain orientation
-  //unsigned int grainID=user->microstructure->whichGrain(p);
   
-  T _U[numVars];
-  for (unsigned int i=0; i<numVars; i++) _U[i]=U[i];
-  //user->microstructure->QX(p, grainID, _U);
-  //displacement field variables
+  //displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,DIM+1>(VECTOR,0,p,&_U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
+  computeField<T,DIM,DIM+1>(VECTOR,0,p,&U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //problem parameters
   PetscReal Cd=user->Cd;
@@ -134,7 +67,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal Eii=user->Eii;
   PetscReal Eij=user->Eij;
   PetscReal Eg=user->Eg;
-  PetscReal El=user->El;
   PetscReal C=user->C;
   PetscReal he=user->he;
   PetscReal D=user->D;
@@ -144,47 +76,16 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //
   PetscReal Ev=Es*0.1;
 
-  //
-  PetscReal theta=user->microstructure->getTheta(p);
-  PetscReal Q[DIM][DIM];
-  Q[0][0]=std::cos(theta*PI/180.0);
-  Q[0][1]=std::sin(theta*PI/180.0);
-  Q[1][0]=-std::sin(theta*PI/180.0);
-  Q[1][1]=std::cos(theta*PI/180.0);
-
   //Compute F (I+Ux), dF (Uxx)
-  T _F[DIM][DIM], _dF[DIM][DIM][DIM];
-  for (unsigned int i=0; i<DIM; i++) {
-    for (unsigned int J=0; J<DIM; J++) {
-      _F[i][J]=(i==J)+ux[i][J];
-      for (unsigned int K=0; K<DIM; K++) {
-	_dF[i][J][K]=uxx[i][J][K];
-      }
-    }
-  }
-
-  //rotate F, dF
   T F[DIM][DIM], dF[DIM][DIM][DIM];
   for (unsigned int i=0; i<DIM; i++) {
     for (unsigned int J=0; J<DIM; J++) {
-      F[i][J]=0.0;
-      for (unsigned int a=0; a<DIM; a++)
-	for (unsigned int B=0; B<DIM; B++) 
-	  F[i][J]+=Q[i][a]*Q[J][B]*_F[a][B];
+      F[i][J]=(i==J)+ux[i][J];
       for (unsigned int K=0; K<DIM; K++) {
-	dF[i][J][K]=0.0;
-	for (unsigned int a=0; a<DIM; a++)
-	  for (unsigned int B=0; B<DIM; B++)
-	    for (unsigned int C=0; C<DIM; C++) 
-	      dF[i][J][K]+=Q[i][a]*Q[J][B]*Q[K][C]*_dF[a][B][C];
+	dF[i][J][K]=uxx[i][J][K];
       }
     }
   }
-
-  //Add growth like terms
-  //for (unsigned int i=0; i<DIM; i++) {
-  //F[i][i]*=(1.0/(1.0+c0*Ev));
-  //}
 
   //Compute strain metric, E  
   // E=0.5*(F^T*F-I) (finite strain)
@@ -364,23 +265,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
 #endif 
   
-  T _P[DIM][DIM], _Beta[DIM][DIM][DIM];
-  for (unsigned int i=0; i<DIM; i++) {
-    for (unsigned int J=0; J<DIM; J++) {
-      _P[i][J]=0.0;
-      for (unsigned int a=0; a<DIM; a++)
-	for (unsigned int B=0; B<DIM; B++) 
-	  _P[i][J]+=Q[a][i]*Q[B][J]*P[a][B];
-      for (unsigned int K=0; K<DIM; K++) {
-	_Beta[i][J][K]=0.0;
-	for (unsigned int a=0; a<DIM; a++)
-	  for (unsigned int B=0; B<DIM; B++)
-	    for (unsigned int C=0; C<DIM; C++) 
-	      _Beta[i][J][K]+=Q[a][i]*Q[B][J]*Q[C][K]*Beta[a][B][C];
-      }
-    }
-  }
-  
   //phi(c,e)=C4*c^4 + C3*c^3 + C2*c^2 + Cg*(c_1^2+c_2^2) + strain dependent terms 
   //chemical potential
 #ifdef CH
@@ -406,8 +290,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //Compute Residual
   bool surfaceFlag=p->atboundary;
-  T _R[numVars];
-  for (unsigned int i=0; i<numVars; i++) _R[i]=0.0;
   for (unsigned int a=0; a<(unsigned int)nen; a++) {
     double N1[DIM], N2[DIM][DIM];
     for (unsigned int i=0; i<DIM; i++){
@@ -423,12 +305,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T Ru_i=0.0;
 	for (unsigned int J=0; J<DIM; J++){
 	  //grad(Na)*P
-	  Ru_i += N1[J]*_P[i][J];
+	  Ru_i += N1[J]*P[i][J];
 	  for (unsigned int K=0; K<DIM; K++){
-	    Ru_i += N2[J][K]*_Beta[i][J][K];
+	    Ru_i += N2[J][K]*Beta[i][J][K];
 	  }
 	}
-	_R[a*dof+i] = Ru_i;
+	R[a*dof+i] = Ru_i;
       }
     }
 
@@ -477,7 +359,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 #endif
     }
     else{
-#ifdef CH
       // -grad(Na) . (D*del2(c)) n
       T t1 = D*laplace_c;
       double laplace_N=0.0;
@@ -500,18 +381,22 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
       Rc += t3*t4*t5;
       Rc *= Cg;
+      //flux term, Na*J
+#if FLUX==3
+      Rc +=0.0;
+#elif FLUX==0
+      Rc += -N[a]*flux;
+#elif FLUX==1
+      if (n[0]==0.0) Rc += -N[a]*flux;
+#elif FLUX==2
+      if (n[1]==0.0) Rc += -N[a]*flux;
+#else
+      PetscPrintf(PETSC_COMM_WORLD,"FLUX key illdefined"); 
+      exit(-1);      
 #endif
-      //flux term
-      // Na*J
-      if (n[0]==0.0){
-	Rc += -N[a]*flux;
-      }
     }
-    _R[a*dof+DIM] = Rc;
+    R[a*dof+DIM] = Rc;
   }
-  //user->microstructure->QTX(p, grainID, _R);
-  for (unsigned int i=0; i<numVars; i++)  R[i]=_R[i];
-  //exit(1);
   return 0;
 }
 
@@ -585,45 +470,20 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
 {	
   AppCtxKSP *user = (AppCtxKSP *)ctx;
-  microStructure* microstructure= (microStructure*) user->microstructure;
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
 
- //Consider grain orientation
-  //unsigned int grainID=microstructure->whichGrain(p);
-  
-  PetscReal _U[numVars];
-  for (unsigned int i=0; i<numVars; i++) _U[i]=user->localU0[i];
-  //microstructure->QX(p, grainID, _U);
-
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,_U,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
   //Compute F
-  PetscReal _F[DIM][DIM];
+  PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
-      _F[i][j]=(i==j)+ux[i][j];
+      F[i][j]=(i==j)+ux[i][j];
     }
   }
-  
-  PetscReal theta=microstructure->getTheta(p);
-  PetscReal Q[DIM][DIM];
-  Q[0][0]=std::cos(theta*PI/180.0);
-  Q[0][1]=std::sin(theta*PI/180.0);
-  Q[1][0]=-std::sin(theta*PI/180.0);
-  Q[1][1]=std::cos(theta*PI/180.0);
 
-  //rotate F
-  PetscReal F[DIM][DIM];
-  for (unsigned int i=0; i<DIM; i++) {
-    for (unsigned int J=0; J<DIM; J++) {
-      F[i][J]=0.0;
-      for (unsigned int a=0; a<DIM; a++)
-	for (unsigned int B=0; B<DIM; B++) 
-	  F[i][J]+=Q[i][a]*Q[J][B]*_F[a][B];
-    }
-  }
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
   PetscReal E[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
@@ -682,8 +542,7 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       case 0:
 	val=e2; break;
       case 1:
-	//val=e3; break;
-	val=microstructure->whichGrain(p); break;
+	val=e3; break;
       case 3: //only in 3D with concentration
 	val=dist; break;
       case 2: //only in 3D 
@@ -718,7 +577,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, AppCtxKSP *user)
   //Solver
   KSP ksp;
   ierr = IGACreateKSP(iga,&ksp);CHKERRQ(ierr);
-  ierr = KSPSetOperators(ksp,A,A,SAME_NONZERO_PATTERN);CHKERRQ(ierr);
+  ierr = KSPSetOperators(ksp,A,A);CHKERRQ(ierr);
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   //write solution
@@ -792,28 +651,8 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   char           filename[256];
   sprintf(filename,"./outU%d.dat",it_number);
   ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
-  //PetscPrintf(PETSC_COMM_WORLD,"\nProject Solution\n");
   ProjectSolution(user->iga, it_number, user->appCtxKSP);
-
-  //Set load parameter
-  double dVal=user->Es*c_time;
-#if DIM==3
-    ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
-#elif DIM==2 
-    //ierr = IGASetBoundaryValue(user->iga,0,0,0,0);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,1,0,1,0);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,0,1,0,dVal);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);  
-#endif
-    if (it_number>85) {
-      //ierr = TSSetTimeStep(ts,user->dt*0.1);CHKERRQ(ierr); 
-    }
-    //PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it_number:%u, c_time:%12.6e, load:%.2e\n", it_number, c_time,dVal);
-    PetscFunctionReturn(0);
+  PetscFunctionReturn(0);
 }
 
 PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx)
@@ -828,15 +667,15 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   VecStrideNorm(R,1,NORM_2,&normUy);
   VecStrideNorm(R,2,NORM_2,&normC);
   normU=sqrt(pow(normUx,2)+pow(normUy,2));
-  //
+
   //if (it==0) user->f0Norm=fnorm;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
-  /*if ( ((it>9) && (fnorm/user->f0Norm<1.0e-3)) || (it>15)){
-  //if ((it>20)) {  
+  /*if ((it>20)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_ABS;
     return(0);
-    }*/
+    }
+  */
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -848,22 +687,16 @@ int main(int argc, char *argv[]) {
   /* Define simulation specific parameters */
   AppCtx user; AppCtxKSP userKSP;
 
-  //microstructure
-  double x[]={0.2,0.3,0.5,0.7,0.85};
-  double y[]={0.2,0.7,0.5,0.3,0.8};
-  double theta[]={-45.0,60.0,0,45,90};
-  //double theta[]={90,90,90,90,90};
-  //double theta[]={0,0,0,0,0};
-  microStructure grains(5, x, y, theta);
-  user.microstructure=&grains;
-  userKSP.microstructure=&grains;
-
   //problem parameters
   user.Cd=1.0;
-  user.Cg=4.0e-2;
+  user.Cg=2.0e-2;
   user.D=1.0;
   user.flux=10.0;
-  user.cbar=0.01; 
+#if FLUX==3 //For Quench
+  user.cbar=0.6;
+#else
+  user.cbar=0.01;
+#endif
   user.gamma=1.0;
   user.C=5.0;
   //
@@ -880,31 +713,20 @@ int main(int argc, char *argv[]) {
 #endif
   user.Eii=user.Ed/pow(user.Es,2.0);
   user.Eij=user.Ed/pow(user.Es,2.0);
-  user.El=50.0e-2;
-  user.Eg=4*pow(user.El,2.0); //pow(user.El,2.0)*user.Ed/pow(user.Es,2.0);
+  user.Eg=EgVAL;
   //
-  user.dt=1.0e-4;
+  user.dt=dtVAL;
 
   /* Set discretization options */
   PetscInt nsteps = 100;
-  PetscInt N=10, p=2, C=PETSC_DECIDE, resStep=0;
-  PetscBool output = PETSC_FALSE; 
-  PetscBool monitor = PETSC_FALSE; 
+  PetscInt N=NVAL, p=2, C=PETSC_DECIDE, resStep=0;
+  PetscBool output = PETSC_TRUE; 
+  PetscBool monitor = PETSC_TRUE; 
   char filePrefix[PETSC_MAX_PATH_LEN] = {0};
   ierr = PetscOptionsBegin(PETSC_COMM_WORLD,"","CahnHilliard2D Options","IGA");CHKERRQ(ierr);
-  ierr = PetscOptionsInt("-N","number of elements (along one DIMension)",__FILE__,N,&N,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsInt("-p","polynomial order",__FILE__,p,&p,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsInt("-C","global continuity order",__FILE__,C,&C,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsString("-file_prefix","File Prefix",__FILE__,filePrefix,filePrefix,sizeof(filePrefix),PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsBool("-ch_output","Enable output files",__FILE__,output,&output,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsBool("-ch_monitor","Compute and show statistics of solution",__FILE__,monitor,&monitor,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsInt("-nsteps","Number of load steps to take",__FILE__,nsteps,&nsteps,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsReal("-dt","time step",__FILE__,user.dt,&user.dt,PETSC_NULL);CHKERRQ(ierr);
-  ierr = PetscOptionsInt("-res_step","Restart Step",__FILE__,resStep,&resStep,PETSC_NULL);CHKERRQ(ierr);
   ierr = PetscOptionsEnd();CHKERRQ(ierr);
   if (C == PETSC_DECIDE) C = p-1;
-  //PetscPrintf(PETSC_COMM_WORLD,"\nLambda_u value is: %8.2e\n",user.lambda_u);
-
+ 
   //
   if (p < 2 || C < 0) /* Problem requires a p>=2 C1 basis */
     SETERRQ(PETSC_COMM_WORLD,PETSC_ERR_ARG_OUTOFRANGE,"Problem requires minimum of p = 2");
@@ -920,7 +742,8 @@ int main(int argc, char *argv[]) {
   ierr = IGAGetAxis(iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
   ierr = IGAAxisInitUniform(axis0,N,0.0,1.0,C);CHKERRQ(ierr);
-  user.he=1.0/N; //set he=L/N, by selecting the correct problem length L
+  user.he=1.0/N; 
+
   IGAAxis axis1;
   ierr = IGAGetAxis(iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
@@ -981,14 +804,25 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif DIM==2 
+#if bcVAL==0
+  //Shear BC
+  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);
+#elif bcVAL==1
+  //Free BC
   ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
+#elif bcVAL==2
+  //Fixed BC
+  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
+#endif
 #endif
   //
   ierr = IGASetFormIEFunction(iga,Residual,&user);CHKERRQ(ierr);
@@ -1004,8 +838,6 @@ int main(int argc, char *argv[]) {
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);
-  ierr = TSAlphaSetRadius(ts,0.5);CHKERRQ(ierr);
-  ierr = TSAlphaSetAdapt(ts,TSAlphaAdaptDefault,NULL);CHKERRQ(ierr);  
   
   SNES snes;
   TSGetSNES(ts,&snes);
