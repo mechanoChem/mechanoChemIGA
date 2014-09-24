@@ -834,7 +834,7 @@ int main(int argc, char *argv[]) {
   TS ts;
   ierr = IGACreateTS(iga,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,10000,1.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,100000,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor,&user,NULL);CHKERRQ(ierr);

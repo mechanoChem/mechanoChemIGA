@@ -1,17 +1,23 @@
 import shutil
 import subprocess
-from popen2 import popen2
 import time, datetime, os
-from subprocess import call
 
-FS=[1]
-Explicit=[1]
-GRID=[100,200,400]
+#
+cluster_name="prismsproject_flux"
+#
+'''GRID=[100,200,400]
 DT=[1.0e-5,1.0e-6,1.0e-7]
 BC={0:"SHEAR",1:"FREE",2:"FIXED"}
 FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
-LAMBDA=[1.0,10.0,100.0]
+LAMBDA=[1.0,10.0,100.0]'''
+GRID=[100,200,400]
+DT=[1.0e-5,1.0e-6]
+BC={0:"SHEAR",2:"FIXED"}
+FLUX={1:"TOPBOTTOM"}
+LAMBDA=[1.0,10.0]
 #parameters
+FS=[1]
+Explicit=[1]
 El=1.0
 compileDefs=["-D DIM=2", "-D EXPLICIT", "-D finiteStrain", "-D ADSacado", "-D numVars=27"]
 
@@ -55,11 +61,10 @@ for dt, N, bc, flux, lam in [(dt, N, bc, flux, lam) for dt in DT for N in GRID f
     f.write("\n")
     f.write(str(varDefs))
     f.write("\nGrid:"+str(N)+" dt:"+str(dt)+" bc:"+str(bc))
-    f.close()
 
     #PBS
     # Open a pipe to the qsub command.
-    output, input = popen2('qsub')    
+    #output, input = popen2('qsub')    
     
     # Customize your options here
     job_name = fileName
@@ -69,18 +74,29 @@ for dt, N, bc, flux, lam in [(dt, N, bc, flux, lam) for dt in DT for N in GRID f
     processors = "nodes=1:ppn=16,pmem=3800mb,qos=flux"
     command = "time mpiexec -np 16 "+dirPath2+"/"+fileName+" -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ts_max_snes_failures 200 -snes_max_it 200  -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -snes_linesearch_type basic"
     job_string = """#!/bin/bash
+#PBS -A %s
 #PBS -N %s
 #PBS -l walltime=%s
 #PBS -l %s
+#PBS -q flux
+#PBS -V
+module load intel-comp
+module load mkl
 cd %s
-%s""" % (job_name, walltime, processors, dirPath2, command)
+%s""" % (cluster_name, job_name, walltime, processors, dirPath2, command)
     # Send job_string to qsub
-    input.write(job_string)
-    input.close()
-    # Print your job and the system response to the screen
-    print job_string
-    print output.read()
+    fpbs = open(dirPath2+"/pbsJob", 'wt')
+    fpbs.write(job_string)
+    fpbs.close()
+    cmd = ["qsub","-k","oe",dirPath2+"/pbsJob"];  
+    p = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE);  
+    pbsOut=p.communicate()[0]
+    p.wait();
+    #write to options log
+    f.write("\n\n")
+    f.write(job_string)
+    f.write("\n\n")
+    f.write(pbsOut)
+    f.close()
+    print pbsOut
     time.sleep(0.1)
-
-
-'''
