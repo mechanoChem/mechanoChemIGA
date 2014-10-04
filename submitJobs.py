@@ -5,27 +5,26 @@ import time, datetime, os
 #
 cluster_name="prismsproject_flux"
 #
-'''GRID=[100,200,400]
-DT=[1.0e-5,1.0e-6,1.0e-7]
-BC={0:"SHEAR",1:"FREE",2:"FIXED"}
-FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
-LAMBDA=[1.0,10.0,100.0]'''
+#GRID=[100,200,400]
 GRID=[100,200,400]
-DT=[1.0e-5,1.0e-6]
-BC={0:"SHEAR",2:"FIXED"}
-FLUX={1:"TOPBOTTOM"}
-LAMBDA=[1.0,10.0]
+DT=[1.0e-6,1.0e-7]
+#BC={0:"SHEAR",1:"FREE",2:"FIXED"}
+BC={2:"FIXED"}
+#FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
+FLUX={0:"ALL",1:"TOPBOTTOM"}
+LAMBDA=[1.0,4.0,0.25]
 #parameters
 FS=[1]
 Explicit=[1]
-El=1.0
 compileDefs=["-D DIM=2", "-D EXPLICIT", "-D finiteStrain", "-D ADSacado", "-D numVars=27"]
+#compileDefs=["-D DIM=2", "-D EXPLICIT", "-D ADSacado", "-D numVars=27"]
 
+runOptions="-ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 200"
 #create today directory
 today = datetime.date.today()
 todaystr = today.isoformat()
-dirPath0=os.path.join(os.getcwd(),"results")
-dirPath=os.path.join(os.getcwd(),"results",todaystr)
+dirPath0=os.path.join(os.getcwd(),"results3")
+dirPath=os.path.join(os.getcwd(),"results3",todaystr)
 if not os.path.exists(dirPath0):
     os.mkdir(dirPath0)
 if not os.path.exists(dirPath):
@@ -52,10 +51,13 @@ for dt, N, bc, flux, lam in [(dt, N, bc, flux, lam) for dt in DT for N in GRID f
     dirPath2=os.path.join(dirPath, fileName)
     if not os.path.exists(dirPath2):
         os.mkdir(dirPath2)
-    shutil.copy (fileName+".c", dirPath2+"/"+fileName+".c")
-    shutil.copy (fileName, dirPath2+"/"+fileName)
-    
-    #write options to options file
+    try:
+        shutil.copy (fileName+".c", dirPath2+"/"+fileName+".c")
+        shutil.copy (fileName, dirPath2+"/"+fileName)
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        continue
+ #write options to options file
     f = open(dirPath2+"/options.log", 'wt')
     f.write(str(compileDefs))
     f.write("\n")
@@ -68,18 +70,24 @@ for dt, N, bc, flux, lam in [(dt, N, bc, flux, lam) for dt in DT for N in GRID f
     
     # Customize your options here
     job_name = fileName
-    walltime = "24:00:00"
+    walltime = "12:00:00"
     if (dt<1.0e-6):
-         walltime = "48:00:00"
+         walltime = "24:00:00"
     processors = "nodes=1:ppn=16,pmem=3800mb,qos=flux"
-    command = "time mpiexec -np 16 "+dirPath2+"/"+fileName+" -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ts_max_snes_failures 200 -snes_max_it 200  -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -snes_linesearch_type basic"
+    command = "time mpirun -np 16 -loadbalance "+dirPath2+"/"+fileName+" -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps " + runOptions
+    if (N>300):
+        processors = "nodes=4:ppn=16,pmem=3800mb,qos=flux"
+        command = "time mpirun -np 64 -loadbalance "+dirPath2+"/"+fileName+" -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps " + runOptions
+    print command
     job_string = """#!/bin/bash
 #PBS -A %s
 #PBS -N %s
 #PBS -l walltime=%s
 #PBS -l %s
 #PBS -q flux
+#PBS -n
 #PBS -V
+#PBS -m n
 module load intel-comp
 module load mkl
 cd %s

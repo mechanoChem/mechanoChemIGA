@@ -4,6 +4,21 @@ extern "C" {
 }
 #include "fields.h"
 #include "petigaksp2.h"
+/*
+#define DIM 2
+#define EXPLICIT
+#define finiteStrain
+#define ADSacado
+#define numVars 27
+#define EgVAL 1.0
+#define dtVAL 1.0e-6
+#define NVAL 100
+#define FLUX 1
+#define bcVAL 2
+*/
+//
+#define lVAL 0.01
+//
 
 //include automatic differentiation library
 #ifdef ADSacado
@@ -15,13 +30,12 @@ typedef Sacado::Fad::SFad<double,numVars> doubleAD;
 typedef adept::adouble doubleAD;
 #endif
 
-//#define DIM 2
 #define PI 3.14159265
 
 typedef struct {
   IGA iga;
   PetscReal Cd, Cg;
-  PetscReal Es, Ed, E4, E3, E2, Eii, Eij, Eg;
+  PetscReal Es, Ed, E4, E6, E3, E2, Eii, Eij, Eg, curvature;
   PetscReal dt;
   PetscReal gamma, C, he, cbar, D, flux;
   AppCtxKSP* appCtxKSP;
@@ -61,6 +75,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal Cg=user->Cg;
   PetscReal Es=user->Es;
   PetscReal Ed=user->Ed;
+  PetscReal E6=user->E6;
   PetscReal E4=user->E4;
   PetscReal E3=user->E3;
   PetscReal E2=user->E2;
@@ -220,12 +235,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
 #ifdef EXPLICIT
-  PetscReal E2c=E2*(3*c0-1.0)/2.0,  E4c=E4*c0;  
-  if (c0>1.0){
-    E2c=E2,  E4c=E4;
-  }
+  PetscReal E2c=E2*(2*c0-1.0),  E4c=E4, E6c=E6;  
 #else
-  T E2c=E2*(3*c-1.0)/2.0, E4c=E4*c;
+  T E2c=E2*(2*c-1.0),  E4c=E4, E6c=E6;
 #endif
   //
   for (unsigned int i=0; i<DIM; ++i){
@@ -245,7 +257,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 #endif
       //P
       P[i][J]=(2*Eii*e1)*e1_FiJ						\
-	+(2*E2c*e2 + 4*E4c*e2*e2*e2)*e2_FiJ				\
+	+(2*E2c*e2 + 4*E4c*e2*e2*e2+ 6*E6c*e2*e2*e2*e2*e2)*e2_FiJ				\
 	+(2*Eij*e3)*e3_FiJ						\
 	+ 2*Eg*(e2_1*e2_1_FiJ + e2_2*e2_2_FiJ);
       
@@ -267,7 +279,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   
   //phi(c,e)=C4*c^4 + C3*c^3 + C2*c^2 + Cg*(c_1^2+c_2^2) + strain dependent terms 
   //chemical potential
-#ifdef CH
   T mu = 4.0*C4*c*c*c + 3.0*C3*c*c + 2.0*C2*c;
   T dmuc= 12.0*C4*c*c + 6.0*C3*c + 2.0*C2;
   T dmue2=0.0, dmue3=0.0;
@@ -277,11 +288,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   dmue2+= 4.0*E4*(e2*e2+e3*e3)*e2 - 6.0*E3*e3*e2 + 2.0*E2*(5.0/3.0)*e2;
   dmue3+= 4.0*E4*(e2*e2+e3*e3)*e3 + 3.0*E3*e3*e3 + 2.0*E2*(5.0/3.0)*e3;
 #elif DIM==2
-  mu+= E4*(e2*e2*e2*e2) + E2*1.5*(e2*e2);
-  dmue2+=4.0*E4*(e2*e2*e2) + 3.0*E2*e2;
+  mu+= 2.0*E2*(e2*e2);
+  dmue2+= 4.0*E2*e2;
 #endif
 #endif
-#endif
+
 
   /* //get shape function values */
   double (*N) = (double (*)) p->shape[0];
@@ -321,7 +332,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     if (!surfaceFlag){
       // Na * c_t
       Rc += N[a] * (c-c0)*(1.0/dt);
-#ifdef CH
       // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2)+dmue3*grad(e3))
       double laplace_N=0.0;
       for (unsigned int i=0; i<DIM; i++){
@@ -350,13 +360,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
       // lambda * del2(Na) * D * del2(c)
       Rc += Cg*laplace_N*D*laplace_c;
-#else
-      //Fickian flux
-      // grad(Na).D*grad(C)
-      for (unsigned int i=0; i<DIM; i++){
-	Rc += N1[i]*D*cx[i];
-      }
-#endif
     }
     else{
       // -grad(Na) . (D*del2(c)) n
@@ -632,7 +635,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
     for(j=info.ys;j<info.ys+info.ym;j++){
       u[j][i].ux=0.0;
       u[j][i].uy=0.0;
-      u[j][i].c= user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
+      u[j][i].c= 0.0; //user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
     }
   }
 #endif
@@ -650,32 +653,64 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
   sprintf(filename,"./outU%d.dat",it_number);
-  ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
-  ProjectSolution(user->iga, it_number, user->appCtxKSP);
+  if (it_number%10==0){
+    ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
+    ProjectSolution(user->iga, it_number, user->appCtxKSP);
+  }
+  //Check for min(C), and stop if min(C)>1
+  PetscReal minC;
+  VecSetBlockSize(U,DIM+1);  
+  VecStrideMin(U,2,NULL,&minC);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C): %12.6e \n",minC);
+  if (minC>1.0){
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C) > 1.0 so forcefully quitting \n");
+    exit(-1);
+  }
   PetscFunctionReturn(0);
 }
 
 PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx)
 {
   AppCtx *user  = (AppCtx*) ctx;
-  Vec R;
+  Vec R,U;
   SNESGetFunction(snes, &R, 0, 0);
-  PetscReal normC, normU, normUx, normUy;
-  //VecNorm(R, NORM_2, &norm);
+  SNESGetSolutionUpdate(snes, &U);
+  PetscReal normRC, normRU, normRUx, normRUy;
   VecSetBlockSize(R,DIM+1);  
-  VecStrideNorm(R,0,NORM_2,&normUx);
-  VecStrideNorm(R,1,NORM_2,&normUy);
-  VecStrideNorm(R,2,NORM_2,&normC);
-  normU=sqrt(pow(normUx,2)+pow(normUy,2));
+  VecStrideNorm(R,0,NORM_2,&normRUx);
+  VecStrideNorm(R,1,NORM_2,&normRUy);
+  VecStrideNorm(R,2,NORM_2,&normRC);
+  normRU=sqrt(pow(normRUx,2)+pow(normRUy,2));
+  PetscReal normC, normU, normUxy, normUx, normUy;
+  VecNorm(U, NORM_2, &normU);
+  VecSetBlockSize(U,DIM+1);  
+  VecStrideNorm(U,0,NORM_2,&normUx);
+  VecStrideNorm(U,1,NORM_2,&normUy);
+  VecStrideNorm(U,2,NORM_2,&normC);
+  normUxy=sqrt(pow(normUx,2)+pow(normUy,2));
 
-  //if (it==0) user->f0Norm=fnorm;
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, C:%12.6e, U:%12.6e, R:%12.6e\n", it, normC, normU, fnorm);
-  /*if ((it>20)) {  
-    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
-    *reason = SNES_CONVERGED_FNORM_ABS;
+  if (it==0) user->f0Norm=fnorm;
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, Residuals: C:%12.6e, U:%12.6e, R:%12.6e.  Solns: C:%12.6e, Uxy:%12.6e, U:%12.6e.\n", it, normRC, normRU, fnorm, normC, normUxy,normU);
+  if (fnorm>1.0e30){
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: R > 1.0e30 so forcefully quitting \n");
+    exit(-1);
+  }
+  if ((it>50) && (fnorm/user->f0Norm<1.0e-4)) {  
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>50 forcefully setting convergence. \n");
+    *reason = SNES_CONVERGED_FNORM_RELATIVE;
     return(0);
-    }
-  */
+  }
+  if ((it>100) && (fnorm/user->f0Norm<1.0e-2)) {  
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>100 forcefully setting convergence. \n");
+    *reason = SNES_CONVERGED_FNORM_RELATIVE;
+    return(0);
+  }
+ if ((it>150) && (fnorm/user->f0Norm<1.0e-1)) {  
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>150 forcefully setting convergence. \n");
+    *reason = SNES_CONVERGED_FNORM_RELATIVE;
+    return(0);
+  }
+  
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -689,9 +724,9 @@ int main(int argc, char *argv[]) {
 
   //problem parameters
   user.Cd=1.0;
-  user.Cg=2.0e-2;
-  user.D=1.0;
-  user.flux=10.0;
+  user.Cg=100*pow(lVAL,2.0);
+  user.D=10.0;
+  user.flux=100.0;
 #if FLUX==3 //For Quench
   user.cbar=0.6;
 #else
@@ -700,23 +735,28 @@ int main(int argc, char *argv[]) {
   user.gamma=1.0;
   user.C=5.0;
   //
-  user.Es=0.01;
-  user.Ed=1.0;
+  user.Es=0.01; //0.2391; //0.1
+  user.Ed=1.0e-3; //1.2847e-04; //1.0
 #if DIM==3
-  user.E4=1.5*user.Ed/pow(user.Es,4.0);
-  user.E3=-user.Ed/pow(user.Es,3.0);
-  user.E2=-1.5*user.Ed/pow(user.Es,2.0);
+  user.E4=1.5*user.Ed/pow(user.Es,2.0);
+  user.E3=-user.Ed/user.Es;
+  user.E2=-1.5*user.Ed;
 #elif DIM==2
-  user.E4= user.Ed/pow(user.Es,4.0);
-  user.E3= 0.0;
-  user.E2=-2.0*user.Ed/pow(user.Es,2.0);
+  user.curvature=15*user.Ed/pow(user.Es,2.0); //0.0341; //12*user.Ed/pow(user.Es,2.0);
+  user.E6=-user.Ed/pow(user.Es,6.0)+user.curvature/(8.0*pow(user.Es,4.0));
+  user.E4= 3.0*user.Ed/pow(user.Es,4.0)-user.curvature/(4.0*pow(user.Es,2.0));
+  user.E3=0.0;
+  user.E2=-3.0*user.Ed/pow(user.Es,2.0) + user.curvature/8.0; 
 #endif
-  user.Eii=user.Ed/pow(user.Es,2.0);
-  user.Eij=user.Ed/pow(user.Es,2.0);
-  user.Eg=EgVAL;
+  user.Eii=-2*user.E2;
+  user.Eij=-2*user.E2;
+  user.Eg=EgVAL*(-2*user.E2)*pow(lVAL,2.0);
   //
   user.dt=dtVAL;
-
+  //
+  PetscPrintf(PETSC_COMM_WORLD,"\n\nCg:%8.2e, D:%8.2e, flux:%8.2e, cbar:%8.2e\n",user.Cg,user.D,user.flux,user.cbar);
+  PetscPrintf(PETSC_COMM_WORLD,"E6:%8.2e, E4:%8.2e, E2:%8.2e, Eii:%8.2e, Eij:%8.2e, Eg:%8.2e, d:%8.2e, s:%8.2e, curvature:%8.2e\n",user.E6,user.E4,user.E2,user.Eii,user.Eij,user.Eg,user.Ed,user.Es,user.curvature);
+  //
   /* Set discretization options */
   PetscInt nsteps = 100;
   PetscInt N=NVAL, p=2, C=PETSC_DECIDE, resStep=0;
@@ -796,7 +836,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*0.1;
+  double dVal=user.Es*.001;
 #if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
@@ -819,9 +859,12 @@ int main(int argc, char *argv[]) {
   //Fixed BC
   ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,1,0,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,0.0);CHKERRQ(ierr);  
 #endif
 #endif
   //

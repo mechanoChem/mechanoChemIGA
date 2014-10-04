@@ -12,7 +12,7 @@ mpicxx -o $fileName $fileName.o -Wl,-rpath,$PETIGA_DIR/$PETSC_ARCH/lib -L$PETIGA
 #mpicxx -c -O3 -fPIC -DADEPT_RECORDING_PAUSABLE -Wall -Wwrite-strings -Wno-unused-variable -Wno-unused-value  -Wno-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas -pipe -I/$PETSC_DIR/$PETSC_ARCH/include -I/$PETSC_DIR/include -I$PETIGA_DIR/$PETSC_ARCH/include -I$PETIGA_DIR/include -I/opt/software/numerics/adept-1.0/include $fileName.c
 #mpicxx -o $fileName $fileName.o -Wl,-rpath,$PETIGA_DIR/$PETSC_ARCH/lib -L$PETIGA_DIR/$PETSC_ARCH/lib -lpetiga -Wl,-rpath,$PETSC_DIR/$PETSC_ARCH/lib -L$PETSC_DIR/$PETSC_ARCH/lib  -lpetsc -Wl,-rpath,$PETSC_DIR/$PETSC_ARCH/lib /opt/software/numerics/adept-1.0/lib/libadept.a
 
-time mpiexec -np 4 ./$fileName -file_prefix "test" -N 100 -dt 1.0e-5 -ch_monitor -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps 
+time mpiexec -np 16 ./$fileName -file_prefix "test" -N 100 -dt 1.0e-5 -ch_monitor -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ksp_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps 
 #-snes_type newtontr
 #-snes_linesearch_type basic
 #

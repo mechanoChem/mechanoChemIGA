@@ -1,1 +1,3 @@
 rsync -rv --include '*.dat' --exclude '*' --rsh=ssh rudraa@flux-xfer.engin.umich.edu:/scratch/prismsproject_flux/rudraa/mechanochemo/ .
+
+for f in *; do [ -d ./"$f" ] && find ./"$f" -maxdepth 1 -exec echo \; | wc -l && echo $f; done
