@@ -6,12 +6,12 @@ import time, datetime, os
 cluster_name="prismsproject_flux"
 #
 #GRID=[100,200,400]
-GRID=[100,200,400]
-DT=[1.0e-6,1.0e-7]
+GRID=[100,200]
+DT=[1.0e-6]
 #BC={0:"SHEAR",1:"FREE",2:"FIXED"}
 BC={2:"FIXED"}
 #FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
-FLUX={0:"ALL",1:"TOPBOTTOM"}
+FLUX={0:"ALL"}
 LAMBDA=[1.0,4.0,0.25]
 #parameters
 FS=[1]
@@ -23,8 +23,8 @@ runOptions="-ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -t
 #create today directory
 today = datetime.date.today()
 todaystr = today.isoformat()
-dirPath0=os.path.join(os.getcwd(),"results3")
-dirPath=os.path.join(os.getcwd(),"results3",todaystr)
+dirPath0=os.path.join(os.getcwd(),"resultsEdm4")
+dirPath=os.path.join(os.getcwd(),"resultsEdm4",todaystr)
 if not os.path.exists(dirPath0):
     os.mkdir(dirPath0)
 if not os.path.exists(dirPath):

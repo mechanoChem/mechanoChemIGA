@@ -4,18 +4,18 @@ extern "C" {
 }
 #include "fields.h"
 #include "petigaksp2.h"
-/*
+
 #define DIM 2
 #define EXPLICIT
 #define finiteStrain
 #define ADSacado
 #define numVars 27
 #define EgVAL 1.0
-#define dtVAL 1.0e-6
+#define dtVAL 1.0e-5
 #define NVAL 100
-#define FLUX 1
+#define FLUX 3
 #define bcVAL 2
-*/
+
 //
 #define lVAL 0.01
 //
@@ -736,7 +736,7 @@ int main(int argc, char *argv[]) {
   user.C=5.0;
   //
   user.Es=0.01; //0.2391; //0.1
-  user.Ed=1.0e-3; //1.2847e-04; //1.0
+  user.Ed=1.0e-4; //1.2847e-04; //1.0
 #if DIM==3
   user.E4=1.5*user.Ed/pow(user.Es,2.0);
   user.E3=-user.Ed/user.Es;
@@ -836,7 +836,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*.001;
+  double dVal=user.Es*.0001;
 #if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
