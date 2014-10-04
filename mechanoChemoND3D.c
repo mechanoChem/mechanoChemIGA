@@ -11,7 +11,7 @@ extern "C" {
 #define ADSacado
 #define numVars 27
 #define EgVAL 1.0
-#define dtVAL 1.0e-6
+#define dtVAL 1.0e-5
 #define NVAL 100
 #define FLUX 3
 #define bcVAL 2
@@ -635,7 +635,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
     for(j=info.ys;j<info.ys+info.ym;j++){
       u[j][i].ux=0.0;
       u[j][i].uy=0.0;
-      u[j][i].c= user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
+      u[j][i].c= 0.0; //user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
     }
   }
 #endif
@@ -736,7 +736,7 @@ int main(int argc, char *argv[]) {
   user.C=5.0;
   //
   user.Es=0.01; //0.2391; //0.1
-  user.Ed=1.0e-3; //1.2847e-04; //1.0
+  user.Ed=1.0e-4; //1.2847e-04; //1.0
 #if DIM==3
   user.E4=1.5*user.Ed/pow(user.Es,2.0);
   user.E3=-user.Ed/user.Es;
@@ -836,7 +836,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*.01;
+  double dVal=user.Es*.0001;
 #if DIM==3
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
