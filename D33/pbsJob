@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -A prismsproject_flux
+#PBS -N Full3D
+#PBS -l walltime=48:00:00
+#PBS -l nodes=30:ppn=16,pmem=3800mb,qos=flux
+#PBS -q flux
+#PBS -n
+#PBS -V
+#PBS -m n
+module load intel-comp
+module load mkl
+cd /scratch/prismsproject_flux/rudraa/mechanochemo/mechanochemocode/D33/
+time mpirun -np 480 -loadbalance /scratch/prismsproject_flux/rudraa/mechanochemo/mechanochemocode/D33/mechanoChemoND3D -ts_monitor -snes_monitor -snes_converged_reason -log_summary -ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 200  -ts_monitor -snes_monitor -snes_converged_reason -ksp_type gmres -ksp_gmres_restart 1200 -ksp_converged_reason -ksp_monitor -snes_mf

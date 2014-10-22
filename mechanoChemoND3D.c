@@ -5,15 +5,15 @@ extern "C" {
 #include "fields.h"
 #include "petigaksp2.h"
 
-#define DIM 2
+#define DIM 3
 #define EXPLICIT
 #define finiteStrain
 #define ADSacado
-#define numVars 27
+#define numVars 108
 #define EgVAL 1.0
-#define dtVAL 1.0e-5
+#define dtVAL 1.0e-4
 #define NVAL 100
-#define FLUX 3
+#define FLUX 1
 #define bcVAL 2
 
 //
@@ -88,8 +88,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscReal flux=user->flux;
   PetscReal gamma=user->gamma;
   PetscReal dt=dt2;
-  //
-  PetscReal Ev=Es*0.1;
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -390,7 +388,9 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 #elif FLUX==0
       Rc += -N[a]*flux;
 #elif FLUX==1
+      double dist=pow(pow(p->point[0],2)+pow(p->point[1],2)+pow(p->point[2],2),0.5);
       if (n[0]==0.0) Rc += -N[a]*flux;
+      //if (dist<0.1) Rc += -N[a]*flux;
 #elif FLUX==2
       if (n[1]==0.0) Rc += -N[a]*flux;
 #else
@@ -441,7 +441,7 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
     for(int d1=0; d1<dof; d1++){
       for(int n2=0; n2<nen; n2++){
 	for(int d2=0; d2<dof; d2++){
-      	  K[n1*dof*nen*dof + d1*nen*dof + n2*dof + d2] = R[n1*dof+d1].dx(n2*dof+d2);
+	K[n1*dof*nen*dof + d1*nen*dof + n2*dof + d2] = R[n1*dof+d1].dx(n2*dof+d2);
 	}
       }
     }				
@@ -621,7 +621,7 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
 	u[k][j][i].ux=0.0;
 	u[k][j][i].uy=0.0;
 	u[k][j][i].uz=0.0;
-	u[k][j][i].c= user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
+	u[k][j][i].c= 0.0; //user->cbar + 0.01*(0.5 - (double)(std::rand() % 100 )/100.0);
       }
     }
   }
@@ -652,11 +652,13 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   PetscErrorCode ierr;
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
+  
   sprintf(filename,"./outU%d.dat",it_number);
-  if (it_number%10==0){
+  if (it_number%1==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, user->appCtxKSP);
   }
+  
   //Check for min(C), and stop if min(C)>1
   PetscReal minC;
   VecSetBlockSize(U,DIM+1);  
@@ -675,37 +677,39 @@ PetscErrorCode SNESConverged_Interactive(SNES snes, PetscInt it,PetscReal xnorm,
   Vec R,U;
   SNESGetFunction(snes, &R, 0, 0);
   SNESGetSolutionUpdate(snes, &U);
-  PetscReal normRC, normRU, normRUx, normRUy;
+  PetscReal normRC, normRU, normRUx, normRUy, normRUz;
   VecSetBlockSize(R,DIM+1);  
   VecStrideNorm(R,0,NORM_2,&normRUx);
   VecStrideNorm(R,1,NORM_2,&normRUy);
-  VecStrideNorm(R,2,NORM_2,&normRC);
-  normRU=sqrt(pow(normRUx,2)+pow(normRUy,2));
-  PetscReal normC, normU, normUxy, normUx, normUy;
+  VecStrideNorm(R,2,NORM_2,&normRUz);
+  VecStrideNorm(R,3,NORM_2,&normRC);
+  normRU=sqrt(pow(normRUx,2)+pow(normRUy,2)+pow(normRUz,2.0));
+  PetscReal normC, normU, normUxyz, normUx, normUy, normUz;
   VecNorm(U, NORM_2, &normU);
   VecSetBlockSize(U,DIM+1);  
   VecStrideNorm(U,0,NORM_2,&normUx);
   VecStrideNorm(U,1,NORM_2,&normUy);
-  VecStrideNorm(U,2,NORM_2,&normC);
-  normUxy=sqrt(pow(normUx,2)+pow(normUy,2));
+  VecStrideNorm(U,2,NORM_2,&normUz);
+  VecStrideNorm(U,3,NORM_2,&normC);
+  normUxyz=sqrt(pow(normUx,2)+pow(normUy,2)+pow(normUz,2.0));
 
   if (it==0) user->f0Norm=fnorm;
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, Residuals: C:%12.6e, U:%12.6e, R:%12.6e.  Solns: C:%12.6e, Uxy:%12.6e, U:%12.6e.\n", it, normRC, normRU, fnorm, normC, normUxy,normU);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: it:%d, Residuals: C:%12.6e, U:%12.6e, R:%12.6e.  Solns: C:%12.6e, Uxyz:%12.6e, U:%12.6e.\n", it, normRC, normRU, fnorm, normC, normUxyz,normU);
   if (fnorm>1.0e30){
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: R > 1.0e30 so forcefully quitting \n");
     exit(-1);
   }
-  if ((it>50) && (fnorm/user->f0Norm<1.0e-4)) {  
+  if ((it>10) && (fnorm/user->f0Norm<1.0e-4)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>50 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_RELATIVE;
     return(0);
   }
-  if ((it>100) && (fnorm/user->f0Norm<1.0e-2)) {  
+  if ((it>20) && (fnorm/user->f0Norm<1.0e-2)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>100 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_RELATIVE;
     return(0);
   }
- if ((it>150) && (fnorm/user->f0Norm<1.0e-1)) {  
+ if ((it>30) && (fnorm/user->f0Norm<1.0e-1)) {  
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>150 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_RELATIVE;
     return(0);
@@ -726,7 +730,7 @@ int main(int argc, char *argv[]) {
   user.Cd=1.0;
   user.Cg=100*pow(lVAL,2.0);
   user.D=10.0;
-  user.flux=100.0;
+  user.flux=400.0;
 #if FLUX==3 //For Quench
   user.cbar=0.6;
 #else
@@ -736,26 +740,29 @@ int main(int argc, char *argv[]) {
   user.C=5.0;
   //
   user.Es=0.01; //0.2391; //0.1
-  user.Ed=1.0e-4; //1.2847e-04; //1.0
+  user.Ed=1.0e-3; //1.2847e-04; //1.0
 #if DIM==3
-  user.E4=1.5*user.Ed/pow(user.Es,2.0);
-  user.E3=-user.Ed/user.Es;
-  user.E2=-1.5*user.Ed;
+  user.E4=1.5*user.Ed/pow(user.Es,4.0);
+  user.E3=-user.Ed/pow(user.Es,3.0);
+  user.E2=-1.5*user.Ed/pow(user.Es,2.0);
+  user.Eii=-user.E2;
+  user.Eij=-user.E2;
+  user.Eg=EgVAL*(-user.E2)*pow(lVAL,2.0);
 #elif DIM==2
   user.curvature=15*user.Ed/pow(user.Es,2.0); //0.0341; //12*user.Ed/pow(user.Es,2.0);
   user.E6=-user.Ed/pow(user.Es,6.0)+user.curvature/(8.0*pow(user.Es,4.0));
   user.E4= 3.0*user.Ed/pow(user.Es,4.0)-user.curvature/(4.0*pow(user.Es,2.0));
   user.E3=0.0;
   user.E2=-3.0*user.Ed/pow(user.Es,2.0) + user.curvature/8.0; 
-#endif
   user.Eii=-2*user.E2;
   user.Eij=-2*user.E2;
   user.Eg=EgVAL*(-2*user.E2)*pow(lVAL,2.0);
+#endif
   //
   user.dt=dtVAL;
   //
   PetscPrintf(PETSC_COMM_WORLD,"\n\nCg:%8.2e, D:%8.2e, flux:%8.2e, cbar:%8.2e\n",user.Cg,user.D,user.flux,user.cbar);
-  PetscPrintf(PETSC_COMM_WORLD,"E6:%8.2e, E4:%8.2e, E2:%8.2e, Eii:%8.2e, Eij:%8.2e, Eg:%8.2e, d:%8.2e, s:%8.2e, curvature:%8.2e\n",user.E6,user.E4,user.E2,user.Eii,user.Eij,user.Eg,user.Ed,user.Es,user.curvature);
+  PetscPrintf(PETSC_COMM_WORLD,"E4:%8.2e, E3:%8.2e, E2:%8.2e, Eii:%8.2e, Eij:%8.2e, Eg:%8.2e, d:%8.2e, s:%8.2e\n",user.E4,user.E3,user.E2,user.Eii,user.Eij,user.Eg,user.Ed,user.Es);
   //
   /* Set discretization options */
   PetscInt nsteps = 100;
@@ -836,13 +843,26 @@ int main(int argc, char *argv[]) {
 #endif
 
   //Dirichlet BC
-  double dVal=user.Es*.0001;
+  double dVal=user.Es*.001;
 #if DIM==3
-  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,0,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,0,2,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,0,0,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,0,1,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,1,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,1,1,2,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,1,0,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,1,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,2,1,2,0.0);CHKERRQ(ierr);
 #elif DIM==2 
 #if bcVAL==0
   //Shear BC
