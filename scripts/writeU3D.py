@@ -17,7 +17,7 @@ for filename1, filename2 in zip(glob.glob('outU*.dat'), glob.glob('outE*.dat')):
     sol2 = PetIGA().read_vec(filename2,geom)
     sol=np.concatenate((sol1,sol2),axis=3);
     nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
-    VTK().write(outname,nrb,scalars=dict(e2=3, e3=4, dist=5),vectors=dict(displacement=[0,1,2]))
+    VTK().write(outname,nrb,scalars=dict(c=3,e2=4, e3=5, dist=7, well=6),vectors=dict(displacement=[0,1,2]))
     if (writeMat):
         if data:
             X = geom.points
@@ -29,12 +29,13 @@ for filename1, filename2 in zip(glob.glob('outU*.dat'), glob.glob('outE*.dat')):
                 for l in range(3):
                     val[temp,l]=X[i][j][k][l]
             data['X'] = val
-        val=np.zeros((sol1.shape[0]*sol1.shape[1]*sol1.shape[2], 2))
+        val=np.zeros((sol1.shape[0]*sol1.shape[1]*sol1.shape[2], 3))
         temp=-1
         for i, j, k in itertools.product(range(sol1.shape[0]), range(sol1.shape[1]), range(sol1.shape[2])):
             temp=temp+1
-            val[temp,0]=sol2[i][j][k][0]
-            val[temp,1]=sol2[i][j][k][1]
+            val[temp,0]=sol1[i][j][k][3]
+            val[temp,1]=sol2[i][j][k][0]
+            val[temp,2]=sol2[i][j][k][1]
         data['T'+filename1[4:-4]] = val
         data['numIncs']=inc; inc=inc+1;
 if writeMat:

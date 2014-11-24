@@ -19,3 +19,8 @@
 CMakeFiles*
 CMakeCache.txt
 cmake_install.cmake
+
+*avi
+*mpeg
+*mp4
+*mat
