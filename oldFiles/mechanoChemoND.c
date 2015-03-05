@@ -10,9 +10,9 @@ extern "C" {
 #define finiteStrain
 #define ADSacado
 #define numVars 27
-#define EgVAL 1.0
-#define dtVAL 1.0e-6
-#define NVAL 100
+#define EgVAL 1.0e-1
+#define dtVAL 1.0e-7
+#define NVAL 1000
 #define FLUX 3
 #define bcVAL 2
 
@@ -752,7 +752,7 @@ int main(int argc, char *argv[]) {
   user.Eij=-2*user.E2;
   user.Eg=EgVAL*(-2*user.E2)*pow(lVAL,2.0);
   //
-  user.dt=dtVAL;
+  user.dt=dtVAL; 
   //
   PetscPrintf(PETSC_COMM_WORLD,"\n\nCg:%8.2e, D:%8.2e, flux:%8.2e, cbar:%8.2e\n",user.Cg,user.D,user.flux,user.cbar);
   PetscPrintf(PETSC_COMM_WORLD,"E6:%8.2e, E4:%8.2e, E2:%8.2e, Eii:%8.2e, Eij:%8.2e, Eg:%8.2e, d:%8.2e, s:%8.2e, curvature:%8.2e\n",user.E6,user.E4,user.E2,user.Eii,user.Eij,user.Eg,user.Ed,user.Es,user.curvature);
