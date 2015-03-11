@@ -40,7 +40,6 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   //PetscPrintf(PETSC_COMM_WORLD,"e1: %8.2e, e2: %8.2e\n",e2,e3);
   
   //compute distance to nearest well
-  PetscReal Es=user->Es;
   PetscReal x[3],y[3]; 
   x[0]=0; y[0]=Es; //first well 
   x[1]=-Es*cos(30.0*PI/180.0); y[1]=-Es*sin(30.0*PI/180.0); //second well
@@ -60,7 +59,6 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   PetscReal e3=E[0][1];
   
   //compute distance to nearest well
-  PetscReal Es=user->Es;
   PetscReal dist=e2-Es;
   unsigned int wellID=1;
 #endif

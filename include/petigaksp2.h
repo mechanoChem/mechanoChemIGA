@@ -5,7 +5,6 @@ typedef struct {
   Vec *U0;
   PetscScalar *localU0;
   PetscInt test;
-  PetscReal Es;
   void* microstructure;
 } AppCtxKSP;
 
