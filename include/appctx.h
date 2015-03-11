@@ -3,6 +3,7 @@
 
 typedef struct {
   IGA iga;
+  Vec *U, *U0;
   PetscReal dt;
   PetscReal he;
   AppCtxKSP* appCtxKSP;

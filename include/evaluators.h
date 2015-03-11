@@ -23,7 +23,7 @@ PetscErrorCode Residual(IGAPoint p,PetscReal dt,
                         PetscReal t0,const PetscScalar *U0, 
 			PetscScalar *R,void *ctx)
 {
-  Function<double>(p, dt, shift, V, t, U, t0, U0, R, ctx);
+  Function<PetscReal>(p, dt, shift, V, t, U, t0, U0, R, ctx);
   return 0;
 }
 
