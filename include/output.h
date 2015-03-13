@@ -103,7 +103,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
   sprintf(filename,"./outU%d.dat",it_number);
-  if (it_number%10==0){
+  if (it_number%skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, user->appCtxKSP);
   }

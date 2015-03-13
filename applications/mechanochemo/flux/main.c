@@ -14,8 +14,8 @@ extern "C" {
 #define C4 (-16*Cd/std::pow(Cs,4))
 #define C3 (32*Cd/std::pow(Cs,3))
 #define C2 (-16*Cd/std::pow(Cs,2))
-#define Es 1.0
-#define Ed -1.0
+#define Es 0.1
+#define Ed -0.1
 #define E4 (-Ed/std::pow(Es,4))
 #define E3 0.0
 #define E2 (2*Ed/std::pow(Es,2))*((2*c-Cs)/Cs)
@@ -28,7 +28,7 @@ extern "C" {
 #define Eii (-2*Ed/std::pow(Es,2))
 #define Eij (-2*Ed/std::pow(Es,2))
 #define Cl 0.01 //Clambda - constant for gradC.gradC
-#define El 0.01 //ELambda - constant for gradE.gradE
+#define El 1.0e-4 //ELambda - constant for gradE.gradE
 #define Gl 0.0  //Glambda - constant for abs(gradC.gradE)
 //stress
 #define PiJ (2*Eii*e1*e1_FiJ + 2*Eij*e6*e6_FiJ + (4*E4*e2*e2*e2 + 3*E3*e2*e2 + 2*E2*e2)*e2_FiJ + (El*e2_1+Gl*c_1/2)*e2_1_FiJ + (El*e2_2+Gl*c_2/2)*e2_2_FiJ)
@@ -42,13 +42,14 @@ extern "C" {
 #define flux 1.0
 #define uDirichlet 0.001
 //other variables
-#define NVal 100
+#define NVal 200
 #define DVal 0.1
 #define CVal 5.0
 #define gamma 1.0
 #define cbar 0.01
 //time stepping
-#define dtVal 1.0e-5
+#define dtVal 1.0e-6
+#define skipOutput 1000
 
 //other problem headers
 #include "../../../include/appctx.h"
