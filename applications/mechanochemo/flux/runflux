@@ -1,4 +1,4 @@
 fileName=main
 
 #Run
-time mpirun -np 8 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 200 
+time mpirun -np 2 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 200 

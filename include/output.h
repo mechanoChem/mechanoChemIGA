@@ -109,14 +109,21 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   }
   
   //Check for min(C), and stop if min(C)>1
-  PetscReal minC;
+  PetscReal minC, maxC;
   VecSetBlockSize(U,dim+1);  
   VecStrideMin(U,2,NULL,&minC);
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C): %12.6e \n",minC);
+  VecStrideMax(U,2,NULL,&maxC);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C): %12.6e, max(C): %12.6e \n",minC, maxC);
   if (minC>1.0){
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C) > 1.0 so forcefully quitting \n");
     exit(-1);
   }
-  
+  //adaptive TS
+  double dt=dtVal;
+  if (maxC<0.35) dt=dtVal*100;
+  else if ((maxC>=0.35)&&(maxC<0.45)) dt=dtVal*10;
+  else if (maxC>=0.45) dt=dtVal;  
+  ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);  
   PetscFunctionReturn(0);
 }
