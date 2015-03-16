@@ -1,13 +1,16 @@
+#ifndef output_h
+#define output_h
 
-PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
+PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
-  AppCtxKSP *user = (AppCtxKSP *)ctx;
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,user->localU0,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  PetscReal c0;
+  computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U,&c0);
   //Compute F
   PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -47,11 +50,25 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
       case 1:
 	val=e6; break;
       case 3: //only in 3D with concentration
-	val=dist; break;
+	val=c0; break;
       case 2: //only in 3D 
-	val=(PetscReal) wellID; break;
+	val=c0; break;
       } 
       R[n1*dof+d1] = N[n1]*val;
+    }
+  }
+  return 0;
+}
+
+PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, void *ctx)
+{	
+  PetscInt nen, dof;
+  IGAPointGetSizes(p,0,&nen,&dof);
+
+
+  const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
+  for(int n1=0; n1<nen; n1++){
+    for(int d1=0; d1<dof; d1++){
       for(int n2=0; n2<nen; n2++){
 	for(int d2=0; d2<dof; d2++){
 	  PetscReal val2=0.0;
@@ -64,7 +81,7 @@ PetscErrorCode E22System(IGAPoint p, PetscScalar *K, PetscScalar *R, void *ctx)
   return 0;
 }
 
-PetscErrorCode ProjectSolution(IGA iga, PetscInt step, AppCtxKSP *user)
+PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 {	
   PetscErrorCode ierr;
   PetscFunctionBegin;
@@ -74,8 +91,10 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, AppCtxKSP *user)
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
-  ierr = IGASetFormSystem(iga,E22System,user);CHKERRQ(ierr);
-  ierr = IGAComputeSystem2(iga,A,b);CHKERRQ(ierr);
+  ierr = IGASetFormFunction(iga,E22Function,user);CHKERRQ(ierr);
+  ierr = IGASetFormJacobian(iga,E22Jacobian,user);CHKERRQ(ierr);
+  ierr = IGAComputeFunction(iga,U,b);CHKERRQ(ierr);
+  ierr = IGAComputeJacobian(iga,U,A);CHKERRQ(ierr);
 
   //Solver
   KSP ksp;
@@ -105,7 +124,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   sprintf(filename,"./outU%d.dat",it_number);
   if (it_number%skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
-    ProjectSolution(user->iga, it_number, user->appCtxKSP);
+    ProjectSolution(user->iga, it_number, U, user); 
   }
   
   //Check for min(C), and stop if min(C)>1
@@ -124,6 +143,22 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   else if ((maxC>=0.35)&&(maxC<0.45)) dt=dtVal*10;
   else if (maxC>=0.45) dt=dtVal;  
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);  
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
+
+  //BC
+  /*
+  double dVal=0.001;
+  if ((it_number>100) && (it_number<200)){
+    dVal*=(it_number-100);
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: dVal: %12.6e \n",dVal); 
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,0,0,dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,1,0,-dVal);CHKERRQ(ierr);
+  }
+  */
+  // 
   PetscFunctionReturn(0);
 }
+
+#endif

@@ -1,7 +1,7 @@
 #ifndef init_
 #define init_
 
-int init(AppCtx& user, AppCtxKSP& userKSP, PetscInt N, PetscInt p){
+int init(AppCtx& user, PetscInt N, PetscInt p){
   PetscErrorCode  ierr;
 
   //set discretization options
