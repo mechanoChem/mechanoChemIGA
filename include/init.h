@@ -26,12 +26,12 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis0,N,0.0,1.0,C);CHKERRQ(ierr);
+  ierr = IGAAxisInitUniform(axis0,N,0.0,1.0*GridScale,C);CHKERRQ(ierr);
 
   IGAAxis axis1;
   ierr = IGAGetAxis(user.iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis1,N,0.0,1.0,C);CHKERRQ(ierr);
+  ierr = IGAAxisInitUniform(axis1,N,0.0,1.0*GridScale,C);CHKERRQ(ierr);
   ierr = IGASetFromOptions(user.iga);CHKERRQ(ierr);
   ierr = IGASetUp(user.iga);CHKERRQ(ierr);
   //restart

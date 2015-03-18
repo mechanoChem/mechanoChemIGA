@@ -5,21 +5,25 @@ import time, datetime, os
 #
 cluster_name="prismsproject_fluxoe"
 #
-GRID=[100,200,400]
-DT=[1.0e-5,1.0e-6,1.0e-7]
+GRID=[300, 400]
+DT=[1.0e-5]
 #BC={0:"SHEAR",1:"FREE",2:"FIXED"}
 BC={1:"FREE"}
 #FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
-FLUX={0:"ALL"}
-LAMBDA=[1.0e-2,1.0e-3,1.0e-4]
+FLUX={3:"QUENCH"}
+LAMBDA=[1.0e-5]
 
-runOptions="-ts_monitor -snes_monitor -snes_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -ts_adapt_type none -ts_max_snes_failures 200 -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 200"
+#gmres
+#runOptions="-ts_monitor -snes_monitor -snes_converged_reason -pc_type hypre -ksp_type gmres -ksp_gmres_restart 600 -ts_adapt_type none -ts_max_snes_failures 100000 -snes_max_it 200 -snes_type newtontr -snes_stol 1.0e-10 -snes_trtol 0.0"
+
+#mumps
+runOptions="-ts_monitor -snes_monitor -snes_converged_reason -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps -ts_adapt_type none -ts_max_snes_failures 100000 -snes_max_it 200 -snes_type newtonls -snes_stol 1.0e-10 -snes_trtol 0.0"
 
 #create today directory
 today = datetime.date.today()
 todaystr = today.isoformat()
-dirPath0=os.path.join(os.getcwd(),"results2")
-dirPath=os.path.join(os.getcwd(),"results2",todaystr)
+dirPath0=os.path.join(os.getcwd(),"results45")
+dirPath=os.path.join(os.getcwd(),"results45",todaystr)
 if not os.path.exists(dirPath0):
     os.mkdir(dirPath0)
 if not os.path.exists(dirPath):
@@ -28,7 +32,7 @@ if not os.path.exists(dirPath):
 #iterate
 for dt, N, bc, flux, lam in [(dt, N, bc, flux, lam) for dt in DT for N in GRID for bc in BC.keys() for flux in FLUX.keys() for lam in LAMBDA]:
     fileName='N'+str(N)+"l"+str(lam)+"t"+str(dt)+"F"+FLUX[flux]+"B"+BC[bc]
-    shutil.copyfile ("/scratch/prismsproject_flux/rudraa/dir2015/mechanochemoPaper/mechanochemocode/applications/mechanochemo/flux/main.c", fileName+".c")
+    shutil.copyfile ("/scratch/prismsproject_flux/rudraa/dir2015/mechanochemoPaper/mechanochemocode/applications/mechanochemo/quench/main.c", fileName+".c")
     print fileName
     varDefs=["-D dtVal="+str(dt),"-D NVal="+str(N),"-D bcVAL="+str(bc),"-D FLUX="+str(flux),"-D El="+str(lam)]
     
