@@ -149,7 +149,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       Rc += t3*t4*t5;
       Rc *= Cl;
       //flux term, Na*J
-#if FLUX==3
+#if FLUX==3 //Quench
       Rc +=0.0;
 #elif FLUX==0
       Rc += -N[a]*flux;

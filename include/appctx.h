@@ -7,7 +7,7 @@ typedef struct {
   Vec *U, *U0;
   PetscReal dt;
   PetscReal he;
-  PetscReal f0Norm;
+  PetscReal norm;
 } AppCtx;
 
 #endif

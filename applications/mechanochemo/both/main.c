@@ -27,7 +27,7 @@ extern "C" {
 #define E2_cc 0.0
 #define Eii (-2*Ed/std::pow(Es,2))
 #define Eij (-2*Ed/std::pow(Es,2))
-#define Cl 0.01 //Clambda - constant for gradC.gradC
+#define Cl  (0.01*GridScale*GridScale) //Clambda - constant for gradC.gradC
 //#define El 0.0001 //**ELambda - constant for gradE.gradE
 #define Gl 0.0  //Glambda - constant for abs(gradC.gradE)
 //stress
@@ -39,17 +39,16 @@ extern "C" {
 //boundary conditions
 //#define bcVAL 1 //**
 //#define FLUX 3 //**
-#define flux 1.0
+#define flux 10.0
 #define uDirichlet 0.001
 //other variables
 //#define NVal 60 //**
-#define DVal 0.1
+#define DVal (1.0*GridScale*GridScale)
 #define CVal 5.0
 #define gamma 1.0
-#define cbar 0.05
 //time stepping
 //#define dtVal 1.0e-6 //**
-#define skipOutput 100
+#define skipOutput 10
 
 //other problem headers
 #include "../../../include/appctx.h"

@@ -1,5 +1,6 @@
 #ifndef output_h
 #define output_h
+#include <cmath>
 
 PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
@@ -145,6 +146,18 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 
+  //check for no change in solution between every 100 timesteps and quit
+  PetscReal normC;
+  VecStrideNorm(U,2,NORM_2,&normC);
+  if (it_number%100==0){
+    if (it_number>0){
+      PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration over last 100 time steps: %12.6e, norm: %12.6e, oldnorm: %12.6e\n",std::abs(normC-user->norm), normC, user->norm); 
+      if (std::abs(normC-user->norm)<1.0e-6){
+	PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration below tol (1e-8) over last 100 time steps, solve probable stalled hence quitting\n"); exit(-1);     
+      }
+    }
+    user->norm=normC;
+  } 
   //BC
   /*
   double dVal=0.001;
