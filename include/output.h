@@ -140,9 +140,9 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   }
   //adaptive TS
   double dt=dtVal;
-  if (maxC<0.35) dt=dtVal*100;
+  /*if (maxC<0.35) dt=dtVal*100;
   else if ((maxC>=0.35)&&(maxC<0.45)) dt=dtVal*10;
-  else if (maxC>=0.45) dt=dtVal;  
+  else if (maxC>=0.45) dt=dtVal;*/  
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 

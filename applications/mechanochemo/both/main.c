@@ -5,7 +5,7 @@ extern "C" {
 #include "../../../include/fields.h"
 //general parameters
 #define DIM 2
-#define GridScale 0.1
+#define GridScale 0.01
 #define ADSacado
 #define numVars 27
 //physical parameters
@@ -43,7 +43,7 @@ extern "C" {
 #define uDirichlet 0.001
 //other variables
 //#define NVal 60 //**
-#define DVal (1.0*GridScale*GridScale)
+#define DVal (10.0*GridScale*GridScale)
 #define CVal 5.0
 #define gamma 1.0
 //time stepping

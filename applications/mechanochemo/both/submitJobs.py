@@ -6,13 +6,13 @@ import time, datetime, os
 cluster_name="prismsproject_fluxoe"
 #
 GRID=[100,200]
-DT=[1.0e-5, 1.0e-6]
+DT=[1.0e-6, 1.0e-7]
 #BC={0:"SHEAR",1:"FREE",2:"FIXED"}
 BC={1:"FREE",2:"FIXED"}
 #FLUX={0:"ALL",1:"TOPBOTTOM",2:"SIDES",3:"QUENCH"}
 #FLUX={1:"TOPBOTTOM"}
 FLUX={3:"QUENCH"}
-LAMBDA=[1.0e-5, 1.0e-6]
+LAMBDA=[1.0e-5, 1.0e-6, 1.0e-7]
 
 #gmres
 #runOptions="-ts_monitor -snes_monitor -snes_converged_reason -pc_type hypre -ksp_type gmres -ksp_gmres_restart 600 -ts_adapt_type none -ts_max_snes_failures 100000 -snes_max_it 200 -snes_type newtontr -snes_stol 1.0e-10 -snes_trtol 0.0"
@@ -23,8 +23,8 @@ runOptions="-ts_monitor -snes_monitor -snes_converged_reason -ksp_type preonly -
 #create today directory
 today = datetime.date.today()
 todaystr = today.isoformat()
-dirPath0=os.path.join(os.getcwd(),"resultsQuench")
-dirPath=os.path.join(os.getcwd(),"resultsQuench",todaystr)
+dirPath0=os.path.join(os.getcwd(),"resultsQuenchRes2")
+dirPath=os.path.join(os.getcwd(),"resultsQuenchRes2",todaystr)
 if not os.path.exists(dirPath0):
     os.mkdir(dirPath0)
 if not os.path.exists(dirPath):
