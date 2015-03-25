@@ -63,8 +63,8 @@ extern "C" {
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){
   AppCtx *user  = (AppCtx*) ctx;
   //custom test
-  if (NVal>=300){
-    if (it>50){
+  if (NVal>=100){
+    if (it>400){
       *reason = SNES_CONVERGED_ITS;
       return(0);
     }

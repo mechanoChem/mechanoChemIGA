@@ -19,7 +19,7 @@ PetscErrorCode FormInitialCondition2D(IGA iga, Vec U, AppCtx *user)
   DMDALocalInfo info;
   ierr = DMDAGetLocalInfo(da,&info);CHKERRQ(ierr);
 #if FLUX==3 //Quench
-  double c_average=0.45;
+  double c_average=0.46;
 #else       //Flux 
   double c_average=0.05;
 #endif

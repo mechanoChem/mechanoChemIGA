@@ -152,7 +152,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   if (it_number%100==0){
     if (it_number>0){
       PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration over last 100 time steps: %12.6e, norm: %12.6e, oldnorm: %12.6e\n",std::abs(normC-user->norm), normC, user->norm); 
-      if (std::abs(normC-user->norm)<1.0e-6){
+      if (std::abs(normC-user->norm)<1.0e-5){
 	PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration below tol (1e-8) over last 100 time steps, solve probable stalled hence quitting\n"); exit(-1);     
       }
     }
