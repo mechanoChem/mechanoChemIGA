@@ -57,7 +57,7 @@ extern "C" {
 #include "../../../include/initialConditions.h"
 #include "../../../include/init.h"
 //physics header
-#include "../../../src/mechanochemo/twoD/mechanoChemo2D.h"
+#include "../../../src/mechanochemo/mechanoChemoND.h"
 
 //snes convegence test
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){

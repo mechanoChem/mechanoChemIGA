@@ -1,5 +1,5 @@
-#ifndef mechanochemo2D_
-#define mechanochemo2D_
+#ifndef mechanochemoND_
+#define mechanochemoND_
 
 //residual function implementation
 #undef  __FUNCT__
@@ -21,8 +21,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T c, cx[DIM], cxx[DIM][DIM]; PetscReal c0;
   computeField<T,DIM,DIM+1>(SCALAR,DIM,p,U,&c,&cx[0],&cxx[0][0]);
   computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U0,&c0);
-  T c_1=cx[0], c_2=cx[1]; 
-  
+
   //displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
   computeField<T,DIM,DIM+1>(VECTOR,0,p,&U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
@@ -48,7 +47,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
-  
+
+  //compute P and Beta
+  T P[DIM][DIM], Beta[DIM][DIM][DIM];
+ 
+  //2D model
+#if DIM==2  
   //new strain metrics (2D)
   T e1=(E[0][0]+E[1][1]);
   T e2=(E[0][0]-E[1][1]);
@@ -58,8 +62,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0]);
     e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1]);
   }
-  //compute P and Beta
-  T P[DIM][DIM], Beta[DIM][DIM][DIM];
+  T e2x[DIM]; 
+  e2x[0]=e2_1; e2x[1]=e2_2;
   //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
@@ -81,6 +85,60 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     }
   }
   
+  //3D model
+#elif DIM==3
+  T e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
+  T e2=(E[0][0]-E[1][1])/sqrt(2.0);
+  T e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
+  T e4=E[1][2], e5=E[2][0], e6=E[0][1];
+  T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
+  for (unsigned int i=0; i<DIM; ++i){
+    e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0])/sqrt(2.0);
+    e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1])/sqrt(2.0);
+    e2_3+=(F[i][0]*dF[i][0][2]-F[i][1]*dF[i][1][2])/sqrt(2.0);
+    e3_1+=(F[i][0]*dF[i][0][0]+F[i][1]*dF[i][1][0]-2*F[i][2]*dF[i][2][0])/sqrt(6.0);
+    e3_2+=(F[i][0]*dF[i][0][1]+F[i][1]*dF[i][1][1]-2*F[i][2]*dF[i][2][1])/sqrt(6.0);
+    e3_3+=(F[i][0]*dF[i][0][2]+F[i][1]*dF[i][1][2]-2*F[i][2]*dF[i][2][2])/sqrt(6.0);
+  }
+  T e2x[DIM], e3x[DIM]; 
+  e2x[0]=e2_1; e2x[1]=e2_2; e2x[2]=e2_3;
+  e3x[0]=e3_1; e3x[1]=e3_2; e3x[2]=e3_3;
+  //
+  for (unsigned int i=0; i<DIM; ++i){
+    for (unsigned int J=0; J<DIM; ++J){
+      T e1_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J)+F[i][2]*(2==J))/sqrt(3.0);
+      T e2_FiJ=(F[i][0]*(0==J)-F[i][1]*(1==J))/sqrt(2.0);
+      T e3_FiJ=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))/sqrt(6.0);
+      T e4_FiJ=(F[i][2]*(1==J)+F[i][1]*(2==J))/2.0;
+      T e5_FiJ=(F[i][0]*(2==J)+F[i][2]*(0==J))/2.0;
+      T e6_FiJ=(F[i][1]*(0==J)+F[i][0]*(1==J))/2.0;
+      T e2_1_FiJ=((0==J)*dF[i][0][0]-(1==J)*dF[i][1][0])/sqrt(2.0);
+      T e2_2_FiJ=((0==J)*dF[i][0][1]-(1==J)*dF[i][1][1])/sqrt(2.0);
+      T e2_3_FiJ=((0==J)*dF[i][0][2]-(1==J)*dF[i][1][2])/sqrt(2.0);     
+      T e3_1_FiJ=((0==J)*dF[i][0][0]+(1==J)*dF[i][1][0]-2*(2==J)*dF[i][2][0])/sqrt(6.0);
+      T e3_2_FiJ=((0==J)*dF[i][0][1]+(1==J)*dF[i][1][1]-2*(2==J)*dF[i][2][1])/sqrt(6.0);
+      T e3_3_FiJ=((0==J)*dF[i][0][2]+(1==J)*dF[i][1][2]-2*(2==J)*dF[i][2][2])/sqrt(6.0);
+      //P
+      P[i][J]=PiJ;   
+      
+      //gradient terms
+      for (unsigned int K=0; K<DIM; ++K){
+	T e2_1_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(0==K)/sqrt(2.0);
+	T e2_2_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(1==K)/sqrt(2.0);
+	T e2_3_FiJK=(F[i][0]*(0==J)-F[i][1]*(1==J))*(2==K)/sqrt(2.0);
+	T e3_1_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(0==K)/sqrt(6.0);
+	T e3_2_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(1==K)/sqrt(6.0);
+	T e3_3_FiJK=(F[i][0]*(0==J)+F[i][1]*(1==J)-2*F[i][2]*(2==J))*(2==K)/sqrt(6.0);
+	//Beta
+	Beta[i][J][K]=BetaiJK;
+      }
+    }
+  }
+#else
+  PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
+      exit(-1);      	
+#endif   
+
   //get shape function values
   double (*N) = (double (*)) p->shape[0];
   double (*Nx)[DIM] = (double (*)[DIM]) p->shape[1];
@@ -119,9 +177,21 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     if (!surfaceFlag){
       // Na * c_t
       Rc += N[a] * (c-c0)*(1.0/dt2);
-      // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2))
-      double laplace_N = N2[0][0] + N2[1][1];
-      Rc += DVal*mu_c*(N1[0]*c_1+N1[1]*c_2) + DVal*mu_e2*(N1[0]*e2_1+N1[1]*e2_2);
+      // grad(Na) . D*(dmuc*grad(C)+dmue2*grad(e2)+dmue3*grad(e3))
+      double laplace_N=0.0; T Nxcx=0.0, Nxe2x=0.0;
+      for (unsigned int i=0; i<DIM; i++){
+	laplace_N+=N2[i][i];
+	Nxcx+=N1[i]*cx[i];
+	Nxe2x+=N1[i]*e2x[i];
+      }
+      Rc += DVal*mu_c*Nxcx + DVal*mu_e2*Nxe2x;
+#if DIM==3  
+      T Nxe3x=0.0;
+      for (unsigned int i=0; i<DIM; i++){
+	Nxe3x+=N1[i]*e3x[i];      
+      }
+      Rc += DVal*mu_e3*Nxe3x;
+#endif	
       // lambda * del2(Na) * D * del2(c)
       Rc += Cl*laplace_N*DVal*laplace_c;
     }

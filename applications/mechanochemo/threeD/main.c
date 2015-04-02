@@ -4,7 +4,8 @@ extern "C" {
 }
 #include "../../../include/fields.h"
 //general parameters
-#define DIM 2
+#define DIM 3
+#define GridScale 0.01
 #define ADSacado
 #define numVars 27
 //physical parameters
@@ -15,40 +16,40 @@ extern "C" {
 #define C2 (-16*Cd/std::pow(Cs,2))
 #define Es 0.1
 #define Ed -0.1
-#define E4 (-Ed/std::pow(Es,4))
-#define E3 0.0
-#define E2 (2*Ed/std::pow(Es,2))*((2*c-Cs)/Cs)
+#define E4 (-3*Ed/(2*std::pow(Es,4)))
+#define E3 (Ed/(std::pow(Es,3)))*(c/Cs)
+#define E2 (3*Ed/(2*std::pow(Es,2)))*(c/Cs)
 #define E4_c 0.0
-#define E3_c 0.0
-#define E2_c (2*Ed/std::pow(Es,2))*(2.0/Cs)
+#define E3_c (Ed/(std::pow(Es,3)))*(1.0/Cs)
+#define E2_c (3*Ed/(2*std::pow(Es,2)))*(1.0/Cs)
 #define E4_cc 0.0
 #define E3_cc 0.0
 #define E2_cc 0.0
 #define Eii (-2*Ed/std::pow(Es,2))
 #define Eij (-2*Ed/std::pow(Es,2))
-#define Cl 0.01 //Clambda - constant for gradC.gradC
-//#define El 0.0001 //**ELambda - constant for gradE.gradE
-#define Gl 0.0  //Glambda - constant for abs(gradC.gradE)
+#define Cl  (0.01*GridScale*GridScale) //Clambda - constant for gradC.gradC
+#define El 0.0001 //**ELambda - constant for gradE.gradE
+#define Gl 0.0  //Glambda - constant for abs(gradC.gradE)...this is not fully implemented as requires C^2 space
 //stress
-#define PiJ (2*Eii*e1*e1_FiJ + 2*Eij*e6*e6_FiJ + (4*E4*e2*e2*e2 + 3*E3*e2*e2 + 2*E2*e2)*e2_FiJ + (El*e2_1+Gl*c_1/2)*e2_1_FiJ + (El*e2_2+Gl*c_2/2)*e2_2_FiJ)
-#define BetaiJK ((El*e2_1+Gl*c_1/2)*e2_1_FiJK + (El*e2_2+Gl*c_2/2)*e2_2_FiJK)
+#define PiJ (2*Eii*e1*e1_FiJ + 2*Eij*e4*e4_FiJ + 2*Eij*e5*e5_FiJ + 2*Eij*e6*e6_FiJ + (2*E2*e2-6*E3*e2*e3+4*E4*e2*(e2*e2+e3*e3))*e2_FiJ + (2*E2*e3+3*E3*(e3*e3-e2*e2)+4*E4*e3*(e2*e2+e3*e3))*e3_FiJ + 2*El*(e2_1*e2_1_FiJ + e2_2*e2_2_FiJ + e2_3*e2_3_FiJ + e3_1*e3_1_FiJ + e3_2*e3_2_FiJ + e3_3*e3_3_FiJ))
+#define BetaiJK  2*El*(e2_1*e2_1_FiJK + e2_2*e2_2_FiJK + e2_3*e2_3_FiJK + e3_1*e3_1_FiJK + e3_2*e3_2_FiJK + e3_3*e3_3_FiJK)
 //chemistry
-#define mu_c (12*C4*c*c+6*C3*c+2*C2+E4_cc*e2*e2*e2*e2+E3_cc*e2*e2*e2+E2_cc*e2*e2)
-#define mu_e2 (4*E4_c*e2*e2*e2+3*E3_c*e2*e2+2*E2_c*e2)
+#define mu_c (12*C4*c*c+6*C3*c+2*C2) // E4_cc, E3_cc, E2_cc are zero so skipping those terms 
+#define mu_e2 (4*E4_c*e2*(e2*e2+e3*e3) - 6*E3_c*e3*e2 + 2*E2_c*e2)
+#define mu_e3 (4*E4_c*e3*(e2*e2+e3*e3) + 3*E3_c*(e3*e3-e2*e2) + 2*E2_c*e3)
 //boundary conditions
-//#define bcVAL 1 //**
-//#define FLUX 3 //**
-#define flux 0.0
+#define bcVAL 2 //**
+#define FLUX 1 //**
+#define flux 10.0
 #define uDirichlet 0.001
 //other variables
-//#define NVal 60 //**
-#define DVal 0.1
+#define NVal 50 //**
+#define DVal (10.0*GridScale*GridScale)
 #define CVal 5.0
 #define gamma 1.0
-#define cbar 0.40
 //time stepping
-//#define dtVal 1.0e-6 //**
-#define skipOutput 100
+#define dtVal 1.0e-6 //**
+#define skipOutput 1
 
 //other problem headers
 #include "../../../include/appctx.h"
@@ -57,14 +58,14 @@ extern "C" {
 #include "../../../include/initialConditions.h"
 #include "../../../include/init.h"
 //physics header
-#include "../../../src/mechanochemo/twoD/mechanoChemo2D.h"
+#include "../../../src/mechanochemo/mechanoChemoND.h"
 
 //snes convegence test
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){
   AppCtx *user  = (AppCtx*) ctx;
   //custom test
-  if (NVal>=300){
-    if (it>50){
+  if (NVal>=100){
+    if (it>100){
       *reason = SNES_CONVERGED_ITS;
       return(0);
     }
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]) {
   //application context objects and parameters
   AppCtx user;
   user.dt=dtVal;
-  user.he=1.0/NVal; 
+  user.he=GridScale*1.0/NVal; 
   PetscInt p=2;
 
   //initialize
@@ -96,28 +97,26 @@ int main(int argc, char *argv[]) {
   //Dirichlet boundary conditons for mechanics
   PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
   
-  double dVal=uDirichlet;
+  double dVal=uDirichlet*GridScale;
 #if bcVAL==0
   //shear BC
-  ierr = IGASetBoundaryValue(user.iga,0,0,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,1,-dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,0,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,1,0,-dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,0,1,1,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,0,0,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,1,1,0,-dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(iga,2,0,2,0.0);CHKERRQ(ierr);  
 #elif bcVAL==1
   //free BC
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,0,1,0,dVal);CHKERRQ(ierr);  
 #elif bcVAL==2
   //fixed BC
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,0,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,1,1,0,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,1,1,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
 #endif 
 
   //time stepping

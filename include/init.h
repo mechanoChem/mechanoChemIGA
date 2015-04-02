@@ -32,8 +32,16 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   ierr = IGAGetAxis(user.iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
   ierr = IGAAxisInitUniform(axis1,N,0.0,1.0*GridScale,C);CHKERRQ(ierr);
+
+#if DIM==3
+  IGAAxis axis2;
+  ierr = IGAGetAxis(user.iga,2,&axis2);CHKERRQ(ierr);
+  ierr = IGAAxisSetDegree(axis2,p);CHKERRQ(ierr);
+  ierr = IGAAxisInitUniform(axis2,N,0.0,1.0*GridScale,C);CHKERRQ(ierr); 
+#endif
   ierr = IGASetFromOptions(user.iga);CHKERRQ(ierr);
   ierr = IGASetUp(user.iga);CHKERRQ(ierr);
+
   //restart
   char meshfilename[256];
   sprintf(meshfilename, "mesh.dat");
@@ -43,7 +51,7 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   //fields 
   ierr = IGACreateVec(user.iga,user.U);CHKERRQ(ierr);
   ierr = IGACreateVec(user.iga,user.U0);CHKERRQ(ierr);
-  ierr = FormInitialCondition2D(user.iga, *user.U0, &user); 
+  ierr = FormInitialCondition(user.iga, *user.U0, &user); 
   ierr = VecCopy(*user.U0, *user.U);CHKERRQ(ierr);
   
   //
@@ -53,7 +61,13 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   ierr = IGAFormSetBoundaryForm (form,0,1,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,1,0,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,1,1,PETSC_TRUE);CHKERRQ(ierr);
-
+#if DIM==3
+  ierr = IGAFormSetBoundaryForm (form,0,2,PETSC_TRUE);CHKERRQ(ierr);
+  ierr = IGAFormSetBoundaryForm (form,1,2,PETSC_TRUE);CHKERRQ(ierr);
+  ierr = IGAFormSetBoundaryForm (form,2,0,PETSC_TRUE);CHKERRQ(ierr);
+  ierr = IGAFormSetBoundaryForm (form,2,1,PETSC_TRUE);CHKERRQ(ierr);
+  ierr = IGAFormSetBoundaryForm (form,2,2,PETSC_TRUE);CHKERRQ(ierr);
+#endif
   //assign residual and jacobian functions
   ierr = IGASetFormIEFunction(user.iga,Residual,&user);CHKERRQ(ierr);
   ierr = IGASetFormIEJacobian(user.iga,Jacobian,&user);CHKERRQ(ierr);

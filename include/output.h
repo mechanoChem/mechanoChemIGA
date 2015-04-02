@@ -31,6 +31,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
     }
   }
 
+#if DIM==2
   //new strain metrics
   PetscReal e1=(E[0][0]+E[1][1]);
   PetscReal e2=(E[0][0]-E[1][1]);
@@ -39,6 +40,27 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   //compute distance to nearest well
   PetscReal dist=e2-Es;
   unsigned int wellID=1;
+
+#elif DIM==3
+  //new strain metrics
+  PetscReal e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
+  PetscReal e2=(E[0][0]-E[1][1])/sqrt(2.0);
+  PetscReal e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
+  PetscReal e4=E[1][2], e5=E[2][0], e6=E[0][1];
+  //compute distance to nearest well
+  PetscReal x[3],y[3]; 
+  x[0]=0; y[0]=Es; //first well 
+  x[1]=-Es*cos(30.0*PI/180.0); y[1]=-Es*sin(30.0*PI/180.0); //second well
+  x[2]=+Es*cos(30.0*PI/180.0); y[2]=-Es*sin(30.0*PI/180.0); //third well
+  PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
+  unsigned int wellID=1; 
+  for(unsigned int i=1; i<3; i++){
+    if(dist>sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0))){
+      dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
+      wellID=i+1;
+    }
+  }
+#endif
  
   //store L2 projection residual
   const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
@@ -46,14 +68,23 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
     for(int d1=0; d1<dof; d1++){
       PetscReal val=0.0;
       switch (d1) {
+#if DIM==2
       case 0:
 	val=e2; break;
       case 1:
 	val=e6; break;
-      case 3: //only in 3D with concentration
+      case 2:
 	val=c0; break;
-      case 2: //only in 3D 
-	val=c0; break;
+#elif DIM==3
+      case 0:
+	val=e2; break;
+      case 1:
+	val=e3; break;
+      case 2:
+	val=dist; break;
+      case 3:
+	val=wellID; break;
+#endif
       } 
       R[n1*dof+d1] = N[n1]*val;
     }
@@ -65,8 +96,7 @@ PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, voi
 {	
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
-
-
+  //
   const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
   for(int n1=0; n1<nen; n1++){
     for(int d1=0; d1<dof; d1++){
@@ -117,7 +147,6 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 template <int dim>
 PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mctx)
 {
-  
   PetscFunctionBegin;
   PetscErrorCode ierr;
   AppCtx *user = (AppCtx *)mctx;
@@ -131,8 +160,8 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   //Check for min(C), and stop if min(C)>1
   PetscReal minC, maxC;
   VecSetBlockSize(U,dim+1);  
-  VecStrideMin(U,2,NULL,&minC);
-  VecStrideMax(U,2,NULL,&maxC);
+  VecStrideMin(U,dim,NULL,&minC);
+  VecStrideMax(U,dim,NULL,&maxC);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C): %12.6e, max(C): %12.6e \n",minC, maxC);
   if (minC>1.0){
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C) > 1.0 so forcefully quitting \n");
@@ -148,7 +177,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
   //check for no change in solution between every 100 timesteps and quit
   PetscReal normC;
-  VecStrideNorm(U,2,NORM_2,&normC);
+  VecStrideNorm(U,dim,NORM_2,&normC);
   if (it_number%100==0){
     if (it_number>0){
       PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration over last 100 time steps: %12.6e, norm: %12.6e, oldnorm: %12.6e\n",std::abs(normC-user->norm), normC, user->norm); 
