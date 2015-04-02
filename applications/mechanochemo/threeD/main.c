@@ -7,7 +7,7 @@ extern "C" {
 #define DIM 3
 #define GridScale 0.01
 #define ADSacado
-#define numVars 27
+#define numVars 108
 //physical parameters
 #define Cs 1.0
 #define Cd -2.0

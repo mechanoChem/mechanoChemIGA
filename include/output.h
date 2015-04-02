@@ -2,6 +2,8 @@
 #define output_h
 #include <cmath>
 
+#define PI 3.14159265
+
 PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
   PetscInt nen, dof;

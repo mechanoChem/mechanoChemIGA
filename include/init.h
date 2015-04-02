@@ -62,11 +62,8 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   ierr = IGAFormSetBoundaryForm (form,1,0,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,1,1,PETSC_TRUE);CHKERRQ(ierr);
 #if DIM==3
-  ierr = IGAFormSetBoundaryForm (form,0,2,PETSC_TRUE);CHKERRQ(ierr);
-  ierr = IGAFormSetBoundaryForm (form,1,2,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,2,0,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,2,1,PETSC_TRUE);CHKERRQ(ierr);
-  ierr = IGAFormSetBoundaryForm (form,2,2,PETSC_TRUE);CHKERRQ(ierr);
 #endif
   //assign residual and jacobian functions
   ierr = IGASetFormIEFunction(user.iga,Residual,&user);CHKERRQ(ierr);
