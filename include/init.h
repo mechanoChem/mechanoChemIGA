@@ -1,14 +1,14 @@
 #ifndef init_
 #define init_
 
-int init(AppCtx& user, PetscInt N, PetscInt p){
+int init(AppCtx& user, PetscInt N, PetscInt p, PetscInt dof){
   PetscErrorCode  ierr;
 
   //set discretization options
   PetscInt C=PETSC_DECIDE;
   PetscBool output = PETSC_TRUE; 
   PetscBool monitor = PETSC_TRUE; 
-  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,"","CahnHilliard2D Options","IGA");CHKERRQ(ierr);
+  ierr = PetscOptionsBegin(PETSC_COMM_WORLD,"","IGA Options","IGA");CHKERRQ(ierr);
   ierr = PetscOptionsEnd();CHKERRQ(ierr);
   if (C == PETSC_DECIDE) C = p-1;
  
@@ -21,7 +21,7 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   //
   ierr = IGACreate(PETSC_COMM_WORLD,&user.iga);CHKERRQ(ierr);
   ierr = IGASetDim(user.iga,DIM);CHKERRQ(ierr);
-  ierr = IGASetDof(user.iga,DIM+1);CHKERRQ(ierr);
+  ierr = IGASetDof(user.iga,dof);CHKERRQ(ierr);
 
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
@@ -47,12 +47,6 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   sprintf(meshfilename, "mesh.dat");
   PetscPrintf(PETSC_COMM_WORLD,"\nWriting mesh file: %s\n", meshfilename);
   ierr = IGAWrite(user.iga, meshfilename);CHKERRQ(ierr);
-  
-  //fields 
-  ierr = IGACreateVec(user.iga,user.U);CHKERRQ(ierr);
-  ierr = IGACreateVec(user.iga,user.U0);CHKERRQ(ierr);
-  ierr = FormInitialCondition(user.iga, *user.U0, &user); 
-  ierr = VecCopy(*user.U0, *user.U);CHKERRQ(ierr);
   
   //
   IGAForm form;

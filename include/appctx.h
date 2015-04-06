@@ -8,6 +8,7 @@ typedef struct {
   PetscReal dt;
   PetscReal he;
   PetscReal norm;
+  PetscReal lambda; //load parameter
 } AppCtx;
 
 #endif

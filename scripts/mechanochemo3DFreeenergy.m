@@ -18,8 +18,8 @@ e2=r; e3=t;
 
 %energy
 hump=1;
-alpha=c/Cs;
-f=hump*(C4*c.^4+C3*c.^3+C2.*c.^2) + E2*alpha.*(e2.^2+e3.^2)+ E3*alpha.*e3.*(e3.^2-3*e2.^2) + E4*(e2.^2+e3.^2).^2;
+alpha1=c/Cs; alpha2=(2*c-Cs)/Cs;
+f=hump*(C4*c.^4+C3*c.^3+C2.*c.^2) + E2*alpha2.*(e2.^2+e3.^2)+ E3*alpha1.*e3.*(e3.^2-3*e2.^2) + E4*(e2.^2+e3.^2).^2;
 contourslice(c,e2,e3,f,[0,1],[0],[],35);
 xlabel('c'); ylabel('e2'); zlabel('e3');
 
