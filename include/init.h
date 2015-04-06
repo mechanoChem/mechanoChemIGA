@@ -1,7 +1,8 @@
 #ifndef init_
 #define init_
 
-int init(AppCtx& user, PetscInt N, PetscInt p, PetscInt dof){
+template<unsigned int DOF>
+int init(AppCtx& user, PetscInt N, PetscInt p){
   PetscErrorCode  ierr;
 
   //set discretization options
@@ -21,7 +22,7 @@ int init(AppCtx& user, PetscInt N, PetscInt p, PetscInt dof){
   //
   ierr = IGACreate(PETSC_COMM_WORLD,&user.iga);CHKERRQ(ierr);
   ierr = IGASetDim(user.iga,DIM);CHKERRQ(ierr);
-  ierr = IGASetDof(user.iga,dof);CHKERRQ(ierr);
+  ierr = IGASetDof(user.iga,DOF);CHKERRQ(ierr);
 
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
@@ -61,8 +62,8 @@ int init(AppCtx& user, PetscInt N, PetscInt p, PetscInt dof){
 #endif
   //assign residual and jacobian functions
   ierr = IGASetFormIEFunction(user.iga,Residual,&user);CHKERRQ(ierr);
-  ierr = IGASetFormIEJacobian(user.iga,Jacobian,&user);CHKERRQ(ierr);
-
+  ierr = IGASetFormIEJacobian(user.iga,Jacobian<DOF>,&user);CHKERRQ(ierr);
+  //
   return 0;
 }
 

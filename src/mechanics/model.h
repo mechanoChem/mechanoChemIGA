@@ -20,7 +20,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,DIM>(VECTOR,0,p,&U[0],&u[0],&ux[0][0],&uxx[0][0][0]);
+  computeField<T,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //Compute F (I+Ux), dF (Uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
@@ -58,8 +58,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     e2_1+=(F[i][0]*dF[i][0][0]-F[i][1]*dF[i][1][0]);
     e2_2+=(F[i][0]*dF[i][0][1]-F[i][1]*dF[i][1][1]);
   }
-  T e2x[DIM]; 
-  e2x[0]=e2_1; e2x[1]=e2_2;
   //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){
@@ -96,9 +94,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     e3_2+=(F[i][0]*dF[i][0][1]+F[i][1]*dF[i][1][1]-2*F[i][2]*dF[i][2][1])/sqrt(6.0);
     e3_3+=(F[i][0]*dF[i][0][2]+F[i][1]*dF[i][1][2]-2*F[i][2]*dF[i][2][2])/sqrt(6.0);
   }
-  T e2x[DIM], e3x[DIM]; 
-  e2x[0]=e2_1; e2x[1]=e2_2; e2x[2]=e2_3;
-  e3x[0]=e3_1; e3x[1]=e3_2; e3x[2]=e3_3;
   //
   for (unsigned int i=0; i<DIM; ++i){
     for (unsigned int J=0; J<DIM; ++J){

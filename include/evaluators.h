@@ -29,15 +29,16 @@ PetscErrorCode Residual(IGAPoint p,PetscReal dt,
 
 #undef  __FUNCT__
 #define __FUNCT__ "Jacobian"
+template<unsigned int DOF>
 PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
-				PetscReal shift,const PetscScalar *V,
-				PetscReal t,const PetscScalar *U,
-				PetscReal t0,const PetscScalar *U0,
-				PetscScalar *K,void *ctx)
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const PetscScalar *U,
+			PetscReal t0,const PetscScalar *U0,
+			PetscScalar *K,void *ctx)
 {
   AppCtx *user = (AppCtx *)ctx;
-  const PetscInt nen=p->nen, dof=DIM+1;
-  const PetscReal (*U2)[DIM+1] = (PetscReal (*)[DIM+1])U;
+  const PetscInt nen=p->nen, dof=DOF;
+  const PetscReal (*U2)[DOF] = (PetscReal (*)[DOF])U;
 #ifdef ADSacado
   if (dof*nen!=numVars) {
     PetscPrintf(PETSC_COMM_WORLD,"\ndof*nen!=numVars.... Set numVars = %u\n",dof*nen); exit(-1);
