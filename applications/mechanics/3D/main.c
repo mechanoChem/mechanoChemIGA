@@ -16,10 +16,10 @@ extern "C" {
 #include "../../../include/init.h"
 
 //physical parameters
-#define Es 0.01
-#define Ed -10000.0
+#define Es 1.0e-2
+#define Ed -1.0
 #define E4 (-3*Ed/(2*std::pow(Es,4)))
-#define E3 (Ed/(std::pow(Es,3)))*(c)
+#define E3 (-Ed/(std::pow(Es,3)))*(c)
 #define E2 (3*Ed/(2*std::pow(Es,2)))*(2*c-1.0)
 #define Eii (-1.5*Ed/std::pow(Es,2))
 #define Eij (-1.5*Ed/std::pow(Es,2))
@@ -37,7 +37,7 @@ extern "C" {
 //other variables
 #define NVal 50 //**
 //time stepping
-#define dtVal 1.0e-1 //** // used to set load parameter..so 0<dtVal<1
+#define dtVal 1.0e-2 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
 
 //physics headers
@@ -110,14 +110,6 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,1,dVal);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,2,dVal);CHKERRQ(ierr);  
-#elif bcVAL==3
-  //hydrostatic like BC
-  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,0,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,1,1,dVal);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,2,1,2,dVal);CHKERRQ(ierr);  
 #endif 
 
   //time stepping

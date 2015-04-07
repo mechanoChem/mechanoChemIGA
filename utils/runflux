@@ -5,7 +5,7 @@ fileName=main
 rm *.o 
 
 #Run
-mpirun -np 160 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type fgmres -pc_type ksp -ksp_ksp_type gmres -ksp_pc_type jacobi -snes_mf -ksp_gmres_restart 1200 -ksp_gmres_preallocate -ksp_gmres_modifiedgramschmidt -ksp_max_it 2500
+mpirun -np 160 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type fgmres -pc_type ksp -ksp_ksp_type gmres -ksp_pc_type jacobi -snes_mf -ksp_gmres_restart 1200 -ksp_gmres_preallocate -ksp_gmres_modifiedgramschmidt -ksp_max_it 2401
 
 #-ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps
 

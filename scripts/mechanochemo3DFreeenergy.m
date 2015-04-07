@@ -7,7 +7,7 @@ C3=(32*Cd/Cs^3);
 C2=(-16*Cd/Cs^2);
 %
 E4=3*Ed/(2*Es^4); 
-E3=-Ed/Es^3; 
+E3=Ed/Es^3; 
 E2=-3*Ed/(2*Es^2); 
 %generate surface
 intervals=100;
@@ -31,7 +31,7 @@ minF3=zeros(size(c,1),3);
 %alpha(.7)
 for i=1:size(c,1)
     %path 1
-    tmp1=squeeze(f(:,i,:)-e3(:,i,:)*0.01);
+    tmp1=squeeze(f(:,i,:)+e3(:,i,:)*0.01);
     [val,ind]=min(tmp1(:));
     [row,col]=ind2sub(size(tmp1),ind);
     minF1(i,1)=c(row,i,col);

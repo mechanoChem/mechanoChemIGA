@@ -49,9 +49,9 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   PetscReal e4=E[1][2], e5=E[2][0], e6=E[0][1];
   //compute distance to nearest well
   PetscReal x[3],y[3]; 
-  x[0]=0; y[0]=Es; //first well 
-  x[1]=-Es*cos(30.0*PI/180.0); y[1]=-Es*sin(30.0*PI/180.0); //second well
-  x[2]=+Es*cos(30.0*PI/180.0); y[2]=-Es*sin(30.0*PI/180.0); //third well
+  x[0]=0; y[0]=-Es; //first well 
+  x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
+  x[2]=-Es*cos(30.0*PI/180.0); y[2]=Es*sin(30.0*PI/180.0); //third well
   PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
   unsigned int wellID=1; 
   for(unsigned int i=1; i<3; i++){
@@ -160,6 +160,9 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   
   //adaptive TS
   double dt=dtVal;
+  double t;
+  ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
+  if (t<0.4) {dt*=10;}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 
