@@ -35,15 +35,15 @@ extern "C" {
 #define bcVAL 2 //**
 #define uDirichlet 0.001
 //other variables
-#define NVal 50 //**
+#define NVal 5 //**
 //time stepping
 #define dtVal 1.0e-2 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
 
 //physics headers
-#include "../../../src/mechanics/model.h"
-#include "../../../src/mechanics/initialConditions.h"
-#include "../../../src/mechanics/output.h"
+#include "../../../src/configurationalForces/model.h"
+#include "../../../src/configurationalForces/initialConditions.h"
+#include "../../../src/configurationalForces/output.h"
 
 //snes convegence test
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){
