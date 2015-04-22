@@ -2,19 +2,21 @@
 #define initialconditions_
 
 typedef struct {
-  PetscReal ux, uy;
+  PetscReal Ux, Uy, ux, uy;
 #if DIM==3
-  PetscReal uz;
+  PetscReal Uz, uz;
 #endif
 } Field;
 
 
+#undef  __FUNCT__
+#define __FUNCT__ "FormInitialCondition"
 PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
 {	
   PetscErrorCode ierr;
   PetscFunctionBegin;
   DM da;
-  ierr = IGACreateNodeDM(iga,DIM,&da);CHKERRQ(ierr);
+  ierr = IGACreateNodeDM(iga,2*DIM,&da);CHKERRQ(ierr);
 #if DIM==2
   Field **u;
 #elif DIM==3
@@ -28,6 +30,8 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
   PetscInt i,j;
   for(i=info.xs;i<info.xs+info.xm;i++){
     for(j=info.ys;j<info.ys+info.ym;j++){
+      u[j][i].Ux=0.0;
+      u[j][i].Uy=0.0;
       u[j][i].ux=0.0;
       u[j][i].uy=0.0;
     }
@@ -37,6 +41,9 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
   for(i=info.xs;i<info.xs+info.xm;i++){
     for(j=info.ys;j<info.ys+info.ym;j++){
       for(k=info.zs;k<info.zs+info.zm;k++){
+	u[k][j][i].Ux=0.0;
+	u[k][j][i].Uy=0.0;
+	u[k][j][i].Uz=0.0;
 	u[k][j][i].ux=0.0;
 	u[k][j][i].uy=0.0;
 	u[k][j][i].uz=0.0;

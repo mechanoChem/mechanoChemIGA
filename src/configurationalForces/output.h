@@ -4,6 +4,8 @@
 
 #define PI 3.14159265
 
+#undef  __FUNCT__
+#define __FUNCT__ "E22Function"
 PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
   PetscInt nen, dof;
@@ -11,31 +13,31 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
   //Compute F
-  PetscReal F[DIM][DIM];
+  PetscReal chi[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
-      F[i][j]=(i==j)+ux[i][j];
+      chi[i][j]=(i==j)+ux[i][j];
     }
   }
 
   //Compute strain metric, E  (E=0.5*(F^T*F-I))
-  PetscReal E[DIM][DIM];
+  PetscReal Xi[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
     for (unsigned int J=0; J<DIM; J++){
-      E[I][J] = -0.5*(I==J);
+      Xi[I][J] = -0.5*(I==J);
       for (unsigned int k=0; k<DIM; k++){
-	E[I][J] += 0.5*F[k][I]*F[k][J];
+	Xi[I][J] += 0.5*chi[k][I]*chi[k][J];
       }
     }
   }
 
 #if DIM==2
   //new strain metrics
-  PetscReal e1=(E[0][0]+E[1][1]);
-  PetscReal e2=(E[0][0]-E[1][1]);
-  PetscReal e6=E[0][1];
+  PetscReal e1=(Xi[0][0]+Xi[1][1]);
+  PetscReal e2=(Xi[0][0]-Xi[1][1]);
+  PetscReal e6=Xi[0][1];
   
   //compute distance to nearest well
   PetscReal dist=e2-Es;
@@ -43,10 +45,10 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 
 #elif DIM==3
   //new strain metrics
-  PetscReal e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
-  PetscReal e2=(E[0][0]-E[1][1])/sqrt(2.0);
-  PetscReal e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
-  PetscReal e4=E[1][2], e5=E[2][0], e6=E[0][1];
+  PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
+  PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
+  PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
+  PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
   //compute distance to nearest well
   PetscReal x[3],y[3]; 
   x[0]=0; y[0]=-Es; //first well 
@@ -88,6 +90,8 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   return 0;
 }
 
+#undef  __FUNCT__
+#define __FUNCT__ "E22Jacobian"
 PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, void *ctx)
 {	
   PetscInt nen, dof;
@@ -108,6 +112,8 @@ PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, voi
   return 0;
 }
 
+#undef  __FUNCT__
+#define __FUNCT__ "ProjectSolution"
 PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 {	
   PetscErrorCode ierr;
@@ -140,6 +146,8 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   PetscFunctionReturn(0); 
 }
 
+#undef  __FUNCT__
+#define __FUNCT__ "OutputMonitor"
 template <int dim>
 PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mctx)
 {
