@@ -37,6 +37,38 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     }
   }
 
+	//Compute J_\chi (the determinant of \chi)
+	T J_chi;
+	J_chi = chi[0][0]*(chi[1][1]*chi[2][2] - chi[1][2]*chi[2][1]) -
+					chi[0][1]*(chi[1][0]*chi[2][2] - chi[1][2]*chi[2][0]) +
+					chi[0][2]*(chi[1][0]*chi[2][1] - chi[1][1]*chi[2][0]);
+
+	//Compute \chi^{-1}
+	T chi_Inv[DIM][DIM];
+	chi_Inv[0][0] = 1./J_chi*(chi[1][1]*chi[2][2] - chi[2][1]*chi[1][2]);
+	chi_Inv[0][1] = 1./J_chi*(chi[0][2]*chi[2][1] - chi[0][1]*chi[2][2]);
+	chi_Inv[0][2] = 1./J_chi*(chi[0][1]*chi[1][2] - chi[1][1]*chi[0][2]);
+	chi_Inv[1][0] = 1./J_chi*(chi[1][2]*chi[2][0] - chi[2][2]*chi[1][0]);
+	chi_Inv[1][1] = 1./J_chi*(chi[0][0]*chi[2][2] - chi[2][0]*chi[0][2]);
+	chi_Inv[1][2] = 1./J_chi*(chi[0][2]*chi[1][0] - chi[1][2]*chi[0][0]);
+	chi_Inv[2][0] = 1./J_chi*(chi[1][0]*chi[2][1] - chi[2][0]*chi[1][1]);
+	chi_Inv[2][1] = 1./J_chi*(chi[0][1]*chi[2][0] - chi[2][1]*chi[0][0]);
+	chi_Inv[2][2] = 1./J_chi*(chi[0][0]*chi[1][1] - chi[1][0]*chi[0][1]);
+
+	//Check inverse
+	T check[DIM][DIM];
+	for (unsigned int I=0; I<DIM; I++){
+    for (unsigned int J=0; J<DIM; J++){
+			check[I][J] = 0.;
+      for (unsigned int k=0; k<DIM; k++){
+				check[I][J] += chi[I][k]*chi_Inv[k][J];
+			}
+      if(std::abs(check[I][J] - (I==J)) > 2.0e-15){
+				PetscPrintf(PETSC_COMM_WORLD,"inverse is wrong...\n");
+			}
+    }
+  }
+
   //Compute \Phi=\chi^T*\chi and strain metric, \Xi=0.5*(\Phi-I)
 	T Phi[DIM][DIM], Xi[DIM][DIM];
 	for (unsigned int I=0; I<DIM; I++){
@@ -59,10 +91,10 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T F[DIM][DIM], dF[DIM][DIM][DIM];
   for (unsigned int i=0; i<DIM; i++) {
     for (unsigned int J=0; J<DIM; J++) {
-      F[i][J]=(i==J)+ux[i][J];
-      for (unsigned int K=0; K<DIM; K++) {
-	dF[i][J][K]=uxx[i][J][K];
-      }
+			F[i][J] = 0.;
+      for (unsigned int k=0; k<DIM; k++){
+      	F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
+			}
     }
   }
 
@@ -84,11 +116,38 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	//define alpha and beta tensors
 	T alpha[DIM], beta[DIM][DIM];
 	for (unsigned int I=0; I<DIM; I++){
-		alpha[I] = alphaC;//*Lambda[I];
+		alpha[I] = alphaC*Lambda[I];
     for (unsigned int J=0; J<DIM; J++){
-      beta[I][J] = betaC;//*Lambda[I]*Lambda[J];
+      beta[I][J] = betaC*Lambda[I]*Lambda[J];
     }
   }
+
+	//Compute \psi_N (Newtonian strain energy density)
+	T psi_N;
+	psi_N = 0.;
+  for (unsigned int I=0; I<DIM; I++){
+		psi_N += 0.5*(alpha[I] - 2*mu)*E[I][I]*E[I][I];
+    for (unsigned int J=0; J<DIM; J++){
+			if(I != J){
+				psi_N += 0.5*beta[I][J]*E[I][I]*E[J][J];
+			}
+			psi_N += mu*E[I][J]*E[I][J];
+		}
+	}
+
+	//Compute \partial\psi_N/\partial\chi (partial of \psi_N with respect to \chi)
+	T dpsi_dchi[DIM][DIM];
+	for(unsigned int K=0; K<DIM; K++){
+		for(unsigned int L=0; L<DIM; L++){
+			dpsi_dchi[K][L] = 0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L];
+			for (unsigned int I=0; I<DIM; I++){
+				if(I != L){
+					dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
+														(Lambda[I]/Lambda[L] + Lambda[L]/Lambda[I]);
+				}
+			}
+		}
+	}
  
   //2D model
 #if DIM==2  
@@ -172,7 +231,19 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 #else
   PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
       exit(-1);      	
-#endif   
+#endif  
+
+	//Compute the Eshelby stress = \psi_N*\delta_{IJ} - F^T*P
+	T Eshelby[DIM][DIM];
+  for (unsigned int I=0; I<DIM; I++){
+    for (unsigned int J=0; J<DIM; J++){
+			Eshelby[I][J] = psi_N*(I==J);
+      for (unsigned int k=0; k<DIM; k++){
+				Eshelby[I][J] += F[k][I]*P[k][J];
+			}
+		}
+	}
+ 
 
   //get shape function values
   double (*N) = (double (*)) p->shape[0];
@@ -193,17 +264,18 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     //mechanics
     if (!surfaceFlag) {
       for (unsigned int i=0; i<DIM; i++){
-	T Ru_i=0.0, Ru_iDIM=0.0;
-	for (unsigned int J=0; J<DIM; J++){
-	  //grad(Na)*P
-	  Ru_i += N1[J]*P0[i][J];
-	  Ru_iDIM += N1[J]*P[i][J];
-	  for (unsigned int K=0; K<DIM; K++){
-	    Ru_i += N2[J][K]*Beta0[i][J][K];
-	  }
-	}
-	R[a*dof+i] = Ru_i;
-	R[a*dof+i+DIM] = Ru_iDIM;
+				T Ru_I=0.0, Ru_i=0.0;
+				for (unsigned int J=0; J<DIM; J++){
+					//grad(Na)*P
+					Ru_I += (P0[i][J] + J_chi*dpsi_dchi[i][J])*N1[J];
+					for (unsigned int K=0; K<DIM; K++){
+						Ru_I += N2[J][K]*Beta0[i][J][K];
+						Ru_I += J_chi*(P[i][K] + Eshelby[i][K])*chi_Inv[J][K]*N1[J];
+						Ru_i += J_chi*P[i][K]*chi_Inv[J][K]*N1[J];
+					}
+				}
+				R[a*dof+i] = Ru_I;
+				R[a*dof+i+DIM] = Ru_i;
       }
     }
   }
