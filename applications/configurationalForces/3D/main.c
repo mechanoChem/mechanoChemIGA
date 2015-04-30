@@ -26,9 +26,9 @@ extern "C" {
 #define El 0.1 //**ELambda - constant for gradE.gradE
 //material model (stress expressions)
 //non-gradient St-Venant Kirchoff model with cubic crystal material parameters
-#define mu 10
-#define betaC 10
-#define alphaC 20//(betaC + 2*mu)
+#define mu 2
+#define betaC 1
+#define alphaC 2//(betaC + 2*mu) for isotropic materials
 #define PiJ ((alpha[J]-2*mu-beta[J][J])*F[i][J]*E[J][J] + (beta[J][0]*E[0][0]+beta[J][1]*E[1][1]+beta[J][2]*E[2][2])*F[i][J] + 2*mu*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J]))
 #define BetaiJK (0.0)
 //non-gradient St-Venant Kirchoff model with lambda=mu=1
@@ -39,11 +39,11 @@ extern "C" {
 #define Beta0iJK  2*El*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK + e2_3*e2_3_chiiJK + e3_1*e3_1_chiiJK + e3_2*e3_2_chiiJK + e3_3*e3_3_chiiJK)
 //boundary conditions
 #define bcVAL 1 //**
-#define uDirichlet 0.01
+#define uDirichlet 0.0006
 //other variables
-#define NVal 10 //**
+#define NVal 5//**
 //time stepping
-#define dtVal 5.0e-2 //** // used to set load parameter..so 0<dtVal<1
+#define dtVal 1 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
 
 //physics headers
@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
   //Dirichlet boundary conditons for mechanics
   PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
   double dVal=uDirichlet*GridScale;
+	dVal *= dtVal; //For load stepping
 #if bcVAL==0 //unchanged by Greg
   //shear BC
   ierr = IGASetBoundaryValue(iga,0,0,1,dVal);CHKERRQ(ierr);  

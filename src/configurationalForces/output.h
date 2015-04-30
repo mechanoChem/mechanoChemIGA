@@ -82,6 +82,8 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 	val=e3; break;
       case 2:
 	val=wellID; break;
+      case 3:
+	val=dist; break;
 #endif
       } 
       R[n1*dof+d1] = N[n1]*val;
@@ -165,16 +167,32 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, U, user); 
   }
+//Temporarily reapply initial conditions
+//  ierr = VecCopy(*user->U0, *user->U);CHKERRQ(ierr);
   
   //adaptive TS
   double dt=dtVal;
   double t;
   ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
-  if (t<0.4) {dt*=10;}
+  if (t<0.4) {dt*=1;}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 
-  // 
+ 	double dVal=uDirichlet*GridScale;
+	dVal *= (dt + t);
+  PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
+  ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,0,1,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,1,1,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
+
+  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,0,4,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,3,dVal);CHKERRQ(ierr); 
+
   PetscFunctionReturn(0);
 }
 

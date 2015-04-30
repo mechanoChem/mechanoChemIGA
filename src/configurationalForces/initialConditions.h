@@ -2,9 +2,13 @@
 #define initialconditions_
 
 typedef struct {
-  PetscReal Ux, Uy, ux, uy;
+  PetscReal Ux, Uy;
 #if DIM==3
-  PetscReal Uz, uz;
+  PetscReal Uz;
+#endif
+	PetscReal ux, uy;
+#if DIM==3
+  PetscReal uz;
 #endif
 } Field;
 

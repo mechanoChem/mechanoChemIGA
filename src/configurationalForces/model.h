@@ -261,7 +261,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
 
-    //mechanics
     if (!surfaceFlag) {
       for (unsigned int i=0; i<DIM; i++){
 				T Ru_I=0.0, Ru_i=0.0;
