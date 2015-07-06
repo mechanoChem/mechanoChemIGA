@@ -116,9 +116,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	//define alpha and beta tensors
 	T alpha[DIM], beta[DIM][DIM];
 	for (unsigned int I=0; I<DIM; I++){
-		alpha[I] = alphaC*Lambda[I];
+	  //alpha[I] = 10.*alphaC*(Lambda[I] - 1.);
+	  alpha[I] = alphaC*Lambda[I];
     for (unsigned int J=0; J<DIM; J++){
-      beta[I][J] = betaC*Lambda[I]*Lambda[J];
+      //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
+      beta[I][J] = betaC;
     }
   }
 
@@ -139,11 +141,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T dpsi_dchi[DIM][DIM];
 	for(unsigned int K=0; K<DIM; K++){
 		for(unsigned int L=0; L<DIM; L++){
+		  //dpsi_dchi[K][L] = 10.*0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L];
 			dpsi_dchi[K][L] = 0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L];
 			for (unsigned int I=0; I<DIM; I++){
 				if(I != L){
-					dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
-														(Lambda[I]/Lambda[L] + Lambda[L]/Lambda[I]);
+				  //	dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
+				  //										(Lambda[I]/Lambda[L] + Lambda[L]/Lambda[I]);
 				}
 			}
 		}
