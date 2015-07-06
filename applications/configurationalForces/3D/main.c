@@ -16,7 +16,7 @@
 #include "../../../include/init.h"
 
 //physical parameters
-#define Es 1.0e-2
+#define Es 1.0e-1//1.0e-2
 #define Ed -1.0
 #define E4 (-3*Ed/(2*std::pow(Es,4)))
 #define E3 (-Ed/(std::pow(Es,3)))*(c)
@@ -38,10 +38,10 @@
 #define P0iJ (2*Eii*e1*e1_chiiJ + 2*Eij*e4*e4_chiiJ + 2*Eij*e5*e5_chiiJ + 2*Eij*e6*e6_chiiJ + (2*E2*e2-6*E3*e2*e3+4*E4*e2*(e2*e2+e3*e3))*e2_chiiJ + (2*E2*e3+3*E3*(e3*e3-e2*e2)+4*E4*e3*(e2*e2+e3*e3))*e3_chiiJ + 2*El*(e2_1*e2_1_chiiJ + e2_2*e2_2_chiiJ + e2_3*e2_3_chiiJ + e3_1*e3_1_chiiJ + e3_2*e3_2_chiiJ + e3_3*e3_3_chiiJ))
 #define Beta0iJK  2*El*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK + e2_3*e2_3_chiiJK + e3_1*e3_1_chiiJK + e3_2*e3_2_chiiJK + e3_3*e3_3_chiiJK)
 //boundary conditions
-#define bcVAL 1 //**
-#define uDirichlet 0.01
+#define bcVAL 3 //**
+#define uDirichlet 0.001
 //other variables
-#define NVal 5//**
+#define NVal 10//**
 //time stepping
 #define dtVal .01 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
@@ -113,24 +113,17 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);  
 #elif bcVAL==1
   //free BC
-  /*  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,1,1,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
-  */
-  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,1,1,dVal);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryLoad(user.iga,0,1,0,10.);CHKERRQ(ierr);
 
   ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,4,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,3,0.0);CHKERRQ(ierr);   
-  //ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr);  
 #elif bcVAL==2 //unchanged by Greg
   //fixed BC
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
@@ -143,14 +136,38 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,0,4,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr);    
+  ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr); 
+#elif bcVAL==3
+  //bending BC
+  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user.iga,1,1,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
+
+  //ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,0,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr);
+  // ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr); 
+
+  //plane strain
+  ierr = IGASetBoundaryValue(user.iga,1,0,4,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,1,1,4,0.0);CHKERRQ(ierr);  
+
+  ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,4,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,1,3,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,1,4,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,1,5,-dVal);CHKERRQ(ierr);    
 #endif 
 
   //time stepping
   TS ts;
   ierr = IGACreateTS(user.iga,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,1000,2.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,30000,2.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor<DIM>,&user,NULL);CHKERRQ(ierr);  
@@ -160,11 +177,6 @@ int main(int argc, char *argv[]) {
   SNES snes;
   ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
   ierr = SNESSetConvergenceTest(snes,SNESConvergedTest,&user,NULL); CHKERRQ(ierr);
-
-	FILE	*output_file = NULL;
- 	PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","w",&output_file);
-	PetscFPrintf(PETSC_COMM_WORLD,output_file,"%g ",0.0);
-	PetscFClose(PETSC_COMM_WORLD,output_file);
 
   //run
   PetscPrintf(PETSC_COMM_WORLD,"running...\n");

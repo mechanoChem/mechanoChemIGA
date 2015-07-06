@@ -9,7 +9,6 @@ typedef struct {
   PetscReal he;
   PetscReal norm;
   PetscReal lambda; //load parameter
-  bool first; //for writing stress to file
 } AppCtx;
 
 #endif
