@@ -41,7 +41,7 @@
 #define bcVAL 3 //**
 #define uDirichlet 0.001
 //other variables
-#define NVal 10//**
+#define NVal 5//**
 //time stepping
 #define dtVal .01 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1

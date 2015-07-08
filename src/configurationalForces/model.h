@@ -93,7 +93,8 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     for (unsigned int J=0; J<DIM; J++) {
 			F[i][J] = 0.;
       for (unsigned int k=0; k<DIM; k++){
-      	F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
+      	//F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
+	F[i][J] += ((i==k) + ux[i][k])*chi_Inv[k][J]; //let u be the total deformation
 			}
     }
   }

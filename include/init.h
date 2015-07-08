@@ -27,18 +27,18 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis0,10*N,0.0,10.0*GridScale,C);CHKERRQ(ierr);
+  ierr = IGAAxisInitUniform(axis0,10*N,0.0,10.0*GridScale,C);CHKERRQ(ierr); //10*M elements in the x direction
 
   IGAAxis axis1;
   ierr = IGAGetAxis(user.iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis1,1,0.0,1.0*GridScale,C);CHKERRQ(ierr);
+  ierr = IGAAxisInitUniform(axis1,1,0.0,1.0*GridScale,C);CHKERRQ(ierr); //1 element in the y direction
 
 #if DIM==3
   IGAAxis axis2;
   ierr = IGAGetAxis(user.iga,2,&axis2);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis2,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis2,N,0.0,1.0*GridScale,C);CHKERRQ(ierr); 
+  ierr = IGAAxisInitUniform(axis2,N,0.0,1.0*GridScale,C);CHKERRQ(ierr); //N elements in the z direction
 #endif
   ierr = IGASetFromOptions(user.iga);CHKERRQ(ierr);
   ierr = IGASetUp(user.iga);CHKERRQ(ierr);

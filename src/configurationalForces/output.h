@@ -181,12 +181,12 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   //    double dVal=uDirichlet*GridScale*(t+0.01)*10.;
   //ierr = IGASetBoundaryValue(user->iga,0,1,5,-dVal);CHKERRQ(ierr); 
   //}
-  if (t<0.39) {dt*=10;}
-  else if(t<0.5) {dt*=1;}
-  else if(t<.59999) {dt*=0.25;} 
+  if (t<0.49) {dt*=10;}
+  else if(t<0.599) {dt*=1;}
+  //else if(t<.59999) {dt*=0.25;} 
   //else if(t<.64999){dt*=0.1;}
   //  else if(t<.9999) {dt*=0.025;}
-   else  {dt *= .1;}
+   else  {dt *= 10;}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 
