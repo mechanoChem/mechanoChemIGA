@@ -185,7 +185,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   
   //3D model
 #elif DIM==3
-  T e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
+  /*  T e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
   T e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
   T e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
   T e4=Xi[1][2], e5=E[2][0], e6=Xi[0][1];
@@ -229,6 +229,37 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	Beta0[i][J][K]=Beta0iJK;
       }
     }
+    } //True 3D*/
+
+  //new strain metrics (pseudo-2D)
+  T e1=(Xi[0][0]+Xi[1][1]);
+  T e2=(Xi[0][0]-Xi[1][1]);
+  T e6=(Xi[0][1]);
+  T e2_1=0.0, e2_2=0.0; 
+  for (unsigned int i=0; i<DIM; ++i){
+    e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0]);
+    e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1]);
+  }
+  //
+  for (unsigned int i=0; i<DIM; ++i){
+    for (unsigned int J=0; J<DIM; ++J){
+      T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J));
+      T e2_chiiJ=(chi[i][0]*(0==J)-chi[i][1]*(1==J));
+      T e6_chiiJ=(chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;
+      T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);
+      T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);
+      //P
+      P[i][J]=PiJ;
+      P0[i][J]=P0iJ;
+
+      //gradient terms
+      for (unsigned int K=0; K<DIM; ++K){
+	T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K);
+	T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K);
+	//Beta
+	Beta0[i][J][K]=Beta0iJK;
+      }
+    }
   }
 #else
   PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
@@ -241,7 +272,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
     for (unsigned int J=0; J<DIM; J++){
 			Eshelby[I][J] = psi_N*(I==J);
       for (unsigned int k=0; k<DIM; k++){
-				Eshelby[I][J] += F[k][I]*P[k][J];
+				Eshelby[I][J] -= F[k][I]*P[k][J];
 			}
 		}
 	}
