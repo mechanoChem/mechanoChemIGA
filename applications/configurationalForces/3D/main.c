@@ -26,17 +26,19 @@
 #define El 1. //**ELambda - constant for gradE.gradE
 //material model (stress expressions)
 //non-gradient St-Venant Kirchoff model with cubic crystal material parameters
-#define mu 1e5
-#define betaC 1e5
-#define alphaC 2e5//(betaC + 2*mu) for isotropic materials
+#define mu 1//1e5
+#define betaC 1//1e5
+#define alphaC 2//2e5//(betaC + 2*mu) for isotropic materials
 #define PiJ ((alpha[J]-2*mu-beta[J][J])*F[i][J]*E[J][J] + (beta[J][0]*E[0][0]+beta[J][1]*E[1][1]+beta[J][2]*E[2][2])*F[i][J] + 2*mu*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J]))
 #define BetaiJK (0.0)
 //non-gradient St-Venant Kirchoff model with lambda=mu=1
 //#define PiJ ((E[0][0]+E[1][1]+E[2][2])*F[i][J] + 2*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J]))
 //#define BetaiJK (0.0)
 //gradient model
-#define P0iJ (2*Eii*e1*e1_chiiJ + 2*Eij*e4*e4_chiiJ + 2*Eij*e5*e5_chiiJ + 2*Eij*e6*e6_chiiJ + (2*E2*e2-6*E3*e2*e3+4*E4*e2*(e2*e2+e3*e3))*e2_chiiJ + (2*E2*e3+3*E3*(e3*e3-e2*e2)+4*E4*e3*(e2*e2+e3*e3))*e3_chiiJ + 2*El*(e2_1*e2_1_chiiJ + e2_2*e2_2_chiiJ + e2_3*e2_3_chiiJ + e3_1*e3_1_chiiJ + e3_2*e3_2_chiiJ + e3_3*e3_3_chiiJ))
-#define Beta0iJK  2*El*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK + e2_3*e2_3_chiiJK + e3_1*e3_1_chiiJK + e3_2*e3_2_chiiJK + e3_3*e3_3_chiiJK)
+//#define P0iJ (2*Eii*e1*e1_chiiJ + 2*Eij*e4*e4_chiiJ + 2*Eij*e5*e5_chiiJ + 2*Eij*e6*e6_chiiJ + (2*E2*e2-6*E3*e2*e3+4*E4*e2*(e2*e2+e3*e3))*e2_chiiJ + (2*E2*e3+3*E3*(e3*e3-e2*e2)+4*E4*e3*(e2*e2+e3*e3))*e3_chiiJ + 2*El*(e2_1*e2_1_chiiJ + e2_2*e2_2_chiiJ + e2_3*e2_3_chiiJ + e3_1*e3_1_chiiJ + e3_2*e3_2_chiiJ + e3_3*e3_3_chiiJ))
+//#define Beta0iJK  2*El*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK + e2_3*e2_3_chiiJK + e3_1*e3_1_chiiJK + e3_2*e3_2_chiiJK + e3_3*e3_3_chiiJK)
+#define P0iJ (2*Eii*e1*e1_chiiJ + 2*Eij*e6*e6_chiiJ + (2*E2*e2+3*E3*e2*e2+4*E4*e2*e2*e2)*e2_chiiJ + El*(e2_1*e2_1_chiiJ + e2_2*e2_2_chiiJ))//2D
+#define Beta0iJK  El*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK) //2D
 //boundary conditions
 #define bcVAL 3 //**
 #define uDirichlet 0.001
@@ -138,29 +140,28 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr); 
 #elif bcVAL==3
-  //bending BC
-  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);
-  //ierr = IGASetBoundaryValue(user.iga,1,1,1,0.0);CHKERRQ(ierr);  
+  //bending BC 
   ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
 
-  //ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user.iga,0,0,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr);
-  // ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr); 
+
+  //ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr); 
 
   //plane strain
-  ierr = IGASetBoundaryValue(user.iga,1,0,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,1,1,4,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,2,1,5,0.0);CHKERRQ(ierr);  
 
   ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,0,4,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,3,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,5,-dVal);CHKERRQ(ierr);    
+  ierr = IGASetBoundaryValue(user.iga,0,1,4,-dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,1,5,0.0);CHKERRQ(ierr);    
 #endif 
 
   //time stepping

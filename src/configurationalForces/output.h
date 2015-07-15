@@ -50,7 +50,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
   PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
   //compute distance to nearest well
-  PetscReal x[3],y[3]; 
+  /*  PetscReal x[3],y[3]; 
   x[0]=0; y[0]=-Es; //first well 
   x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
   x[2]=-Es*cos(30.0*PI/180.0); y[2]=Es*sin(30.0*PI/180.0); //third well
@@ -61,7 +61,12 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
       dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
       wellID=i+1;
     }
-  }
+    } //3D*/ 
+  
+  //compute distance to nearest well - pseudo-2D
+  PetscReal dist=e2-Es;
+  unsigned int wellID=1;
+
 #endif
  
   //store L2 projection residual
@@ -186,7 +191,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   //else if(t<.59999) {dt*=0.25;} 
   //else if(t<.64999){dt*=0.1;}
   //  else if(t<.9999) {dt*=0.025;}
-   else  {dt *= 10;}
+  else  {dt *= 10;}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
 
@@ -211,7 +216,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   //ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
   //ierr = IGASetBoundaryValue(user->iga,0,1,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,5,-dVal);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr); 
   }
 // */
   PetscFunctionReturn(0);

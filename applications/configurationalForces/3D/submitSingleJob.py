@@ -7,12 +7,12 @@
 #PBS -m abe
 
 # Change the number of cores (ppn=1), amount of memory, and walltime:
-#PBS -l nodes=2:ppn=16:prisms:sandybridge,pmem=3800mb,walltime=48:00:00
+#PBS -l nodes=2:ppn=16:prisms:sandybridge,pmem=3800mb,walltime=06:00:00
 #PBS -j oe
 #PBS -V
 
 # Change "example_flux" to the name of your Flux allocation:
-#PBS -A prismsproject_fluxoe
+#PBS -A prismsprojectdebug_fluxoe
 #PBS -q fluxoe
 #PBS -l qos=flux
 #PBS -p -1000
@@ -43,5 +43,5 @@ module load mkl
 
 #Run
 #mpirun -np 63 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package mumps
-#mpirun -np 64 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type fgmres -pc_type ksp -ksp_ksp_type gmres -ksp_pc_type jacobi -snes_mf -ksp_gmres_restart 1200 -ksp_gmres_preallocate -ksp_gmres_modifiedgramschmidt -ksp_max_it 3001
+#mpirun -np 48 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type fgmres -pc_type ksp -ksp_ksp_type gmres -ksp_pc_type jacobi -snes_mf -ksp_gmres_restart 1200 -ksp_gmres_preallocate -ksp_gmres_modifiedgramschmidt -ksp_max_it 3001
 mpirun -np 32 ./$fileName -ts_monitor -snes_monitor -snes_converged_reason -ksp_converged_reason -ts_adapt_type none -snes_type newtontr -ts_max_snes_failures 500 -snes_max_it 100 -snes_max_funcs 50000 -ksp_type fgmres -pc_type ksp -ksp_ksp_type gmres -ksp_pc_type jacobi -ksp_gmres_restart 1200 -ksp_gmres_preallocate -ksp_gmres_modifiedgramschmidt -ksp_max_it 3001
