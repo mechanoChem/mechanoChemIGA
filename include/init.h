@@ -1,3 +1,4 @@
+
 #ifndef init_
 #define init_
 
@@ -27,7 +28,8 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis0,10*N,0.0,10.0*GridScale,C);CHKERRQ(ierr); //10*M elements in the x direction
+  //  ierr = IGAAxisInitUniform(axis0,10*N,0.0,10.0*GridScale,C);CHKERRQ(ierr); //10*M elements in the x direction
+  ierr = IGAAxisInitUniform(axis0,5*N,0.0,5.0*GridScale,C);CHKERRQ(ierr); //5*M elements in the x direction
 
   IGAAxis axis1;
   ierr = IGAGetAxis(user.iga,1,&axis1);CHKERRQ(ierr);
