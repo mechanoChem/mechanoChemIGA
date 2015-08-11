@@ -177,11 +177,10 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
   ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
 
-  /* //Additional
+  //Additional
   ierr = IGASetBoundaryValue(user->iga,1,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,2,0.0);CHKERRQ(ierr); 
@@ -196,7 +195,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 
   ierr = IGASetBoundaryValue(user->iga,2,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,2,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);*/
+  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);
 
   //plane strain
   ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
@@ -223,11 +222,11 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
   //setting load parameter
-  if(c_time <1){
-    user->lambda=c_time;
+  if(c_time >1){
+    user->lambda=c_time-1.;
   }
   else{
-    user->lambda=1.;
+    user->lambda=0.;
   }
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",c_time);
 
@@ -243,7 +242,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   double t;
   ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
 
-  if(t>0){
+  if(t>1){
     //Reset boundary conditions
     ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
     ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
@@ -272,31 +271,21 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
   }
   //adaptive TS
-  double dt=dtVal;
-  //  if(t<0.099) {
-  //    dVal=uDirichlet*GridScale*(t+0.01)*10.;
-  //ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr); 
-  //}
-  if (t<0.49) {dt*=10;}
-  else if(t<0.599) {dt*=1;}
-  //else if(t<.59999) {dt*=0.25;} 
-  //else if(t<.64999){dt*=0.1;}
-  //  else if(t<.9999) {dt*=0.025;}
-  else if(t<0.99999) {dt *= 10;}
-  ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt); 
+  double dt=dtVal; 
 
-  //*
-  if(t>1){
-    //if(t>1.0099999){
-    //  dt*=0.1;
-    //}
+  if(t<1){
     dVal = (t-1)*.1;
     PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
 
-    ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr); 
+    ierr = IGASetBoundaryValue(user->iga,0,1,4,-t*dVal);CHKERRQ(ierr); 
   }
-  // */
+
+  else if (t<1.49) {dt*=10;}
+  else if(t<1.599) {dt*=1;}
+  else {dt*=10.;}
+  ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);
+
   PetscFunctionReturn(0);
 }
 
