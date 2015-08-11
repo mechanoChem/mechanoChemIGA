@@ -274,6 +274,9 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   double dt=dtVal; 
 
   if(t<1){
+    if(t<0.7){
+      dt*=10;
+    }
     PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
 
     ierr = IGASetBoundaryValue(user->iga,0,1,4,-t*dVal);CHKERRQ(ierr); 
