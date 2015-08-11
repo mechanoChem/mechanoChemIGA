@@ -177,10 +177,11 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
+  ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr); 
   ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
 
-  //Additional
+  /* //Additional
   ierr = IGASetBoundaryValue(user->iga,1,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,2,0.0);CHKERRQ(ierr); 
@@ -195,7 +196,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 
   ierr = IGASetBoundaryValue(user->iga,2,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,2,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);*/
 
   //plane strain
   ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
@@ -205,7 +206,8 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGASetBoundaryValue(user->iga,0,0,4,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,4,-0.99*dVal);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,0,1,4,-0.99*dVal);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr); 
 
   PetscFunctionReturn(0); 
@@ -286,6 +288,9 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
   //*
   if(t>1){
+    //if(t>1.0099999){
+    //  dt*=0.1;
+    //}
     dVal = (t-1)*.1;
     PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
 

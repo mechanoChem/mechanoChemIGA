@@ -43,7 +43,7 @@
 #define bcVAL 3 //**
 #define uDirichlet 0.001
 //other variables
-#define NVal 8//**
+#define NVal 10//**
 //time stepping
 #define dtVal .01 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr);
 
-  //Additional
+  /* //Additional
   ierr = IGASetBoundaryValue(user.iga,1,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,2,0.0);CHKERRQ(ierr); 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
 
   ierr = IGASetBoundaryValue(user.iga,2,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,2,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr);*/
 
   //plane strain
   ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);
