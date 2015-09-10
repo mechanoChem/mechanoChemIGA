@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr);
 
-  /* //Additional
+  //Additional
   ierr = IGASetBoundaryValue(user.iga,1,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,2,0.0);CHKERRQ(ierr); 
