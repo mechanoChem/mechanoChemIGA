@@ -13,7 +13,8 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  //computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
   //Compute F
   PetscReal chi[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -44,29 +45,24 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   unsigned int wellID=1;
 
 #elif DIM==3
-  //new strain metrics - pseudo 2D
-  PetscReal e1=(Xi[0][0]+Xi[1][1]);
-  PetscReal e2=(Xi[0][0]-Xi[1][1]);
-  PetscReal e6=Xi[0][1];
-  PetscReal e3=0;
   //new strain metrics
-  /*PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
-    PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
-    PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
-    PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
-    //compute distance to nearest well
-    PetscReal x[3],y[3]; 
-    x[0]=0; y[0]=-Es; //first well 
-    x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
-    x[2]=-Es*cos(30.0*PI/180.0); y[2]=Es*sin(30.0*PI/180.0); //third well
-    PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
-    unsigned int wellID=1; 
-    for(unsigned int i=1; i<3; i++){
+  PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
+  PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
+  PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
+  PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
+  //compute distance to nearest well
+  PetscReal x[3],y[3]; 
+  x[0]=0; y[0]=-Es; //first well 
+  x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
+  x[2]=-Es*cos(30.0*PI/180.0); y[2]=Es*sin(30.0*PI/180.0); //third well
+  PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
+  unsigned int wellID=1; 
+  for(unsigned int i=1; i<3; i++){
     if(dist>sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0))){
-    dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
-    wellID=i+1;
+      dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
+      wellID=i+1;
     }
-    } //3D*/ 
+  } 
   
   //compute distance to nearest well - pseudo-2D
   PetscReal dist=e2-Es;
@@ -136,8 +132,8 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
+  //ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
+  //ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
 
   //Setup linear system for L2 Projection
   Mat A;
@@ -169,18 +165,18 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   double dVal = uDirichlet*GridScale;
 
   //bending BC 
-  ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
+  //ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
+  //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
-  ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
 
-  //Additional
+  /*//Additional
   ierr = IGASetBoundaryValue(user->iga,1,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,1,0,2,0.0);CHKERRQ(ierr); 
@@ -195,19 +191,35 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 
   ierr = IGASetBoundaryValue(user->iga,2,1,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,2,1,1,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr);//*/
+
+  /*//Additional
+  ierr = IGASetBoundaryValue(user->iga,1,0,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,0,4,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,0,5,0.0);CHKERRQ(ierr); 
+
+  ierr = IGASetBoundaryValue(user->iga,1,1,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,1,4,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,1,1,5,0.0);CHKERRQ(ierr);
+
+  ierr = IGASetBoundaryValue(user->iga,2,0,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,2,0,4,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr); 
+
+  ierr = IGASetBoundaryValue(user->iga,2,1,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,2,1,4,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);//*/
 
   //plane strain
-  ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);  
 
-  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr);
-  //ierr = IGASetBoundaryValue(user->iga,0,1,4,-0.99*dVal);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr); 
+  //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr); 
 
   PetscFunctionReturn(0); 
 }
@@ -222,12 +234,13 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
   //setting load parameter
-  if(c_time >1){
+  /*if(c_time > 1){
     user->lambda=c_time-1.;
   }
   else{
     user->lambda=0.;
-  }
+    }*/
+  user->lambda=1.;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",c_time);
 
   //output to file
@@ -242,7 +255,10 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   double t;
   ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
 
-  if(t>1){
+  //adaptive TS
+  double dt=dtVal; 
+
+  /*if(t>2){
     //Reset boundary conditions
     ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
     ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
@@ -256,35 +272,107 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
 
     ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,0.5*dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,1,1,-0.5*dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+
+    //Additional
+    ierr = IGASetBoundaryValue(user->iga,1,0,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,0,4,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,0,5,0.0);CHKERRQ(ierr); 
+
+    ierr = IGASetBoundaryValue(user->iga,1,1,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,1,4,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,1,5,0.0);CHKERRQ(ierr);
+
+    ierr = IGASetBoundaryValue(user->iga,2,0,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,2,0,4,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr); 
+
+    ierr = IGASetBoundaryValue(user->iga,2,1,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,2,1,4,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);//
 
     //plane strain
     ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
     ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);  
 
     ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,0,4,0.0);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,0,4,dVal);CHKERRQ(ierr);
     ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
     ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
     ierr = IGASetBoundaryValue(user->iga,0,1,4,-dVal);CHKERRQ(ierr);
     ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
-  }
-  //adaptive TS
-  double dt=dtVal; 
+  }*/
+  if(t>=1){
+    //Reset boundary conditions
+    ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
+    ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
+    ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
+    ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr); 
+    //ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
+    //ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
 
-  if(t<1){
-    if(t<0.7){
-      dt*=10;
-    }
+    //bending BC 
+    //ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
+
+    ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+
+    /*//Additional
+    ierr = IGASetBoundaryValue(user->iga,1,0,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,0,4,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,0,5,0.0);CHKERRQ(ierr); 
+
+    ierr = IGASetBoundaryValue(user->iga,1,1,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,1,4,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,1,1,5,0.0);CHKERRQ(ierr);
+
+    ierr = IGASetBoundaryValue(user->iga,2,0,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,2,0,4,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr); 
+
+    ierr = IGASetBoundaryValue(user->iga,2,1,3,0.0);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,2,1,4,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);//*/
+
+    //plane strain
+    //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
+    //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);  
+
+    //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);
+    //ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
+    //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+    //ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
+    //ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
+  }
+  else if(t<1){
+    //if(t<0.8){
+    //  dt*=5.;
+    //}
     PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
 
-    ierr = IGASetBoundaryValue(user->iga,0,1,4,-t*dVal);CHKERRQ(ierr); 
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
+    //ierr = IGASetBoundaryValue(user->iga,0,0,4,t*dVal);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,1,1,-t*dVal);CHKERRQ(ierr); 
+    //ierr = IGASetBoundaryValue(user->iga,0,1,4,-t*dVal);CHKERRQ(ierr); 
   }
 
-  else if (t<1.49) {dt*=10;}
-  else if(t<1.599) {dt*=1;}
-  else {dt*=10.;}
+  //if (t>=1.75) {dt *= 0.01;}
+  //else if (t>=1.5) {dt *= 0.1;}
+  //else if (t >= 1.8) {dt *= 0.05;}
+  //else if (t >= 1.5) {dt *= 0.1;}
+  //else if (t<1.49) {dt*=10;}
+  //else if(t<1.599) {dt*=1;}
+  //else {dt*=10.;}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);
 
