@@ -20,12 +20,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //configuration displacement field variable
   T UU[DIM], UUx[DIM][DIM], UUxx[DIM][DIM][DIM];
-  //computeField<T,DIM,2*DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
-  computeField<T,DIM,DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
+  computeField<T,DIM,2*DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
+  //computeField<T,DIM,DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
 
-  /*  //displacement field variable
+  //displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,2*DIM>(VECTOR,DIM,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);*/
+  computeField<T,DIM,2*DIM>(VECTOR,DIM,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //Compute \chi (I+Ux), d\chi (Uxx)
   T chi[DIM][DIM], dchi[DIM][DIM][DIM];
@@ -98,15 +98,15 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   for (unsigned int I=0; I<DIM; I++){
     Lambda[I] = sqrt(Phi[I][I]);
   }
-  /*
+  
   //Compute F (I+ux), dF (uxx)
   T F[DIM][DIM], dF[DIM][DIM][DIM];
   for (unsigned int i=0; i<DIM; i++) {
     for (unsigned int J=0; J<DIM; J++) {
       F[i][J] = 0.;
       for (unsigned int k=0; k<DIM; k++){
-      	F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
-	//F[i][J] += ((i==k) + ux[i][k])*chi_Inv[k][J]; //let u be the total deformation
+      	//F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
+	F[i][J] += ((i==k) + ux[i][k])*chi_Inv[k][J]; //let u be the total deformation
       }
     }
   }
@@ -121,7 +121,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
-  */
+  
   //compute P and Beta
   T P[DIM][DIM];
   T P0[DIM][DIM], Beta0[DIM][DIM][DIM];
@@ -129,15 +129,15 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //define alpha and beta tensors
   T alpha[DIM], beta[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
-    //alpha[I] = alphaC*Lambda[I]; //Stiffens with elongation
+    alpha[I] = alphaC*Lambda[I]; //Stiffens with elongation
     //alpha[I] = alphaC/Lambda[I]; //More compliant with elongation
-    alpha[I] = alphaC; //No evolving anisotropy
+    //alpha[I] = alphaC; //No evolving anisotropy
     for (unsigned int J=0; J<DIM; J++){
       //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
       beta[I][J] = betaC;
     }
   }
-  /*
+  
   //Compute \psi_N (Newtonian strain energy density)
   T psi_N;
   psi_N = 0.;
@@ -150,14 +150,14 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       psi_N += mu*E[I][J]*E[I][J];
     }
   }
-  */
+  
   //Compute \partial\psi_N/\partial\chi (partial of \psi_N with respect to \chi)
   T dpsi_dchi[DIM][DIM];
   for(unsigned int K=0; K<DIM; K++){
     for(unsigned int L=0; L<DIM; L++){
-      //dpsi_dchi[K][L] = 0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
+      dpsi_dchi[K][L] = 0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
       //dpsi_dchi[K][L] = 0.5*(alphaC/std::pow(Lambda[L],3))*E[L][L]*E[L][L]*chi[K][L]; //more compliant with elongation
-      dpsi_dchi[K][L] = 0.; //No evolving anisotropy
+      //dpsi_dchi[K][L] = 0.; //No evolving anisotropy
       for (unsigned int I=0; I<DIM; I++){
 	if(I != L){
 	  //	dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
@@ -186,7 +186,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);
       T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);
       //P
-      //P[i][J]=PiJ;
+      P[i][J]=PiJ;
       P0[i][J]=P0iJ;
 
       //gradient terms
@@ -249,7 +249,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
   exit(-1);      	
 #endif  
-  /*
+  
   //Compute the Eshelby stress = \psi_N*\delta_{IJ} - F^T*P
   T Eshelby[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
@@ -260,7 +260,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
-  */
+  
 
   //get shape function values
   double (*N) = (double (*)) p->shape[0];
@@ -283,16 +283,16 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 	T Ru_I=0.0, Ru_i=0.0;
 	for (unsigned int J=0; J<DIM; J++){
 	  //grad(Na)*P
-	  //Ru_I += (P0[i][J] + J_chi*dpsi_dchi[i][J])*N1[J];
-	  Ru_I += P0[i][J]*N1[J]; //to replicate
+	  Ru_I += (P0[i][J] + J_chi*dpsi_dchi[i][J])*N1[J];
+	  //Ru_I += P0[i][J]*N1[J]; //to replicate
 	  for (unsigned int K=0; K<DIM; K++){
 	    Ru_I += N2[J][K]*Beta0[i][J][K];
-	    //Ru_I += J_chi*(P[i][K] + Eshelby[i][K])*chi_Inv[J][K]*N1[J];
-	    //Ru_i += J_chi*P[i][K]*chi_Inv[J][K]*N1[J];
+	    Ru_I += J_chi*(P[i][K] + Eshelby[i][K])*chi_Inv[J][K]*N1[J];
+	    Ru_i += J_chi*P[i][K]*chi_Inv[J][K]*N1[J];
 	  }
 	}
 	R[a*dof+i] = Ru_I;
-	//R[a*dof+i+DIM] = Ru_I;
+	R[a*dof+i+DIM] = Ru_i;
       }
     }
   }

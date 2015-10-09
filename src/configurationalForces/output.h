@@ -13,9 +13,9 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  //computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
-  computeField<PetscReal,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
-  //Compute F
+  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  //computeField<PetscReal,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  //Compute chi
   PetscReal chi[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
@@ -131,7 +131,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr); 
+  ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr);  
   //ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
   //ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
 
@@ -173,7 +173,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
+  //  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
   //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
 
   /*//Additional
@@ -214,11 +214,11 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   //ierr = IGASetBoundaryValue(user->iga,2,0,5,0.0);CHKERRQ(ierr);
   //ierr = IGASetBoundaryValue(user->iga,2,1,5,0.0);CHKERRQ(ierr);  
 
-  //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);
   //ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
-  //ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
   //ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr); 
 
   PetscFunctionReturn(0); 
@@ -320,7 +320,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
 
     ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,0,1,dVal);CHKERRQ(ierr);  
+    ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
     //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
     ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
     ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
@@ -355,15 +355,15 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     //ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
   }
   else if(t<1){
-    //if(t<0.8){
-    //  dt*=5.;
+    //if(t>=.7){
+    //  dt*=0.1;
     //}
     PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
 
-    ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
+    //ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
     //ierr = IGASetBoundaryValue(user->iga,0,0,4,t*dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,0,1,1,-t*dVal);CHKERRQ(ierr); 
-    //ierr = IGASetBoundaryValue(user->iga,0,1,4,-t*dVal);CHKERRQ(ierr); 
+    //    ierr = IGASetBoundaryValue(user->iga,0,1,1,-0.5*t*dVal);CHKERRQ(ierr); 
+    ierr = IGASetBoundaryValue(user->iga,0,1,3,-t*dVal);CHKERRQ(ierr); 
   }
 
   //if (t>=1.75) {dt *= 0.01;}
