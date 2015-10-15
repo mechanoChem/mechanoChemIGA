@@ -245,7 +245,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
   //output to file
   sprintf(filename,"./outU%d.dat",it_number);
-  if (it_number<10 || it_number%skipOutput==0){
+  if (it_number%skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, U, user); 
   }
