@@ -4,10 +4,10 @@
 //}
 
 //model parameters
-#define DIM 3
+#define DIM 2
 #define GridScale 1.0
 #define ADSacado //enables Sacado for AD instead of Adept
-#define numVars 162 //162 in 3D, 36 in 2D for 2*DIM dof
+#define numVars 36 //162 in 3D, 36 in 2D for 2*DIM dof
 
 //generic headers
 #include "../../../include/fields.h"
@@ -16,19 +16,20 @@
 #include "../../../include/init.h"
 
 //2D physical parameters
-#define Es 1.0e-1//1.0e-2
+#define Es 0.1
 #define Ed 1.0
 #define E4 (Ed/(std::pow(Es,4)))
 #define E2 (Ed/(std::pow(Es,2)))*(2*c-1.0)
 #define Eii (Ed/std::pow(Es,2))
 #define Eij (Ed/std::pow(Es,2))
-#define El 1. //**ELambda - constant for gradE.gradE
+#define El .025 //**ELambda - constant for gradE.gradE
 //material model (stress expressions)
 //non-gradient St-Venant Kirchoff model with cubic crystal material parameters
-#define mu 1//1e5
-#define betaC 1//1e5
-#define alphaC 2//2e5//(betaC + 2*mu) for isotropic materials
-#define PiJ ((alpha[J]-2*mu-beta[J][J])*F[i][J]*E[J][J] + (beta[J][0]*E[0][0]+beta[J][1]*E[1][1]+beta[J][2]*E[2][2])*F[i][J] + 2*mu*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J]))
+#define mu 1e5
+#define betaC 1e5
+#define alphaC 2e5//(betaC + 2*mu) for isotropic materials
+//#define PiJ ((alpha[J]-2*mu-beta[J][J])*F[i][J]*E[J][J] + (beta[J][0]*E[0][0]+beta[J][1]*E[1][1]+beta[J][2]*E[2][2])*F[i][J] + 2*mu*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J])) //3D
+#define PiJ ((alpha[J]-2*mu-beta[J][J])*F[i][J]*E[J][J] + (beta[J][0]*E[0][0]+beta[J][1]*E[1][1])*F[i][J] + 2*mu*(F[i][0]*E[0][J]+F[i][1]*E[1][J])) //2D
 #define BetaiJK (0.0)
 //non-gradient St-Venant Kirchoff model with lambda=mu=1
 //#define PiJ ((E[0][0]+E[1][1]+E[2][2])*F[i][J] + 2*(F[i][0]*E[0][J]+F[i][1]*E[1][J]+F[i][2]*E[2][J]))
@@ -38,12 +39,12 @@
 #define Beta0iJK  (2*El*El*Eii*(e2_1*e2_1_chiiJK + e2_2*e2_2_chiiJK)) //2D
 //boundary conditions
 #define bcVAL 3 //**
-#define uDirichlet 0.01
+#define uDirichlet 0.1
 //other variables
-#define NVal 5//**
+#define NVal 160//**
 //time stepping
-#define dtVal .1 //** // used to set load parameter..so 0<dtVal<1
-#define skipOutput 1
+#define dtVal 0.0001 //** // used to set load parameter..so 0<dtVal<1
+#define skipOutput 100
 
 //physics headers
 #include "../../../src/configurationalForces/model.h"
@@ -82,6 +83,7 @@ int main(int argc, char *argv[]) {
   user.iga = iga;
   user.U0=&U0;
   user.U=&U;
+  user.lambda=1.;
 
   PetscPrintf(PETSC_COMM_WORLD,"initializing...\n");
   init<DOF>(user, NVal, p);
@@ -138,16 +140,16 @@ int main(int argc, char *argv[]) {
   ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal);CHKERRQ(ierr); 
 #elif bcVAL==3
   //bending BC 
-  ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
+  //ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,0,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr); 
+  //ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr); 
 
   ierr = IGASetBoundaryValue(user.iga,0,1,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr);
+  //  ierr = IGASetBoundaryValue(user.iga,0,1,1,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr);
 
   /*//Additional
   ierr = IGASetBoundaryValue(user.iga,1,0,0,0.0);CHKERRQ(ierr);  
@@ -167,22 +169,26 @@ int main(int argc, char *argv[]) {
   //ierr = IGASetBoundaryValue(user.iga,2,1,2,0.0);CHKERRQ(ierr);*/
 
   //plane strain
-  ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,2,1,5,0.0);CHKERRQ(ierr);  
+  //ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user.iga,2,1,5,0.0);CHKERRQ(ierr); 
 
-  ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user.iga,0,0,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,2,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);
+  //ierr = IGASetBoundaryValue(user.iga,0,0,5,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,1,2,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,0,1,3,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,5,0.0);CHKERRQ(ierr);    
+  //ierr = IGASetBoundaryValue(user.iga,0,1,5,0.0);CHKERRQ(ierr);   
 #endif 
+
+  //Set mat type
+  ierr = IGASetMatType(user.iga,MATAIJ);CHKERRQ(ierr);
+  //ierr = IGASetMatType(user.iga,MATIS);CHKERRQ(ierr);
 
   //time stepping
   TS ts;
   ierr = IGACreateTS(user.iga,&ts);CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,30000,2.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,100001,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,0.0);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor<DIM>,&user,NULL);CHKERRQ(ierr);  
@@ -192,6 +198,23 @@ int main(int argc, char *argv[]) {
   SNES snes;
   ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
   ierr = SNESSetConvergenceTest(snes,SNESConvergedTest,&user,NULL); CHKERRQ(ierr);
+
+  //* //PC
+  PC pc;
+  KSP ksp;
+  ierr = SNESGetKSP(snes,&ksp);CHKERRQ(ierr);//*/
+
+  /* //PCBDDC
+  //ierr = KSPSetType(ksp,KSPCG);CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+  //ierr = PCSetType(pc,PCBDDC);CHKERRQ(ierr);
+  ierr = IGAPreparePCBDDC(iga,pc);CHKERRQ(ierr);//*/
+
+  //* //Superlu_dist
+  ierr = KSPSetType(ksp,KSPPREONLY);CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+  ierr = PCSetType(pc,PCLU);CHKERRQ(ierr);
+  ierr = PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU_DIST);CHKERRQ(ierr);//*/
 
   //run
   PetscPrintf(PETSC_COMM_WORLD,"running...\n");

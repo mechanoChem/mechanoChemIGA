@@ -62,11 +62,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
       dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
       wellID=i+1;
     }
-  } 
-  
-  //compute distance to nearest well - pseudo-2D
-  PetscReal dist=e2-Es;
-  unsigned int wellID=1;
+  }
 
 #endif
  
@@ -138,6 +134,11 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   //Setup linear system for L2 Projection
   Mat A;
   Vec x,b;
+
+  //Set mat type
+  ierr = IGASetMatType(iga,MATAIJ);CHKERRQ(ierr);
+  //ierr = IGASetMatType(iga,MATIS);CHKERRQ(ierr);
+
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
@@ -151,6 +152,21 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGACreateKSP(iga,&ksp);CHKERRQ(ierr);
   ierr = KSPSetOperators(ksp,A,A);CHKERRQ(ierr);
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+
+  /* //PCBDDC
+  PC pc;
+  ierr = KSPSetType(ksp,KSPCG);CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+  //ierr = PCSetType(pc,PCBDDC);CHKERRQ(ierr);
+  ierr = IGAPreparePCBDDC(iga,pc);CHKERRQ(ierr);//*/
+
+  //* //Test with superlu_dist
+  PC pc;
+  ierr = KSPSetType(ksp,KSPPREONLY);CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+  ierr = PCSetType(pc,PCLU);CHKERRQ(ierr);
+  ierr = PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU_DIST);CHKERRQ(ierr);//*/
+
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   //write solution
   char filename[256];
@@ -168,7 +184,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
 
-  //ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
   //ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
 
   ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
