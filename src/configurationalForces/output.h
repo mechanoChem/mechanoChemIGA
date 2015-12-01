@@ -170,7 +170,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   //write solution
   char filename[256];
-  sprintf(filename,"./outE%d.dat",step);
+  sprintf(filename,"./outE%d.dat",step+RESTART_IT);
   ierr = IGAWriteVec(iga,x,filename);CHKERRQ(ierr);
   ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);
@@ -215,7 +215,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",c_time);
 
   //output to file
-  sprintf(filename,"./outU%d.dat",it_number);
+  sprintf(filename,"./outU%d.dat",it_number+RESTART_IT);
   if (it_number%skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, U, user); 
@@ -258,7 +258,7 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
     //ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
     //ierr = IGASetBoundaryValue(user->iga,0,0,4,t*dVal);CHKERRQ(ierr);
-    //    ierr = IGASetBoundaryValue(user->iga,0,1,1,-0.5*t*dVal);CHKERRQ(ierr); 
+    //ierr = IGASetBoundaryValue(user->iga,0,1,1,-0.5*t*dVal);CHKERRQ(ierr); 
     ierr = IGASetBoundaryValue(user->iga,0,1,3,-t*dVal);CHKERRQ(ierr); 
   }
 
