@@ -128,8 +128,10 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
   ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr);  
-  //ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
-  //ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
+#if DIM == 3
+  ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
+  ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
+#endif
 
   //Setup linear system for L2 Projection
   Mat A;
@@ -158,14 +160,14 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = KSPSetType(ksp,KSPCG);CHKERRQ(ierr);
   ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
   //ierr = PCSetType(pc,PCBDDC);CHKERRQ(ierr);
-  ierr = IGAPreparePCBDDC(iga,pc);CHKERRQ(ierr);//*/
+  ierr = IGAPreparePCBDDC(iga,pc);CHKERRQ(ierr);// */
 
   //* //Test with superlu_dist
   PC pc;
   ierr = KSPSetType(ksp,KSPPREONLY);CHKERRQ(ierr);
   ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
   ierr = PCSetType(pc,PCLU);CHKERRQ(ierr);
-  ierr = PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU_DIST);CHKERRQ(ierr);//*/
+  ierr = PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU_DIST);CHKERRQ(ierr);// */
 
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   //write solution
@@ -183,14 +185,20 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 
   ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
 
   ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-  //ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
-
-  ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
   ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+
+  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user->iga,0,0,4,0.0);CHKERRQ(ierr); 
+  ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);
+
   ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,4,0.0);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
+
 
   PetscFunctionReturn(0); 
 }
@@ -211,7 +219,8 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   else{
     user->lambda=0.;
     }*/
-  user->lambda=1.;
+  user->lambda=0.;
+  //user->lambda=c_time;
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",c_time);
 
   //output to file
@@ -258,8 +267,10 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
 
     //ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
     //ierr = IGASetBoundaryValue(user->iga,0,0,4,t*dVal);CHKERRQ(ierr);
-    //ierr = IGASetBoundaryValue(user->iga,0,1,1,-0.5*t*dVal);CHKERRQ(ierr); 
-    ierr = IGASetBoundaryValue(user->iga,0,1,3,-t*dVal);CHKERRQ(ierr); 
+    ierr = IGASetBoundaryValue(user->iga,0,1,2,-0.5*t*dVal);CHKERRQ(ierr); 
+
+    //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
+    ierr = IGASetBoundaryValue(user->iga,0,1,5,-t*dVal);CHKERRQ(ierr); 
   }
 
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);

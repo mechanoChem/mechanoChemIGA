@@ -18,11 +18,12 @@ for filename1, filename2 in zip(glob.glob('outU*.dat'), glob.glob('outE*.dat')):
     outname = "out" + filename1.split(".")[0][4:] + ".vtk"
     sol2 = PetIGA().read_vec(filename1,geom)
     sol1 = PetIGA().read_vec(filename2,geom)
-    #sol=np.concatenate((sol1,sol2),axis=3);
-    sol=np.concatenate((sol1,sol2),axis=2);
+    sol=np.concatenate((sol1,sol2),axis=3);
+    #sol=np.concatenate((sol1,sol2),axis=2);
     nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
     #VTK().write(outname,nrb,scalars=dict(e2=0, e3=1),vectors=dict(Displacement=[2,3]))
-    VTK().write(outname,nrb,scalars=dict(e2=0, e3=1, well=2, dist=3),vectors=dict(Displacement=[4,5],displacement=[6,7]))
+    VTK().write(outname,nrb,scalars=dict(e2=0, e3=1, well=2, dist=3),vectors=dict(Displacement=[6,7,8],displacement=[9,10,11]))
+    #VTK().write(outname,nrb,scalars=dict(e2=0, e3=1, well=2, dist=3),vectors=dict(Displacement=[4,5],displacement=[6,7]))
     if (writeMat):
         #write mesh into X
         if not(data):
