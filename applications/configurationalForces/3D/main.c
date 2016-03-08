@@ -65,8 +65,8 @@
 #define dtVal 0.00001 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 100
 //restart file
-#define RESTART_IT 0
-#define RESTART_TIME 0
+#define RESTART_IT 400
+#define RESTART_TIME 0.004
 
 //physics headers
 #include "../../../src/configurationalForces/model.h"

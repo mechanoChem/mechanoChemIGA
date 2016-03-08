@@ -26,5 +26,6 @@ cmake_install.cmake
 *mat
 main
 results*
+*.o*
 configForce.o*
 stress_stretch.txt

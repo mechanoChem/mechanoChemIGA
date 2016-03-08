@@ -1,7 +1,8 @@
 #!/bin/bash -l
 #SBATCH -p regular
+#SBATCH --qos premium
 #SBATCH -N 10
-#SBATCH -t 36:00:00
+#SBATCH -t 12:00:00
 #SBATCH -J greght_config
 #SBATCH -o greght_config.o%j
  
