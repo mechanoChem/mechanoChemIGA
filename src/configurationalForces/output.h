@@ -14,7 +14,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
   computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
-  //computeField<PetscReal,DIM,DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+
   //Compute chi
   PetscReal chi[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
@@ -124,22 +124,15 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   PetscFunctionBegin;
 
   //Reset boundary conditions
-  ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr);  
-#if DIM == 3
-  ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
-  ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
-#endif
+	for(unsigned int i=0; i<DIM; i++){
+		for(unsigned int j=0; j<2; j++){
+  ierr = IGAFormClearBoundary(user->iga->form,i,j);CHKERRQ(ierr);
+		}
+	}
 
   //Setup linear system for L2 Projection
   Mat A;
   Vec x,b;
-
-  //Set mat type
-  ierr = IGASetMatType(iga,MATAIJ);CHKERRQ(ierr);
-  //ierr = IGASetMatType(iga,MATIS);CHKERRQ(ierr);
 
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
@@ -154,22 +147,8 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGACreateKSP(iga,&ksp);CHKERRQ(ierr);
   ierr = KSPSetOperators(ksp,A,A);CHKERRQ(ierr);
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
-
-  /* //PCBDDC
-  PC pc;
-  ierr = KSPSetType(ksp,KSPCG);CHKERRQ(ierr);
-  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-  //ierr = PCSetType(pc,PCBDDC);CHKERRQ(ierr);
-  ierr = IGAPreparePCBDDC(iga,pc);CHKERRQ(ierr);// */
-
-  //* //Test with superlu_dist
-  PC pc;
-  ierr = KSPSetType(ksp,KSPPREONLY);CHKERRQ(ierr);
-  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-  ierr = PCSetType(pc,PCLU);CHKERRQ(ierr);
-  ierr = PCFactorSetMatSolverPackage(pc,MATSOLVERSUPERLU_DIST);CHKERRQ(ierr);// */
-
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
+
   //write solution
   char filename[256];
   sprintf(filename,"./outE%d.dat",step+RESTART_IT);
@@ -180,25 +159,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = VecDestroy(&b);CHKERRQ(ierr);
 
   //Apply original boundary conditions
-  double dVal = uDirichlet*GridScale;
-
-
-  ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
-
-  ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,1,1,0.0);CHKERRQ(ierr);   
-  ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
-
-  ierr = IGASetBoundaryValue(user->iga,0,0,3,0.0);CHKERRQ(ierr);  
-  ierr = IGASetBoundaryValue(user->iga,0,0,4,0.0);CHKERRQ(ierr); 
-  ierr = IGASetBoundaryValue(user->iga,0,0,5,0.0);CHKERRQ(ierr);
-
-  ierr = IGASetBoundaryValue(user->iga,0,1,3,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,4,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user->iga,0,1,5,0.0);CHKERRQ(ierr);
-
+	boundaryConditions<DIM>(*user,0.);
 
   PetscFunctionReturn(0); 
 }
@@ -212,16 +173,12 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   PetscErrorCode ierr;
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
+
   //setting load parameter
-  /*if(c_time > 1){
-    user->lambda=c_time-1.;
-  }
-  else{
-    user->lambda=0.;
-    }*/
-  user->lambda=0.;
+  user->lambda=1.;
   //user->lambda=c_time;
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",c_time);
+
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",user->lambda);
 
   //output to file
   sprintf(filename,"./outU%d.dat",it_number+RESTART_IT);
@@ -229,50 +186,18 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution(user->iga, it_number, U, user); 
   }
-  
-  double dVal = uDirichlet*GridScale;
 
   double t;
   ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
 
+	//Displacement loading
+	double scale = t;
+  double dVal = scale*uDirichlet*GridScale;
+  PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
+	boundaryConditions<DIM>(*user,scale);
+
   //adaptive TS
   double dt=dtVal; 
-
-  if(t>=1){
-    //Reset boundary conditions
-    ierr = IGAFormClearBoundary(user->iga->form,0,0);CHKERRQ(ierr); 
-    ierr = IGAFormClearBoundary(user->iga->form,0,1);CHKERRQ(ierr); 
-    ierr = IGAFormClearBoundary(user->iga->form,1,0);CHKERRQ(ierr); 
-    ierr = IGAFormClearBoundary(user->iga->form,1,1);CHKERRQ(ierr); 
-    //ierr = IGAFormClearBoundary(user->iga->form,2,0);CHKERRQ(ierr); 
-    //ierr = IGAFormClearBoundary(user->iga->form,2,1);CHKERRQ(ierr); 
-
-    //bending BC 
-    //ierr = IGASetBoundaryValue(user->iga,2,0,2,0.0);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,2,1,2,0.0);CHKERRQ(ierr); 
-
-    ierr = IGASetBoundaryValue(user->iga,0,0,0,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,0,1,0.0);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,0,0,2,0.0);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,0,1,0,0.0);CHKERRQ(ierr);  
-    ierr = IGASetBoundaryValue(user->iga,0,1,1,-dVal);CHKERRQ(ierr);  
-    //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
-
-  }
-  else if(t<1){
-    //if(t>=.1){
-    //  dt*=0.1;
-    //}
-    PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
-
-    //ierr = IGASetBoundaryValue(user->iga,0,0,1,t*dVal);CHKERRQ(ierr); 
-    //ierr = IGASetBoundaryValue(user->iga,0,0,4,t*dVal);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,0,1,2,-0.5*t*dVal);CHKERRQ(ierr); 
-
-    //ierr = IGASetBoundaryValue(user->iga,0,1,2,0.0);CHKERRQ(ierr);
-    ierr = IGASetBoundaryValue(user->iga,0,1,5,-t*dVal);CHKERRQ(ierr); 
-  }
-
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);
 
