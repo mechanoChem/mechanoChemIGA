@@ -20,13 +20,22 @@ PetscErrorCode SNESConvergedTest_Interactive(SNES snes, PetscInt it,PetscReal xn
 {
   AppCtx *user  = (AppCtx*) ctx;
   PetscPrintf(PETSC_COMM_WORLD,"xnorm:%12.6e snorm:%12.6e fnorm:%12.6e\n",xnorm,snorm,fnorm);
-  //if ((it>10) && (fnorm/user->f0Norm<1.0e-4)) {                                                                          
-  if ((it>5) && (fnorm<1.0e-7)) {
+  if ((it>10) && (fnorm<1.0e-7)) {
     PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
     *reason = SNES_CONVERGED_FNORM_ABS;
     return(0);
   }
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
+}
+
+int setConvergenceTest(AppCtx& user, TS& ts){
+  PetscErrorCode  ierr;
+  SNES snes;
+
+  ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
+  ierr = SNESSetConvergenceTest(snes,SNESConvergedTest_Interactive,(void*)&user,NULL); CHKERRQ(ierr);
+
+	return 0;
 }
 
 #endif

@@ -2,7 +2,7 @@
 #define setup_
 
 template<unsigned int dim>
-inline int setup(AppCtx& user,Vec *U,Vec *U0){
+int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
 
   PetscErrorCode ierr;
  
@@ -13,6 +13,7 @@ inline int setup(AppCtx& user,Vec *U,Vec *U0){
   PetscInt p=2;
   const unsigned int DOF=2*dim;
 
+  user.ts=&ts;
   user.U0=U0;
   user.U=U;
   IGA iga;
@@ -32,6 +33,10 @@ inline int setup(AppCtx& user,Vec *U,Vec *U0){
   ierr = IGAReadVec(user.iga,*user.U0,filename);CHKERRQ(ierr); //Read in vector to restart at step RESTART_IT
 #endif 
   ierr = VecCopy(*user.U0, *user.U);CHKERRQ(ierr);
+
+  //Set mat type
+  ierr = IGASetMatType(user.iga,MATAIJ);CHKERRQ(ierr); //For superlu_dist (still works for gmres, etc.)
+  //ierr = IGASetMatType(user.iga,MATIS);CHKERRQ(ierr); //For PCBDDC
 
 	return 0;
 }
