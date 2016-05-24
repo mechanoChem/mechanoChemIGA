@@ -1,6 +1,9 @@
-
-#ifndef init_
-#define init_
+#include "genericHeaders.h"
+//extern "C" {
+#include "petiga.h"
+//}
+#include "../applications/configurationalForces/3D/parameters.h"
+#include "../applications/configurationalForces/3D/applicationHeaders.h"
 
 template<unsigned int DOF>
 int init(AppCtx& user, PetscInt N, PetscInt p){
@@ -69,4 +72,6 @@ int init(AppCtx& user, PetscInt N, PetscInt p){
   return 0;
 }
 
-#endif
+template int init<3>(AppCtx& user, PetscInt N, PetscInt p);
+template int init<4>(AppCtx& user, PetscInt N, PetscInt p);
+template int init<6>(AppCtx& user, PetscInt N, PetscInt p);

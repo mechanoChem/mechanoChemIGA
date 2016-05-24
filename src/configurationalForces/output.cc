@@ -1,6 +1,12 @@
-#ifndef output_h
-#define output_h
+#include "physicsHeaders.h"
+
+//extern "C" {
+#include "petiga.h"
+//}
 #include <cmath>
+#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/3D/applicationHeaders.h"
+#include "../../include/genericHeaders.h"
 
 #define PI 3.14159265
 
@@ -10,6 +16,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 {	
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
+  AppCtx *user = (AppCtx *)ctx;
 
   //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
@@ -174,12 +181,6 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
 
-  //setting load parameter
-  user->lambda=1.;
-  //user->lambda=c_time;
-
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: load parameter: %6.2e\n",user->lambda);
-
   //output to file
   sprintf(filename,"./outU%d.dat",it_number+RESTART_IT);
   if (it_number%skipOutput==0){
@@ -187,21 +188,8 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
     ProjectSolution(user->iga, it_number, U, user); 
   }
 
-  double t;
-  ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
-
-	//Displacement loading
-	double scale = t;
-  double dVal = scale*uDirichlet*GridScale;
-  PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e, dVal: %12.6e  \n",t,dVal); 
-	boundaryConditions<DIM>(*user,scale);
-
-  //adaptive TS
-  double dt=dtVal; 
-  ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",dtVal, dt);
-
   PetscFunctionReturn(0);
 }
 
-#endif
+template PetscErrorCode OutputMonitor<2>(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mctx);
+template PetscErrorCode OutputMonitor<3>(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mctx);

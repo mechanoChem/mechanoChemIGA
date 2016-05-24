@@ -1,5 +1,8 @@
-#ifndef convergenceTest_
-#define convergenceTest_
+#include "applicationHeaders.h"
+//extern "C" {
+#include "petiga.h"
+//}
+#include "parameters.h"
 
 //snes convegence test
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){
@@ -35,7 +38,5 @@ int setConvergenceTest(AppCtx& user, TS& ts){
   ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
   ierr = SNESSetConvergenceTest(snes,SNESConvergedTest_Interactive,(void*)&user,NULL); CHKERRQ(ierr);
 
-	return 0;
+  return 0;
 }
-
-#endif

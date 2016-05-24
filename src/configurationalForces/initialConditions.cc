@@ -1,17 +1,9 @@
-#ifndef initialconditions_
-#define initialconditions_
-
-typedef struct {
-  PetscReal Ux, Uy;
-#if DIM==3
-  PetscReal Uz;
-#endif
-  PetscReal ux, uy;
-#if DIM==3
-  PetscReal uz;
-#endif
-} Field;
-
+#include "physicsHeaders.h"
+//extern "C" {
+#include "petiga.h"
+//}
+#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/3D/applicationHeaders.h"
 
 #undef  __FUNCT__
 #define __FUNCT__ "FormInitialCondition"
@@ -60,5 +52,3 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
   ierr = DMDestroy(&da);;CHKERRQ(ierr); 
   PetscFunctionReturn(0); 
 }
-
-#endif

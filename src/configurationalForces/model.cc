@@ -1,5 +1,17 @@
-#ifndef mechanicsND_
-#define mechanicsND_
+#include "physicsHeaders.h"
+//extern "C" {
+#include "petiga.h"
+//}
+#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/3D/applicationHeaders.h"
+#include "../../include/genericHeaders.h"
+
+//include automatic differentiation library
+#ifdef ADSacado
+#include <Sacado.hpp>
+#else
+#include "adept.h"
+#endif
 
 //residual function implementation
 #undef  __FUNCT__
@@ -299,4 +311,13 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   return 0;
 }
 
-#endif
+template PetscErrorCode Function<PetscReal>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const PetscReal * U,
+			PetscReal t0,const PetscScalar * U0,
+			PetscReal *R,void *ctx);
+template PetscErrorCode Function<Sacado::Fad::SFad<double,numVars> >(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const Sacado::Fad::SFad<double,numVars> * U,
+			PetscReal t0,const PetscScalar * U0,
+			Sacado::Fad::SFad<double,numVars> *R,void *ctx);

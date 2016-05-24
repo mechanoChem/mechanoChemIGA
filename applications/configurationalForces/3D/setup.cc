@@ -1,5 +1,10 @@
-#ifndef setup_
-#define setup_
+#include "applicationHeaders.h"
+//extern "C" {
+#include "petiga.h"
+//}
+#include "parameters.h"
+#include "../../../include/genericHeaders.h"
+#include "../../../src/configurationalForces/physicsHeaders.h"
 
 template<unsigned int dim>
 int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
@@ -31,14 +36,14 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   char           filename[256];
   sprintf(filename,"outU%d.dat",RESTART_IT);  
   ierr = IGAReadVec(user.iga,*user.U0,filename);CHKERRQ(ierr); //Read in vector to restart at step RESTART_IT
-#endif 
+#endif
   ierr = VecCopy(*user.U0, *user.U);CHKERRQ(ierr);
 
   //Set mat type
   ierr = IGASetMatType(user.iga,MATAIJ);CHKERRQ(ierr); //For superlu_dist (still works for gmres, etc.)
-  //ierr = IGASetMatType(user.iga,MATIS);CHKERRQ(ierr); //For PCBDDC
 
-	return 0;
+  return 0;
 }
 
-#endif
+template int setup<2>(AppCtx& user,Vec *U,Vec *U0,TS &ts);
+template int setup<3>(AppCtx& user,Vec *U,Vec *U0,TS &ts);
