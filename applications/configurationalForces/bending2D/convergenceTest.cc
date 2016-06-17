@@ -1,15 +1,15 @@
-#include "applicationHeaders.h"
+#include "../applicationHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
-#include "parameters.h"
+//#include "../3D/parameters.h"
 
 //snes convegence test
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx){
   AppCtx *user  = (AppCtx*) ctx;
   PetscPrintf(PETSC_COMM_WORLD,"xnorm:%12.6e snorm:%12.6e fnorm:%12.6e\n",xnorm,snorm,fnorm);  
   //custom test
-  if (NVal>=15){
+  if (user->NVal>=15){
     if (it>500){
       *reason = SNES_CONVERGED_ITS;
       return(0);

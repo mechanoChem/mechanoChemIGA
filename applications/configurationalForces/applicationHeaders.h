@@ -13,7 +13,8 @@ typedef struct {
   PetscReal he;
   PetscReal norm;
   PetscReal lambda; //load parameter
-	/*PetscInt DIM;
+	Vec *totalEnergy;
+	PetscInt dim;
 	PetscReal GridScale;
 	PetscBool ADSacado;
 	PetscInt numVars;
@@ -22,15 +23,16 @@ typedef struct {
 	PetscReal dtVal;
 	PetscInt skipOutput;
 	PetscInt RESTART_IT;
-	PetscReal RESTART_TIME;*/
+	PetscReal RESTART_TIME;
 } AppCtx;
 
-template<unsigned int dim>
-int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts);
+template<unsigned int DIM>
+int setup(AppCtx& user,Vec *U,Vec *U0,Vec *totalEnergy,TS &ts);
 
 template<unsigned int dim>
 int boundaryConditions(AppCtx& user, double scale);
 
+template<int dim>
 int timeStepSetup(AppCtx& user, TS& ts);
 
 template <int dim>
@@ -45,6 +47,6 @@ PetscErrorCode SNESConvergedTest_Interactive(SNES snes, PetscInt it,PetscReal xn
 
 int setConvergenceTest(AppCtx& user, TS& ts);
 
-int readParameters(AppCtx& user);
+int defineParameters(AppCtx& user);
 
 #endif

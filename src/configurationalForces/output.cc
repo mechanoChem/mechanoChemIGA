@@ -1,17 +1,18 @@
-#include "physicsHeaders.h"
+#include "../physicsHeaders.h"
 
 //extern "C" {
 #include "petiga.h"
 //}
 #include <cmath>
-#include "../../applications/configurationalForces/3D/parameters.h"
-#include "../../applications/configurationalForces/3D/applicationHeaders.h"
+//#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/applicationHeaders.h"
 #include "../../include/genericHeaders.h"
 
 #define PI 3.14159265
 
 #undef  __FUNCT__
 #define __FUNCT__ "E22Function"
+template <int DIM>
 PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
   PetscInt nen, dof;
@@ -100,6 +101,8 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   }
   return 0;
 }
+template PetscErrorCode E22Function<2>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
+template PetscErrorCode E22Function<3>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
 
 #undef  __FUNCT__
 #define __FUNCT__ "E22Jacobian"
@@ -125,13 +128,14 @@ PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, voi
 
 #undef  __FUNCT__
 #define __FUNCT__ "ProjectSolution"
+template <int dim>
 PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 {	
   PetscErrorCode ierr;
   PetscFunctionBegin;
 
   //Reset boundary conditions
-	for(unsigned int i=0; i<DIM; i++){
+	for(unsigned int i=0; i<dim; i++){
 		for(unsigned int j=0; j<2; j++){
   ierr = IGAFormClearBoundary(user->iga->form,i,j);CHKERRQ(ierr);
 		}
@@ -144,7 +148,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
-  ierr = IGASetFormFunction(iga,E22Function,user);CHKERRQ(ierr);
+  ierr = IGASetFormFunction(iga,E22Function<dim>,user);CHKERRQ(ierr);
   ierr = IGASetFormJacobian(iga,E22Jacobian,user);CHKERRQ(ierr);
   ierr = IGAComputeFunction(iga,U,b);CHKERRQ(ierr);
   ierr = IGAComputeJacobian(iga,U,A);CHKERRQ(ierr);
@@ -158,7 +162,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
 
   //write solution
   char filename[256];
-  sprintf(filename,"./outE%d.dat",step+RESTART_IT);
+  sprintf(filename,"./outE%d.dat",step+user->RESTART_IT);
   ierr = IGAWriteVec(iga,x,filename);CHKERRQ(ierr);
   ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);
@@ -166,10 +170,12 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = VecDestroy(&b);CHKERRQ(ierr);
 
   //Apply original boundary conditions
-	boundaryConditions<DIM>(*user,0.);
+	boundaryConditions<dim>(*user,0.);
 
   PetscFunctionReturn(0); 
 }
+template PetscErrorCode ProjectSolution<2>(IGA iga, PetscInt step, Vec U, AppCtx *user);
+template PetscErrorCode ProjectSolution<3>(IGA iga, PetscInt step, Vec U, AppCtx *user);
 
 #undef  __FUNCT__
 #define __FUNCT__ "OutputMonitor"
@@ -182,10 +188,10 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   char           filename[256];
 
   //output to file
-  sprintf(filename,"./outU%d.dat",it_number+RESTART_IT);
-  if (it_number%skipOutput==0){
+  sprintf(filename,"./outU%d.dat",it_number+user->RESTART_IT);
+  if (it_number%user->skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
-    ProjectSolution(user->iga, it_number, U, user); 
+    ProjectSolution<dim>(user->iga, it_number, U, user); 
   }
 
   PetscFunctionReturn(0);

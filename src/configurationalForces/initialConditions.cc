@@ -1,9 +1,9 @@
-#include "physicsHeaders.h"
+#include "../physicsHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
-#include "../../applications/configurationalForces/3D/parameters.h"
-#include "../../applications/configurationalForces/3D/applicationHeaders.h"
+//#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/applicationHeaders.h"
 
 #undef  __FUNCT__
 #define __FUNCT__ "FormInitialCondition"
@@ -12,43 +12,47 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx *user)
   PetscErrorCode ierr;
   PetscFunctionBegin;
   DM da;
-  ierr = IGACreateNodeDM(iga,2*DIM,&da);CHKERRQ(ierr);
+  ierr = IGACreateNodeDM(iga,2*user->dim,&da);CHKERRQ(ierr);
   //ierr = IGACreateNodeDM(iga,DIM,&da);CHKERRQ(ierr);
-#if DIM==2
-  Field **u;
-#elif DIM==3
-  Field ***u;
-#endif
-  ierr = DMDAVecGetArray(da,U,&u);CHKERRQ(ierr);
-  DMDALocalInfo info;
-  ierr = DMDAGetLocalInfo(da,&info);CHKERRQ(ierr);
-  //
-#if DIM==2
-  PetscInt i,j;
-  for(i=info.xs;i<info.xs+info.xm;i++){
-    for(j=info.ys;j<info.ys+info.ym;j++){
-      u[j][i].Ux=0.0;
-      u[j][i].Uy=0.0;
-      u[j][i].ux=0.0;
-      u[j][i].uy=0.0;
-    }
-  }
-#elif DIM==3
-  PetscInt i,j,k;
-  for(i=info.xs;i<info.xs+info.xm;i++){
-    for(j=info.ys;j<info.ys+info.ym;j++){
-      for(k=info.zs;k<info.zs+info.zm;k++){
-	u[k][j][i].Ux=0.0;
-	u[k][j][i].Uy=0.0;
-	u[k][j][i].Uz=0.0;
-	u[k][j][i].ux=0.0;
-	u[k][j][i].uy=0.0;
-	u[k][j][i].uz=0.0;
-      }
-    }
-  }    
-#endif
-  ierr = DMDAVecRestoreArray(da,U,&u);CHKERRQ(ierr); 
-  ierr = DMDestroy(&da);;CHKERRQ(ierr); 
+
+	if(user->dim==2){
+		Field<2> **u;
+		ierr = DMDAVecGetArray(da,U,&u);CHKERRQ(ierr);
+		DMDALocalInfo info;
+		ierr = DMDAGetLocalInfo(da,&info);CHKERRQ(ierr);
+		PetscInt i,j;
+		for(i=info.xs;i<info.xs+info.xm;i++){
+		  for(j=info.ys;j<info.ys+info.ym;j++){
+		    u[j][i].Ux=0.0;
+		    u[j][i].Uy=0.0;
+		    u[j][i].ux=0.0;
+		    u[j][i].uy=0.0;
+		  }
+		}
+	  ierr = DMDAVecRestoreArray(da,U,&u);CHKERRQ(ierr);
+	}
+	else if(user->dim==3){
+		Field<3> ***u;
+		ierr = DMDAVecGetArray(da,U,&u);CHKERRQ(ierr);
+		DMDALocalInfo info;
+		ierr = DMDAGetLocalInfo(da,&info);CHKERRQ(ierr);
+		PetscInt i,j,k;
+		for(i=info.xs;i<info.xs+info.xm;i++){
+		  for(j=info.ys;j<info.ys+info.ym;j++){
+		    for(k=info.zs;k<info.zs+info.zm;k++){
+		u[k][j][i].Ux=0.0;
+		u[k][j][i].Uy=0.0;
+		u[k][j][i].Uz=0.0;
+		u[k][j][i].ux=0.0;
+		u[k][j][i].uy=0.0;
+		u[k][j][i].uz=0.0;
+		    }
+		  }
+		}    
+  	ierr = DMDAVecRestoreArray(da,U,&u);CHKERRQ(ierr); 
+	}
+
+	ierr = DMDestroy(&da);;CHKERRQ(ierr); 
+
   PetscFunctionReturn(0); 
 }

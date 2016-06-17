@@ -4,27 +4,25 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "../applications/configurationalForces/3D/applicationHeaders.h"
+#include "../applications/configurationalForces/applicationHeaders.h"
+#include "../src/physicsHeaders.h"
 
-PetscErrorCode Residual(IGAPoint p,PetscReal dt,
-                        PetscReal shift,const PetscScalar *V,
-                        PetscReal t,const PetscScalar *U,
-                        PetscReal t0,const PetscScalar *U0, 
-			PetscScalar *R,void *ctx);
-
-template<unsigned int DOF>
-PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
-			PetscReal shift,const PetscScalar *V,
-			PetscReal t,const PetscScalar *U,
-			PetscReal t0,const PetscScalar *U0,
-			PetscScalar *K,void *ctx);
+//For a compile time "pow" function:
+template <int base,int exp>
+struct power{
+	static const int value = base*power<base,exp-1>::value;
+};
+template <int base>
+struct power<base,0>{
+	static const int value = 1;
+};
 
 enum fieldType{SCALAR,VECTOR,TENSOR};
 
 template <class T, unsigned int dim, unsigned int dof>
 void computeField(fieldType type, unsigned int index, IGAPoint p, const T* U, T* _value=0, T* _grad=0, T* _hess=0);
 
-template<unsigned int DOF>
+template<unsigned int DIM, unsigned int DOF>
 int init(AppCtx& user, PetscInt N, PetscInt p);
 
 #endif

@@ -1,14 +1,14 @@
-#include "applicationHeaders.h"
+#include "../applicationHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
-#include "parameters.h"
+//#include "../3D/parameters.h"
 
 template<unsigned int dim>
 int boundaryConditions(AppCtx& user, double scale){
   PetscErrorCode  ierr;
 
-  double dVal=scale*uDirichlet*GridScale;
+  double dVal=scale*user.uDirichlet*user.GridScale;
   PetscPrintf(PETSC_COMM_WORLD,"  dVal: %12.6e  \n",dVal);
 
   if(dim == 2){

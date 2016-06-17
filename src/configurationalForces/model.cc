@@ -1,22 +1,18 @@
-#include "physicsHeaders.h"
+#include "../physicsHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
 #include "../../applications/configurationalForces/3D/parameters.h"
-#include "../../applications/configurationalForces/3D/applicationHeaders.h"
+#include "../../applications/configurationalForces/applicationHeaders.h"
 #include "../../include/genericHeaders.h"
 
 //include automatic differentiation library
-#ifdef ADSacado
 #include <Sacado.hpp>
-#else
-#include "adept.h"
-#endif
 
 //residual function implementation
 #undef  __FUNCT__
 #define __FUNCT__ "Function"
-template <class T>
+template <class T,unsigned int DIM, unsigned int DOF>
 PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 			PetscReal shift,const PetscScalar *V,
 			PetscReal t,const T * U,
@@ -32,12 +28,11 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 
   //configuration displacement field variable
   T UU[DIM], UUx[DIM][DIM], UUxx[DIM][DIM][DIM];
-  computeField<T,DIM,2*DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
-  //computeField<T,DIM,DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
+  computeField<T,DIM,DOF>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
 
   //displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
-  computeField<T,DIM,2*DIM>(VECTOR,DIM,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
+  computeField<T,DIM,DOF>(VECTOR,DIM,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
 
   //Compute \chi (I+Ux), d\chi (Uxx)
   T chi[DIM][DIM], dchi[DIM][DIM][DIM];
@@ -141,9 +136,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //define alpha and beta tensors
   T alpha[DIM], beta[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
-    alpha[I] = alphaC*Lambda[I]; //Stiffens with elongation
-    //alpha[I] = alphaC/Lambda[I]; //More compliant with elongation
-    //alpha[I] = alphaC; //No evolving anisotropy
+    alpha[I] = alphaI;
     for (unsigned int J=0; J<DIM; J++){
       //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
       beta[I][J] = betaC;
@@ -167,9 +160,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T dpsi_dchi[DIM][DIM];
   for(unsigned int K=0; K<DIM; K++){
     for(unsigned int L=0; L<DIM; L++){
-      dpsi_dchi[K][L] = 0.5*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
-      //dpsi_dchi[K][L] = 0.5*(alphaC/std::pow(Lambda[L],3))*E[L][L]*E[L][L]*chi[K][L]; //more compliant with elongation
-      //dpsi_dchi[K][L] = 0.; //No evolving anisotropy
+      dpsi_dchi[K][L] = 0.5*d_alphaL*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
       for (unsigned int I=0; I<DIM; I++){
 	if(I != L){
 	  //	dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
@@ -180,87 +171,88 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   }
  
   //2D model
-#if DIM==2  
-  //new strain metrics
-  T e1=(Xi[0][0]+Xi[1][1]);
-  T e2=(Xi[0][0]-Xi[1][1]);
-  T e6=(Xi[0][1]);
-  T e2_1=0.0, e2_2=0.0; 
-  for (unsigned int i=0; i<DIM; ++i){
-    e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0]);
-    e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1]);
-  }
-  for (unsigned int i=0; i<DIM; ++i){
-    for (unsigned int J=0; J<DIM; ++J){
-      T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J));
-      T e2_chiiJ=(chi[i][0]*(0==J)-chi[i][1]*(1==J));
-      T e6_chiiJ=(chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;
-      T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);
-      T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);
-      //P
-      P[i][J]=PiJ;
-      P0[i][J]=P0iJ;
+	if(DIM==2){
+		//new strain metrics
+		T e1=(Xi[0][0]+Xi[1][1]);
+		T e2=(Xi[0][0]-Xi[1][1]);
+		T e6=(Xi[0][1]);
+		T e2_1=0.0, e2_2=0.0; 
+		for (unsigned int i=0; i<DIM; ++i){
+		  e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0]);
+		  e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1]);
+		}
+		for (unsigned int i=0; i<DIM; ++i){
+		  for (unsigned int J=0; J<DIM; ++J){
+		    T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J));
+		    T e2_chiiJ=(chi[i][0]*(0==J)-chi[i][1]*(1==J));
+		    T e6_chiiJ=(chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;
+		    T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);
+		    T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);
+		    //P
+		    P[i][J]=PiJ;
+		    P0[i][J]=P0iJ;
 
-      //gradient terms
-      for (unsigned int K=0; K<DIM; ++K){
-	T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K);
-	T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K);
-	//Beta
-	Beta0[i][J][K]=Beta0iJK;
-      }
-    }
-  }  
+		    //gradient terms
+		    for (unsigned int K=0; K<DIM; ++K){
+		T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K);
+		T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K);
+		//Beta
+		Beta0[i][J][K]=Beta0iJK;
+		    }
+		  }
+		} 
+	} 
   //3D model
-#elif DIM==3
-  T e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
-  T e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
-  T e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
-  T e4=Xi[1][2], e5=E[2][0], e6=Xi[0][1];
-  T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
-  for (unsigned int i=0; i<DIM; ++i){
-    e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0])/sqrt(2.0);
-    e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1])/sqrt(2.0);
-    e2_3+=(chi[i][0]*dchi[i][0][2]-chi[i][1]*dchi[i][1][2])/sqrt(2.0);
-    e3_1+=(chi[i][0]*dchi[i][0][0]+chi[i][1]*dchi[i][1][0]-2*chi[i][2]*dchi[i][2][0])/sqrt(6.0);
-    e3_2+=(chi[i][0]*dchi[i][0][1]+chi[i][1]*dchi[i][1][1]-2*chi[i][2]*dchi[i][2][1])/sqrt(6.0);
-    e3_3+=(chi[i][0]*dchi[i][0][2]+chi[i][1]*dchi[i][1][2]-2*chi[i][2]*dchi[i][2][2])/sqrt(6.0);
-  }
-  for (unsigned int i=0; i<DIM; ++i){
-    for (unsigned int J=0; J<DIM; ++J){
-      T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J)+chi[i][2]*(2==J))/sqrt(3.0);
-      T e2_chiiJ=(chi[i][0]*(0==J)-chi[i][1]*(1==J))/sqrt(2.0);
-      T e3_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))/sqrt(6.0);
-      T e4_chiiJ=(chi[i][2]*(1==J)+chi[i][1]*(2==J))/2.0;
-      T e5_chiiJ=(chi[i][0]*(2==J)+chi[i][2]*(0==J))/2.0;
-      T e6_chiiJ=(chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;
-      T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0])/sqrt(2.0);
-      T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1])/sqrt(2.0);
-      T e2_3_chiiJ=((0==J)*dchi[i][0][2]-(1==J)*dchi[i][1][2])/sqrt(2.0);     
-      T e3_1_chiiJ=((0==J)*dchi[i][0][0]+(1==J)*dchi[i][1][0]-2*(2==J)*dchi[i][2][0])/sqrt(6.0);
-      T e3_2_chiiJ=((0==J)*dchi[i][0][1]+(1==J)*dchi[i][1][1]-2*(2==J)*dchi[i][2][1])/sqrt(6.0);
-      T e3_3_chiiJ=((0==J)*dchi[i][0][2]+(1==J)*dchi[i][1][2]-2*(2==J)*dchi[i][2][2])/sqrt(6.0);
-      //P
-      P0[i][J]=P0iJ;  
-      P[i][J]=PiJ; 
-      
-      //gradient terms
-      for (unsigned int K=0; K<DIM; ++K){
-	T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K)/sqrt(2.0);
-	T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K)/sqrt(2.0);
-	T e2_3_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(2==K)/sqrt(2.0);
-	T e3_1_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(0==K)/sqrt(6.0);
-	T e3_2_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(1==K)/sqrt(6.0);
-	T e3_3_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(2==K)/sqrt(6.0);
-	//Beta
-	Beta0[i][J][K]=Beta0iJK;
-      }
-    }
-  }
-
-#else
-  PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
-  exit(-1);      	
-#endif  
+	else if(DIM==3){
+		T e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
+		T e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
+		T e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
+		T e4=Xi[1][2], e5=E[2][0], e6=Xi[0][1];
+		T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
+		for (unsigned int i=0; i<DIM; ++i){
+		  e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0])/sqrt(2.0);
+		  e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1])/sqrt(2.0);
+		  e2_3+=(chi[i][0]*dchi[i][0][2]-chi[i][1]*dchi[i][1][2])/sqrt(2.0);
+		  e3_1+=(chi[i][0]*dchi[i][0][0]+chi[i][1]*dchi[i][1][0]-2*chi[i][2]*dchi[i][2][0])/sqrt(6.0);
+		  e3_2+=(chi[i][0]*dchi[i][0][1]+chi[i][1]*dchi[i][1][1]-2*chi[i][2]*dchi[i][2][1])/sqrt(6.0);
+		  e3_3+=(chi[i][0]*dchi[i][0][2]+chi[i][1]*dchi[i][1][2]-2*chi[i][2]*dchi[i][2][2])/sqrt(6.0);
+		}
+		for (unsigned int i=0; i<DIM; ++i){
+		  for (unsigned int J=0; J<DIM; ++J){
+		    T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J)+chi[i][2]*(2==J))/sqrt(3.0);
+		    T e2_chiiJ=(chi[i][0]*(0==J)-chi[i][1]*(1==J))/sqrt(2.0);
+		    T e3_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))/sqrt(6.0);
+		    T e4_chiiJ=(chi[i][2]*(1==J)+chi[i][1]*(2==J))/2.0;
+		    T e5_chiiJ=(chi[i][0]*(2==J)+chi[i][2]*(0==J))/2.0;
+		    T e6_chiiJ=(chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;
+		    T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0])/sqrt(2.0);
+		    T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1])/sqrt(2.0);
+		    T e2_3_chiiJ=((0==J)*dchi[i][0][2]-(1==J)*dchi[i][1][2])/sqrt(2.0);     
+		    T e3_1_chiiJ=((0==J)*dchi[i][0][0]+(1==J)*dchi[i][1][0]-2*(2==J)*dchi[i][2][0])/sqrt(6.0);
+		    T e3_2_chiiJ=((0==J)*dchi[i][0][1]+(1==J)*dchi[i][1][1]-2*(2==J)*dchi[i][2][1])/sqrt(6.0);
+		    T e3_3_chiiJ=((0==J)*dchi[i][0][2]+(1==J)*dchi[i][1][2]-2*(2==J)*dchi[i][2][2])/sqrt(6.0);
+		    //P
+		    P0[i][J]=P0iJ;  
+		    P[i][J]=PiJ; 
+		    
+		    //gradient terms
+		    for (unsigned int K=0; K<DIM; ++K){
+		T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K)/sqrt(2.0);
+		T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K)/sqrt(2.0);
+		T e2_3_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(2==K)/sqrt(2.0);
+		T e3_1_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(0==K)/sqrt(6.0);
+		T e3_2_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(1==K)/sqrt(6.0);
+		T e3_3_chiiJK=(chi[i][0]*(0==J)+chi[i][1]*(1==J)-2*chi[i][2]*(2==J))*(2==K)/sqrt(6.0);
+		//Beta
+		Beta0[i][J][K]=Beta0iJK;
+		    }
+		  }
+		}
+	}
+	else{
+		PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
+		exit(-1);      	
+	}
   
   //Compute the Eshelby stress = \psi_N*\delta_{IJ} - F^T*P
   T Eshelby[DIM][DIM];
@@ -308,16 +300,48 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
       }
     }
   }
+
   return 0;
 }
 
-template PetscErrorCode Function<PetscReal>(IGAPoint p,PetscReal dt2,
+template PetscErrorCode Function<PetscReal,2,3>(IGAPoint p,PetscReal dt2,
 			PetscReal shift,const PetscScalar *V,
 			PetscReal t,const PetscReal * U,
 			PetscReal t0,const PetscScalar * U0,
 			PetscReal *R,void *ctx);
-template PetscErrorCode Function<Sacado::Fad::SFad<double,numVars> >(IGAPoint p,PetscReal dt2,
+template PetscErrorCode Function<PetscReal,2,4>(IGAPoint p,PetscReal dt2,
 			PetscReal shift,const PetscScalar *V,
-			PetscReal t,const Sacado::Fad::SFad<double,numVars> * U,
+			PetscReal t,const PetscReal * U,
 			PetscReal t0,const PetscScalar * U0,
-			Sacado::Fad::SFad<double,numVars> *R,void *ctx);
+			PetscReal *R,void *ctx);
+template PetscErrorCode Function<PetscReal,3,4>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const PetscReal * U,
+			PetscReal t0,const PetscScalar * U0,
+			PetscReal *R,void *ctx);
+template PetscErrorCode Function<PetscReal,3,6>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const PetscReal * U,
+			PetscReal t0,const PetscScalar * U0,
+			PetscReal *R,void *ctx);
+
+template PetscErrorCode Function<Sacado::Fad::SFad<double,27>,2,3>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const Sacado::Fad::SFad<double,27> * U,
+			PetscReal t0,const PetscScalar * U0,
+			Sacado::Fad::SFad<double,27> *R,void *ctx);
+template PetscErrorCode Function<Sacado::Fad::SFad<double,36>,2,4>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const Sacado::Fad::SFad<double,36> * U,
+			PetscReal t0,const PetscScalar * U0,
+			Sacado::Fad::SFad<double,36> *R,void *ctx);
+template PetscErrorCode Function<Sacado::Fad::SFad<double,108>,3,4>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const Sacado::Fad::SFad<double,108> * U,
+			PetscReal t0,const PetscScalar * U0,
+			Sacado::Fad::SFad<double,108> *R,void *ctx);
+template PetscErrorCode Function<Sacado::Fad::SFad<double,162>,3,6>(IGAPoint p,PetscReal dt2,
+			PetscReal shift,const PetscScalar *V,
+			PetscReal t,const Sacado::Fad::SFad<double,162> * U,
+			PetscReal t0,const PetscScalar * U0,
+			Sacado::Fad::SFad<double,162> *R,void *ctx);

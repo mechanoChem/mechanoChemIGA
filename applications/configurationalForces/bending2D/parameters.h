@@ -31,7 +31,7 @@
 //boundary conditions
 #define uDirichlet 0.1
 //other variables
-#define NVal 10//**
+#define NVal 5//**
 //time stepping
 #define dtVal 0.00001 //** // used to set load parameter..so 0<dtVal<1
 #define skipOutput 1
