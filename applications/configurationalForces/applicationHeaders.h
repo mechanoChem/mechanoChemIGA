@@ -24,6 +24,17 @@ typedef struct {
 	PetscInt skipOutput;
 	PetscInt RESTART_IT;
 	PetscReal RESTART_TIME;
+
+	//Anisotropic St. Venant-Kirchhoff
+	PetscReal mu;
+	PetscReal alphaC;
+	PetscReal betaC;
+
+	//Nonconvex free energy parameters
+	PetscReal Es;
+	PetscReal Ed;
+	PetscReal El;
+
 } AppCtx;
 
 template<unsigned int DIM>
@@ -48,5 +59,14 @@ PetscErrorCode SNESConvergedTest_Interactive(SNES snes, PetscInt it,PetscReal xn
 int setConvergenceTest(AppCtx& user, TS& ts);
 
 int defineParameters(AppCtx& user);
+
+template<class T>
+T alphaI(PetscReal alphaC,T LambdaI);
+
+template<class T>
+T d_alphaL(PetscReal alphaC,T LambdaL);
+
+/*template<class T, unsigned int DIM>
+T PiJ(double mu, T (&alpha)[DIM], T (&beta)[DIM][DIM], T (&F)[DIM][DIM], T (&E)[DIM][DIM], int i, int J);*/
 
 #endif
