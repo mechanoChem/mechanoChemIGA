@@ -26,6 +26,47 @@ int timeStepSetup(AppCtx& user, TS& ts){
 template int timeStepSetup<2>(AppCtx& user, TS& ts);
 template int timeStepSetup<3>(AppCtx& user, TS& ts);
 
+PetscErrorCode energyDensity(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
+{	
+  PetscInt nen, dof;
+  IGAPointGetSizes(p,0,&nen,&dof);
+  AppCtx *user = (AppCtx *)ctx;
+
+	//Integrate free energy
+	PetscReal weight, detJac;
+	PetscErrorCode ierr;
+	IGAPointGetQuadrature(p,&weight,&detJac);
+	PetscScalar energy = 1.*weight*detJac;
+	PetscInt i = 0;
+	ierr = VecSetValues(*user->totalEnergy,1,&i,&energy,ADD_VALUES);CHKERRQ(ierr);
+
+  return 0;
+}
+
+PetscErrorCode getTotalEnergy(IGA iga, Vec U, AppCtx *user)
+{	
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+
+	//Total energy integral
+	PetscScalar energy = 0.;
+	PetscInt i = 0;
+  Vec b;
+	ierr = VecSet(*user->totalEnergy,0.);CHKERRQ(ierr);
+
+  ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
+  ierr = IGASetFormFunction(iga,energyDensity,user);CHKERRQ(ierr);
+  ierr = IGAComputeFunction(iga,U,b);CHKERRQ(ierr);
+  ierr = VecDestroy(&b);CHKERRQ(ierr);
+
+  ierr = VecAssemblyBegin(*user->totalEnergy);CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(*user->totalEnergy);CHKERRQ(ierr);
+	ierr = VecNorm(*user->totalEnergy,NORM_1,&energy);
+  PetscPrintf(PETSC_COMM_WORLD,"Total energy: %6.2e\n",energy);
+
+  PetscFunctionReturn(0); 
+}
+
 template <int dim>
 PetscErrorCode loadStep(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mctx)
 {
@@ -45,6 +86,8 @@ PetscErrorCode loadStep(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mc
 	double scale = t;
   PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e",t); 
 	boundaryConditions<dim>(*user,scale);
+
+	getTotalEnergy(user->iga,U,user);
 
   PetscFunctionReturn(0);
 }

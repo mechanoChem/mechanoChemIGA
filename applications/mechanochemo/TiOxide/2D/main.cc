@@ -16,18 +16,30 @@ int main(int argc, char *argv[]) {
   //Initialize objects and parameters
   AppCtx user;
 	ierr = defineParameters(user);
-  Vec U,U0;
+  Vec U,U0,totalEnergy;
   TS ts;
+	if(user.dim == 2){
+		const unsigned int dim = 2;
+  	ierr = setup<dim>(user,&U,&U0,&totalEnergy,ts);
 
-	const unsigned int dim = 2;
-	ierr = setup<dim>(user,&U,&U0,ts);
+		//Dirichlet boundary conditons for mechanics
+		PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
+		ierr = boundaryConditions<dim>(user,0.);
 
-	//Dirichlet boundary conditons for mechanics
-	PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
-	ierr = boundaryConditions<dim>(user,0.);
+		//time stepping
+		ierr = timeStepSetup<dim>(user,ts);
+	}
+	else if(user.dim == 3){
+		const unsigned int dim = 3;
+  	ierr = setup<dim>(user,&U,&U0,&totalEnergy,ts);
 
-	//time stepping
-	ierr = timeStepSetup<dim>(user,ts);
+		//Dirichlet boundary conditons for mechanics
+		PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
+		ierr = boundaryConditions<dim>(user,0.);
+
+		//time stepping
+		ierr = timeStepSetup<dim>(user,ts);
+	}
 
   //set snes convergence tests
   ierr = setConvergenceTest(user,ts);

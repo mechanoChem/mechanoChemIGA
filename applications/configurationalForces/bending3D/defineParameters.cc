@@ -10,14 +10,14 @@ int defineParameters(AppCtx& user){
 
   PetscErrorCode ierr;
  
-	user.dim = 2;
+	user.dim = 3;
 	user.GridScale = 1.0;
 	user.ADSacado = PETSC_TRUE;
-	user.numVars = 36;
+	user.numVars = 162;
 	user.uDirichlet = 0.1;
-	user.NVal = 80;
-	user.dtVal = 0.001;
-	user.skipOutput = 5;
+	user.NVal = 10;
+	user.dtVal = 0.0001;
+	user.skipOutput = 1;
 	user.RESTART_IT = 0;
 	user.RESTART_TIME = 0.;
 
@@ -31,7 +31,7 @@ int defineParameters(AppCtx& user){
 	//Nonconvex free energy parameters
 	user.Es = 0.1;
 	user.Ed = 1.0;
-	user.El = .1;
+	user.El = .25;
 
   return 0;
 }

@@ -12,7 +12,7 @@ int timeStepSetup(AppCtx& user, TS& ts){
   ierr = IGACreateTS(user.iga,&ts);CHKERRQ(ierr);
 	ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,100001,1.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,10001,2.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,user.RESTART_TIME);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor<dim>,&user,NULL);CHKERRQ(ierr);
@@ -46,6 +46,14 @@ PetscErrorCode loadStep(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mc
   PetscPrintf(PETSC_COMM_WORLD,"t: %12.6e",t); 
 	boundaryConditions<dim>(*user,scale);
 
+	//Output values to measure anisotropy
+  if (it_number%user->skipOutput==0){
+		FILE	*output_file = NULL;
+		PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","a+",&output_file);
+		PetscFPrintf(PETSC_COMM_WORLD,output_file,"%g %g %g\n",user->F00,user->P00,user->Lambda1);
+		PetscFClose(PETSC_COMM_WORLD,output_file);
+	}
+
   PetscFunctionReturn(0);
 }
 
@@ -61,6 +69,11 @@ PetscErrorCode adaptiveTimeStep(TS ts,PetscInt it_number,PetscReal c_time,Vec U,
 
   //adaptive TS
   double dt=user->dtVal; 
+  double t;
+  ierr = TSGetTime(*user->ts,&t);CHKERRQ(ierr);
+	if(t<1){
+		dt *= 10.;
+	}
   ierr = TSSetTimeStep(*user->ts,dt);CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: initial dt: %12.6e, dt: %12.6e \n",user->dtVal, dt);
 

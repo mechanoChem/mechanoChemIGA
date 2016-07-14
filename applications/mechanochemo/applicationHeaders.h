@@ -13,6 +13,7 @@ typedef struct {
   PetscReal he;
   PetscReal norm;
   PetscReal lambda; //load parameter
+	Vec *totalEnergy;
 	PetscInt dim;
 	PetscReal GridScale;
 	PetscBool ADSacado;
@@ -23,13 +24,6 @@ typedef struct {
 	PetscInt skipOutput;
 	PetscInt RESTART_IT;
 	PetscReal RESTART_TIME;
-
-	PetscInt beamRatio; //Ratio of length to width of beam. Keep it an integer to make setting the number of elements easy.
-
-	//For measuring anisotropy
-	PetscReal F00; //F_{11} - Deformation gradient
-	PetscReal P00; //P_{11} - 1st Piola-Kirchhoff stress
-	PetscReal Lambda1; //Configurational stretch in e_1 direction
 
 	//Anisotropic St. Venant-Kirchhoff
 	PetscReal mu;
@@ -44,7 +38,7 @@ typedef struct {
 } AppCtx;
 
 template<unsigned int DIM>
-int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts);
+int setup(AppCtx& user,Vec *U,Vec *U0,Vec *totalEnergy,TS &ts);
 
 template<unsigned int dim>
 int boundaryConditions(AppCtx& user, double scale);

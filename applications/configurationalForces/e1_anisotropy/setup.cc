@@ -30,6 +30,11 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   ierr = IGACreateVec(user.iga,user.U);CHKERRQ(ierr);
   ierr = IGACreateVec(user.iga,user.U0);CHKERRQ(ierr);
 
+	//clear/create anisotropy output text file
+  FILE	*output_file = NULL;
+  PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","w",&output_file);
+  PetscFClose(PETSC_COMM_WORLD,output_file);
+
 	if(user.RESTART_IT==0){
 	  ierr = FormInitialCondition(user.iga, *user.U0, &user);CHKERRQ(ierr);
 	}

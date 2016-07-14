@@ -4,7 +4,7 @@
 #include "petiga.h"
 //}
 #include <cmath>
-//#include "../../applications/configurationalForces/3D/parameters.h"
+#include "../../applications/configurationalForces/expressions.h"
 #include "../../applications/configurationalForces/applicationHeaders.h"
 #include "../../include/genericHeaders.h"
 
@@ -19,86 +19,189 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   IGAPointGetSizes(p,0,&nen,&dof);
   AppCtx *user = (AppCtx *)ctx;
 
-  //displacement field variables
+  //configurational displacement field variables
+  PetscReal UU[DIM], UUx[DIM][DIM];
+  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0]);
+
+  //total displacement field variable
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  computeField<PetscReal,DIM,2*DIM>(VECTOR,DIM,p,U,&u[0],&ux[0][0]);
 
   //Compute chi
   PetscReal chi[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
-      chi[i][j]=(i==j)+ux[i][j];
+      chi[i][j]=(i==j)+UUx[i][j];
     }
   }
 
-  //Compute strain metric, E  (E=0.5*(F^T*F-I))
-  PetscReal Xi[DIM][DIM];
+  //Compute J_\chi (the determinant of \chi)
+  PetscReal J_chi;
+
+  //Compute \chi^{-1}
+  PetscReal chi_Inv[DIM][DIM];
+  if(DIM == 2){
+    J_chi = chi[0][0]*chi[1][1] - chi[0][1]*chi[1][0];
+
+    chi_Inv[0][0] = 1./J_chi*chi[1][1];
+    chi_Inv[0][1] = -1./J_chi*chi[0][1];
+    chi_Inv[1][0] = -1./J_chi*chi[1][0];
+    chi_Inv[1][1] = 1./J_chi*chi[0][0];
+  }
+  else if(DIM == 3){
+    J_chi = chi[0][0]*(chi[1][1]*chi[2][2] - chi[1][2]*chi[2][1]) -
+      chi[0][1]*(chi[1][0]*chi[2][2] - chi[1][2]*chi[2][0]) +
+      chi[0][2]*(chi[1][0]*chi[2][1] - chi[1][1]*chi[2][0]);
+
+    chi_Inv[0][0] = 1./J_chi*(chi[1][1]*chi[2][2] - chi[2][1]*chi[1][2]);
+    chi_Inv[0][1] = 1./J_chi*(chi[0][2]*chi[2][1] - chi[0][1]*chi[2][2]);
+    chi_Inv[0][2] = 1./J_chi*(chi[0][1]*chi[1][2] - chi[1][1]*chi[0][2]);
+    chi_Inv[1][0] = 1./J_chi*(chi[1][2]*chi[2][0] - chi[2][2]*chi[1][0]);
+    chi_Inv[1][1] = 1./J_chi*(chi[0][0]*chi[2][2] - chi[2][0]*chi[0][2]);
+    chi_Inv[1][2] = 1./J_chi*(chi[0][2]*chi[1][0] - chi[1][2]*chi[0][0]);
+    chi_Inv[2][0] = 1./J_chi*(chi[1][0]*chi[2][1] - chi[2][0]*chi[1][1]);
+    chi_Inv[2][1] = 1./J_chi*(chi[0][1]*chi[2][0] - chi[2][1]*chi[0][0]);
+    chi_Inv[2][2] = 1./J_chi*(chi[0][0]*chi[1][1] - chi[1][0]*chi[0][1]);
+  }
+
+  //Compute \Phi=\chi^T*\chi and strain metric, \Xi=0.5*(\Phi-I)
+  PetscReal Phi[DIM][DIM], Xi[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
     for (unsigned int J=0; J<DIM; J++){
-      Xi[I][J] = -0.5*(I==J);
+      Phi[I][J] = 0.;
       for (unsigned int k=0; k<DIM; k++){
-	Xi[I][J] += 0.5*chi[k][I]*chi[k][J];
+	Phi[I][J] += chi[k][I]*chi[k][J];
+      }
+      Xi[I][J] = 0.5*(Phi[I][J] - (I==J));
+    }
+  }
+
+  //Compute normal stretches \Lambda_I = \sqrt{\Phi_{II}}
+  PetscReal Lambda[DIM];
+  for (unsigned int I=0; I<DIM; I++){
+    Lambda[I] = sqrt(Phi[I][I]);
+  }
+
+  //define alpha and beta tensors
+  PetscReal alpha[DIM], beta[DIM][DIM];
+  for (unsigned int I=0; I<DIM; I++){
+    alpha[I] = alphaI(user->alphaC,Lambda[I]);
+    for (unsigned int J=0; J<DIM; J++){
+      //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
+      beta[I][J] = user->betaC;
+    }
+  }
+  
+  //Compute F (I+ux), dF (uxx)
+  PetscReal F[DIM][DIM], dF[DIM][DIM][DIM];
+  for (unsigned int i=0; i<DIM; i++) {
+    for (unsigned int J=0; J<DIM; J++) {
+      F[i][J] = 0.;
+      for (unsigned int k=0; k<DIM; k++){
+      	//F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
+	F[i][J] += ((i==k) + ux[i][k])*chi_Inv[k][J]; //let u be the total deformation
       }
     }
   }
 
-#if DIM==2
-  //new strain metrics
-  PetscReal e1=(Xi[0][0]+Xi[1][1]);
-  PetscReal e2=(Xi[0][0]-Xi[1][1]);
-  PetscReal e6=Xi[0][1];
+  //Compute strain metric, E=0.5*(F^T*F-I)
+  PetscReal E[DIM][DIM];
+  for (unsigned int I=0; I<DIM; I++){
+    for (unsigned int J=0; J<DIM; J++){
+      E[I][J] = -0.5*(I==J);
+      for (unsigned int k=0; k<DIM; k++){
+	E[I][J] += 0.5*F[k][I]*F[k][J];
+      }
+    }
+  }
   
-  //compute distance to nearest well
-  PetscReal dist=e2-Es;
-  unsigned int wellID=1;
+  //compute P and Beta
+  PetscReal P[DIM][DIM];
 
-#elif DIM==3
-  //new strain metrics
-  PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
-  PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
-  PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
-  PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
-  //compute distance to nearest well
-  PetscReal x[3],y[3]; 
-  x[0]=0; y[0]=-Es; //first well 
-  x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
-  x[2]=-Es*cos(30.0*PI/180.0); y[2]=Es*sin(30.0*PI/180.0); //third well
-  PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
-  unsigned int wellID=1; 
-  for(unsigned int i=1; i<3; i++){
-    if(dist>sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0))){
-      dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
-      wellID=i+1;
-    }
-  }
+	if(DIM==2){
+		//new strain metrics
+		PetscReal e1=(Xi[0][0]+Xi[1][1]);
+		PetscReal e2=(Xi[0][0]-Xi[1][1]);
+		PetscReal e6=Xi[0][1];
+		
+		//compute distance to nearest well
+		PetscReal dist=e2-user->Es;
+		unsigned int wellID=1;
 
-#endif
- 
-  //store L2 projection residual
-  const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
-  for(int n1=0; n1<nen; n1++){
-    for(int d1=0; d1<dof; d1++){
-      PetscReal val=0.0;
-      switch (d1) {
-#if DIM==2
-      case 0:
-	val=e2; break;
-      case 1:
-	val=e6; break;
-#elif DIM==3
-      case 0:
-	val=e2; break;
-      case 1:
-	val=e3; break;
-      case 2:
-	val=wellID; break;
-      case 3:
-	val=dist; break;
-#endif
-      } 
-      R[n1*dof+d1] = N[n1]*val;
-    }
-  }
+		for (unsigned int i=0; i<DIM; ++i){
+		  for (unsigned int J=0; J<DIM; ++J){
+		    P[i][J]=PiJ_2D;
+			}
+		}
+
+		//store L2 projection residual
+		const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
+		for(int n1=0; n1<nen; n1++){
+		  for(int d1=0; d1<dof; d1++){
+		    PetscReal val=0.0;
+		    switch (d1) {
+		    case 0:
+		val=e2; break;
+		    case 1:
+		val=e6; break;
+		    } 
+		    R[n1*dof+d1] = N[n1]*val;
+		  }
+		}
+
+	}
+	else if(DIM==3){
+		//new strain metrics
+		PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
+		PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
+		PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
+		PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
+		//compute distance to nearest well
+		PetscReal x[3],y[3]; 
+		x[0]=0; y[0]=-user->Es; //first well 
+		x[1]=user->Es*cos(30.0*PI/180.0); y[1]=user->Es*sin(30.0*PI/180.0); //second well
+		x[2]=-user->Es*cos(30.0*PI/180.0); y[2]=-user->Es*sin(30.0*PI/180.0); //third well
+		PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
+		unsigned int wellID=1; 
+		for(unsigned int i=1; i<3; i++){
+		  if(dist>sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0))){
+		    dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
+		    wellID=i+1;
+		  }
+		}
+
+		for (unsigned int i=0; i<DIM; ++i){
+		  for (unsigned int J=0; J<DIM; ++J){
+		    P[i][J]=PiJ_3D;
+			}
+		}
+
+		//store L2 projection residual
+		const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
+		for(int n1=0; n1<nen; n1++){
+		  for(int d1=0; d1<dof; d1++){
+		    PetscReal val=0.0;
+		    switch (d1) {
+		    case 0:
+		val=e2; break;
+		    case 1:
+		val=e3; break;
+		    case 2:
+		val=wellID; break;
+		    case 3:
+		val=dist; break;
+		    } 
+		    R[n1*dof+d1] = N[n1]*val;
+		  }
+		}
+
+	}
+  
+	//Assign values for measuring anisotropy
+	user->F00 = 1.*F[0][0];
+	user->P00 = 1.*P[0][0];
+	user->Lambda1 = 1.*Lambda[0];
+
   return 0;
 }
 template PetscErrorCode E22Function<2>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);

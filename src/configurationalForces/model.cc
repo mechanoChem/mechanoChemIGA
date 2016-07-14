@@ -30,7 +30,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T UU[DIM], UUx[DIM][DIM], UUxx[DIM][DIM][DIM];
   computeField<T,DIM,DOF>(VECTOR,0,p,U,&UU[0],&UUx[0][0],&UUxx[0][0][0]);
 
-  //displacement field variable
+  //total displacement field variable
   T u[DIM], ux[DIM][DIM], uxx[DIM][DIM][DIM];
   computeField<T,DIM,DOF>(VECTOR,DIM,p,U,&u[0],&ux[0][0],&uxx[0][0][0]);
 
@@ -276,7 +276,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		PetscPrintf(PETSC_COMM_WORLD,"only material models for DIM=2, DIM=3 implemented.... but DIM input is %u\n",DIM); 
 		exit(-1);      	
 	}
-  
+
   //Compute the Eshelby stress = \psi_N*\delta_{IJ} - F^T*P
   T Eshelby[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){

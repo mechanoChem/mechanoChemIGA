@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   Vec U,U0;
   TS ts;
 
-	const unsigned int dim = 2;
+	const unsigned int dim = 3;
 	ierr = setup<dim>(user,&U,&U0,ts);
 
 	//Dirichlet boundary conditons for mechanics
