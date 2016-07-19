@@ -28,15 +28,15 @@ int boundaryConditions(AppCtx& user, double scale){
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,1,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,2,0,2,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,0,(-1. + sqrt(1. + sqrt(8./3.)*user.Es))*scale1);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,1,1,1,(-1. + sqrt(1. - sqrt(2./3.)*user.Es))*scale1);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,1,1,1,(-1. + sqrt(1. + sqrt(8./3.)*user.Es))*scale1);CHKERRQ(ierr);
+  ierr = IGASetBoundaryValue(user.iga,0,1,0,(-1. + sqrt(1. - sqrt(2./3.)*user.Es))*scale1);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,2,1,2,(-1. + sqrt(1. - sqrt(2./3.)*user.Es))*scale1);CHKERRQ(ierr);
 
   //Total displacements (configurational displacement + uniaxial tension)
   ierr = IGASetBoundaryValue(user.iga,0,0,3,0.0);CHKERRQ(ierr);  
   ierr = IGASetBoundaryValue(user.iga,1,0,4,0.0);CHKERRQ(ierr);
   ierr = IGASetBoundaryValue(user.iga,2,0,5,0.0);CHKERRQ(ierr);
-  ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal + (-1. + sqrt(1. + sqrt(8./3.)*user.Es))*scale1);CHKERRQ(ierr);  
+  ierr = IGASetBoundaryValue(user.iga,0,1,3,dVal + (-1. + sqrt(1. - sqrt(2./3.)*user.Es))*scale1);CHKERRQ(ierr);  
 
   return 0;
 }

@@ -1,0 +1,50 @@
+cmake_minimum_required (VERSION 2.8.2)
+project(main)
+
+#MPI
+find_package(MPI REQUIRED)
+set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
+set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
+
+#PETSc
+find_library(PETSC_LIBRARY 
+						NAMES petsc
+						HINTS "$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/lib")
+
+#PetIGA
+find_library(PETIGA_LIBRARY 
+						NAMES petiga
+						HINTS "$ENV{PETIGA_DIR}/$ENV{PETSC_ARCH}/lib")
+
+#Sacado
+find_library(SACADO_LIBRARY 
+						NAMES sacado
+						HINTS "$ENV{TRILINOS_DIR}/lib/")
+
+#Include directories
+include_directories("${MPI_INCLUDE_PATH}" 
+										"$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include" 
+										"$ENV{PETSC_DIR}/include" 
+										"$ENV{PETIGA_DIR}/$ENV{PETSC_ARCH}/include" 
+										"$ENV{PETIGA_DIR}/include" 
+										"$ENV{TRILINOS_DIR}/include/")
+
+#Add src
+file(GLOB SOURCES "../../../include/*.cc" "../../../src/configurationalForces/*.cc" "*.cc")
+add_executable(main ${SOURCES})
+
+#Link libraries
+target_link_libraries(main ${MPI_LIBRARIES} ${PETSC_LIBRARY} ${PETIGA_LIBRARY} ${SACADO_LIBRARY})
+
+#Debug or release
+ADD_CUSTOM_TARGET(debug
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+  COMMENT "Switch CMAKE_BUILD_TYPE to Debug"
+  )
+
+ADD_CUSTOM_TARGET(release
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+  COMMENT "Switch CMAKE_BUILD_TYPE to Release"
+  )
