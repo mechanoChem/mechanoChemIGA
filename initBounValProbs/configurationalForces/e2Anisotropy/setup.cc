@@ -59,6 +59,11 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
 	PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
 	ierr = boundaryConditions(user,0.);
 
+	//Clear stress output file
+	FILE	*output_file = NULL;
+	PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","w",&output_file);
+	PetscFClose(PETSC_COMM_WORLD,output_file);
+
 	//time stepping
   ierr = IGACreateTS(user.iga,&ts);CHKERRQ(ierr);
 	ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP);

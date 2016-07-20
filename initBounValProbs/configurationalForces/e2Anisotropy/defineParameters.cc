@@ -15,7 +15,7 @@ int defineParameters(AppCtx& user){
 	user.ADSacado = PETSC_TRUE;
 	user.numVars = 162;
 	user.uDirichlet = 0.1;
-	user.NVal = 5;
+	user.NVal = 2;
 	user.dtVal = 0.01;
 	user.skipOutput = 1;
 	user.RESTART_IT = 0;

@@ -18,10 +18,6 @@ int boundaryConditions(AppCtx& user, double scale){
   double dVal=scale2*user.uDirichlet*user.GridScale; //In this case, this is just the applied standard displacmenet
 
   PetscPrintf(PETSC_COMM_WORLD,"  dVal: %12.6e  \n",dVal);
-	FILE	*output_file = NULL;
-	PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","a+",&output_file);
-	PetscFPrintf(PETSC_COMM_WORLD,output_file,"%g ",dVal);
-	PetscFClose(PETSC_COMM_WORLD,output_file);
 
   //Configurational displacements (forced into e1 tetragonal)
   ierr = IGASetBoundaryValue(user.iga,0,0,0,0.0);CHKERRQ(ierr);  

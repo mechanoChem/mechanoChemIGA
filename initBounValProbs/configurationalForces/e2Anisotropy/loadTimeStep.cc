@@ -26,7 +26,7 @@ PetscErrorCode loadStep(TS ts,PetscInt it_number,PetscReal c_time,Vec U,void *mc
 	//Output values to measure anisotropy
 	FILE	*output_file = NULL;
 	PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","a+",&output_file);
-	PetscFPrintf(PETSC_COMM_WORLD,output_file,"%g %g %g\n",user->matParam["F00"],user->matParam["P00"],user->matParam["Lambda1"]);
+	PetscFPrintf(PETSC_COMM_WORLD,output_file,"%g %g %g %g\n",t,user->matParam["F00"],user->matParam["P00"],user->matParam["Lambda1"]);
 	PetscFClose(PETSC_COMM_WORLD,output_file);
 
   PetscFunctionReturn(0);
