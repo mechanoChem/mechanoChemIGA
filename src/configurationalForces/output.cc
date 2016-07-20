@@ -1,12 +1,12 @@
-#include "../physicsHeaders.h"
-
 //extern "C" {
 #include "petiga.h"
 //}
 #include <cmath>
-#include "../../applications/configurationalForces/expressions.h"
-#include "../../applications/configurationalForces/applicationHeaders.h"
-#include "../../include/genericHeaders.h"
+
+#include "constitutive.h"
+#include "physicsHeaders.h"
+#include "applicationHeaders.h"
+#include "genericHeaders.h"
 
 #define PI 3.14159265
 
@@ -18,6 +18,17 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
   AppCtx *user = (AppCtx *)ctx;
+
+	//Retrieve material parameters
+	PetscReal mu = user->matParam["mu"];
+	PetscReal betaC = user->matParam["betaC"];
+	PetscReal alphaC = user->matParam["alphaC"];
+	PetscReal anisoCoeff = user->matParam["anisoCoeff"];
+
+	//Nonconvex free energy parameters
+	PetscReal Es = user->matParam["Es"];
+	PetscReal Ed = user->matParam["Ed"];
+	PetscReal El = user->matParam["El"];
 
   //configurational displacement field variables
   PetscReal UU[DIM], UUx[DIM][DIM];
@@ -85,10 +96,10 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   //define alpha and beta tensors
   PetscReal alpha[DIM], beta[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
-    alpha[I] = alphaI(user->alphaC,Lambda[I]);
+    alpha[I] = anisoCoeff*alphaC*(Lambda[I] - (anisoCoeff - 1.)/anisoCoeff);
     for (unsigned int J=0; J<DIM; J++){
       //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
-      beta[I][J] = user->betaC;
+      beta[I][J] = betaC;
     }
   }
   
@@ -125,7 +136,7 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 		PetscReal e6=Xi[0][1];
 		
 		//compute distance to nearest well
-		PetscReal dist=e2-user->Es;
+		PetscReal dist=e2-Es;
 		unsigned int wellID=1;
 
 		for (unsigned int i=0; i<DIM; ++i){
@@ -158,9 +169,9 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 		PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
 		//compute distance to nearest well
 		PetscReal x[3],y[3]; 
-		x[0]=0; y[0]=-user->Es; //first well 
-		x[1]=user->Es*cos(30.0*PI/180.0); y[1]=user->Es*sin(30.0*PI/180.0); //second well
-		x[2]=-user->Es*cos(30.0*PI/180.0); y[2]=-user->Es*sin(30.0*PI/180.0); //third well
+		x[0]=0; y[0]=-Es; //first well 
+		x[1]=Es*cos(30.0*PI/180.0); y[1]=Es*sin(30.0*PI/180.0); //second well
+		x[2]=-Es*cos(30.0*PI/180.0); y[2]=-Es*sin(30.0*PI/180.0); //third well
 		PetscReal dist=sqrt(std::pow(e2-x[0],2.0)+std::pow(e3-y[0],2.0));
 		unsigned int wellID=1; 
 		for(unsigned int i=1; i<3; i++){
@@ -198,9 +209,9 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 	}
   
 	//Assign values for measuring anisotropy
-	user->F00 = 1.*F[0][0];
-	user->P00 = 1.*P[0][0];
-	user->Lambda1 = 1.*Lambda[0];
+	user->matParam["F00"] = F[0][0];
+	user->matParam["P00"] = P[0][0];
+	user->matParam["Lambda1"] = Lambda[0];
 
   return 0;
 }
@@ -273,7 +284,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = VecDestroy(&b);CHKERRQ(ierr);
 
   //Apply original boundary conditions
-	boundaryConditions<dim>(*user,0.);
+	boundaryConditions(*user,0.);
 
   PetscFunctionReturn(0); 
 }

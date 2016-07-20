@@ -1,10 +1,10 @@
-#include "../physicsHeaders.h"
+#include "../../include/physicsHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
-#include "../../applications/configurationalForces/expressions.h"
-#include "../../applications/configurationalForces/applicationHeaders.h"
-#include "../../include/genericHeaders.h"
+#include "constitutive.h"
+#include "applicationHeaders.h"
+#include "genericHeaders.h"
 
 //include automatic differentiation library
 #include <Sacado.hpp>
@@ -20,6 +20,17 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 			T *R,void *ctx)
 {
   AppCtx *user = (AppCtx *)ctx;
+
+	//Retrieve material parameters
+	PetscReal mu = user->matParam["mu"];
+	PetscReal betaC = user->matParam["betaC"];
+	PetscReal alphaC = user->matParam["alphaC"];
+	PetscReal anisoCoeff = user->matParam["anisoCoeff"];
+
+	//Nonconvex free energy parameters
+	PetscReal Es = user->matParam["Es"];
+	PetscReal Ed = user->matParam["Ed"];
+	PetscReal El = user->matParam["El"];
 
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
@@ -136,10 +147,10 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   //define alpha and beta tensors
   T alpha[DIM], beta[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
-    alpha[I] = alphaI(user->alphaC,Lambda[I]);
+    alpha[I] = anisoCoeff*alphaC*(Lambda[I] - (anisoCoeff - 1.)/anisoCoeff);
     for (unsigned int J=0; J<DIM; J++){
       //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
-      beta[I][J] = user->betaC;
+      beta[I][J] = betaC;
     }
   }
   
@@ -147,12 +158,12 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T psi_N;
   psi_N = 0.;
   for (unsigned int I=0; I<DIM; I++){
-    psi_N += 0.5*(alpha[I] - 2*user->mu)*E[I][I]*E[I][I];
+    psi_N += 0.5*(alpha[I] - 2*mu)*E[I][I]*E[I][I];
     for (unsigned int J=0; J<DIM; J++){
       if(I != J){
 	psi_N += 0.5*beta[I][J]*E[I][I]*E[J][J];
       }
-      psi_N += user->mu*E[I][J]*E[I][J];
+      psi_N += mu*E[I][J]*E[I][J];
     }
   }
   
@@ -160,7 +171,7 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   T dpsi_dchi[DIM][DIM];
   for(unsigned int K=0; K<DIM; K++){
     for(unsigned int L=0; L<DIM; L++){
-      dpsi_dchi[K][L] = 0.5*d_alphaL(user->alphaC,Lambda[L])*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
+      dpsi_dchi[K][L] = 0.5*anisoCoeff*(alphaC/Lambda[L])*E[L][L]*E[L][L]*chi[K][L]; //stiffens with elongation
       for (unsigned int I=0; I<DIM; I++){
 	if(I != L){
 	  //	dpsi_dchi[K][L] += 0.5*betaC*chi[K][L]*E[L][L]*E[I][I]*
@@ -185,8 +196,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		  e2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1]);
 		}
 
-		//T e2_i[2] = {e2_1, e2_2};
-
 		for (unsigned int i=0; i<DIM; ++i){
 		  for (unsigned int J=0; J<DIM; ++J){
 		    T e1_chiiJ=(chi[i][0]*(0==J)+chi[i][1]*(1==J));
@@ -195,8 +204,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		    T e2_1_chiiJ=((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);
 		    T e2_2_chiiJ=((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);
 
-				//T e_i_chiiJ[3] = {e1_chiiJ, e2_chiiJ, e6_chiiJ};
-				//T e2_i_chiiJ[2] = {e2_1_chiiJ, e2_2_chiiJ};
 		    //P
 		    P[i][J]=PiJ_2D;
 		    P0[i][J]=P0iJ_2D;
@@ -206,7 +213,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		T e2_1_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K);
 		T e2_2_chiiJK=(chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K);
 
-		//T e2_i_chiiJK[2] = {e2_1_chiiJK, e2_2_chiiJK};
 		//Beta
 		Beta0[i][J][K]=Beta0iJK_2D;
 		    }
@@ -220,8 +226,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		T e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
 		T e4=Xi[1][2], e5=E[2][0], e6=Xi[0][1];
 
-		//T e_i[6] = {e1, e2, e3, e4, e5, e6};
-
 		T e2_1=0.0, e2_2=0.0, e2_3=0.0, e3_1=0.0, e3_2=0.0, e3_3=0.0;
 		for (unsigned int i=0; i<DIM; ++i){
 		  e2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0])/sqrt(2.0);
@@ -231,8 +235,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		  e3_2+=(chi[i][0]*dchi[i][0][1]+chi[i][1]*dchi[i][1][1]-2*chi[i][2]*dchi[i][2][1])/sqrt(6.0);
 		  e3_3+=(chi[i][0]*dchi[i][0][2]+chi[i][1]*dchi[i][1][2]-2*chi[i][2]*dchi[i][2][2])/sqrt(6.0);
 		}
-
-		//T ei_j[2][3] = {{e2_1, e2_2, e2_3}, {e3_1, e3_2, e3_3}};
 
 		for (unsigned int i=0; i<DIM; ++i){
 		  for (unsigned int J=0; J<DIM; ++J){
@@ -249,8 +251,6 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
 		    T e3_2_chiiJ=((0==J)*dchi[i][0][1]+(1==J)*dchi[i][1][1]-2*(2==J)*dchi[i][2][1])/sqrt(6.0);
 		    T e3_3_chiiJ=((0==J)*dchi[i][0][2]+(1==J)*dchi[i][1][2]-2*(2==J)*dchi[i][2][2])/sqrt(6.0);
 
-				//T e_i_chiiJ[6] = {e1_chiiJ, e2_chiiJ, e3_chiiJ, e4_chiiJ, e5_chiiJ, e6_chiiJ};
-				//T ei_j_chiiJ[2][3] = {{e2_1_chiiJ, e2_2_chiiJ, e2_3_chiiJ}, {e3_1_chiiJ, e3_2_chiiJ, e3_3_chiiJ}};
 		    //P
 		    P0[i][J]=P0iJ_3D;  
 		    P[i][J]=PiJ_3D; 
