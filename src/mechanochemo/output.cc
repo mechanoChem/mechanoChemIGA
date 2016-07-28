@@ -19,103 +19,34 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
   IGAPointGetSizes(p,0,&nen,&dof);
   AppCtx *user = (AppCtx *)ctx;
 
-	//Retrieve material parameters
-	PetscReal mu = user->matParam["mu"];
-	PetscReal betaC = user->matParam["betaC"];
-	PetscReal alphaC = user->matParam["alphaC"];
-	PetscReal anisoCoeff = user->matParam["anisoCoeff"];
-
-	//Nonconvex free energy parameters
+	//Retrieve parameters
 	PetscReal Es = user->matParam["Es"];
 	PetscReal Ed = user->matParam["Ed"];
 	PetscReal El = user->matParam["El"];
+	PetscReal Gl = user->matParam["Gl"];
+	PetscReal Cs = user->matParam["Cs"];
+	PetscReal Cd = user->matParam["Cd"];
+	PetscReal Cl = user->matParam["Cl"];
 
-  //configurational displacement field variables
-  PetscReal UU[DIM], UUx[DIM][DIM];
-  computeField<PetscReal,DIM,2*DIM>(VECTOR,0,p,U,&UU[0],&UUx[0][0]);
+	PetscReal flux = user->matParam["flux"];
+	PetscReal DVal = user->matParam["DVal"]; //Diffusivity
+	PetscReal CVal = user->matParam["CVal"];
+	PetscReal gamma = user->matParam["gamma"];
 
-  //total displacement field variable
+  //displacement field variables
   PetscReal u[DIM], ux[DIM][DIM];
-  computeField<PetscReal,DIM,2*DIM>(VECTOR,DIM,p,U,&u[0],&ux[0][0]);
-
-  //Compute chi
-  PetscReal chi[DIM][DIM];
+  computeField<PetscReal,DIM,DIM+1>(VECTOR,0,p,U,&u[0],&ux[0][0]);
+  PetscReal c0;
+  computeField<PetscReal,DIM,DIM+1>(SCALAR,DIM,p,U,&c0);
+  //Compute F
+  PetscReal F[DIM][DIM];
   for (PetscInt i=0; i<DIM; i++) {
     for (PetscInt j=0; j<DIM; j++) {
-      chi[i][j]=(i==j)+UUx[i][j];
+      F[i][j]=(i==j)+ux[i][j];
     }
   }
 
-  //Compute J_\chi (the determinant of \chi)
-  PetscReal J_chi;
-
-  //Compute \chi^{-1}
-  PetscReal chi_Inv[DIM][DIM];
-  if(DIM == 2){
-    J_chi = chi[0][0]*chi[1][1] - chi[0][1]*chi[1][0];
-
-    chi_Inv[0][0] = 1./J_chi*chi[1][1];
-    chi_Inv[0][1] = -1./J_chi*chi[0][1];
-    chi_Inv[1][0] = -1./J_chi*chi[1][0];
-    chi_Inv[1][1] = 1./J_chi*chi[0][0];
-  }
-  else if(DIM == 3){
-    J_chi = chi[0][0]*(chi[1][1]*chi[2][2] - chi[1][2]*chi[2][1]) -
-      chi[0][1]*(chi[1][0]*chi[2][2] - chi[1][2]*chi[2][0]) +
-      chi[0][2]*(chi[1][0]*chi[2][1] - chi[1][1]*chi[2][0]);
-
-    chi_Inv[0][0] = 1./J_chi*(chi[1][1]*chi[2][2] - chi[2][1]*chi[1][2]);
-    chi_Inv[0][1] = 1./J_chi*(chi[0][2]*chi[2][1] - chi[0][1]*chi[2][2]);
-    chi_Inv[0][2] = 1./J_chi*(chi[0][1]*chi[1][2] - chi[1][1]*chi[0][2]);
-    chi_Inv[1][0] = 1./J_chi*(chi[1][2]*chi[2][0] - chi[2][2]*chi[1][0]);
-    chi_Inv[1][1] = 1./J_chi*(chi[0][0]*chi[2][2] - chi[2][0]*chi[0][2]);
-    chi_Inv[1][2] = 1./J_chi*(chi[0][2]*chi[1][0] - chi[1][2]*chi[0][0]);
-    chi_Inv[2][0] = 1./J_chi*(chi[1][0]*chi[2][1] - chi[2][0]*chi[1][1]);
-    chi_Inv[2][1] = 1./J_chi*(chi[0][1]*chi[2][0] - chi[2][1]*chi[0][0]);
-    chi_Inv[2][2] = 1./J_chi*(chi[0][0]*chi[1][1] - chi[1][0]*chi[0][1]);
-  }
-
-  //Compute \Phi=\chi^T*\chi and strain metric, \Xi=0.5*(\Phi-I)
-  PetscReal Phi[DIM][DIM], Xi[DIM][DIM];
-  for (unsigned int I=0; I<DIM; I++){
-    for (unsigned int J=0; J<DIM; J++){
-      Phi[I][J] = 0.;
-      for (unsigned int k=0; k<DIM; k++){
-	Phi[I][J] += chi[k][I]*chi[k][J];
-      }
-      Xi[I][J] = 0.5*(Phi[I][J] - (I==J));
-    }
-  }
-
-  //Compute normal stretches \Lambda_I = \sqrt{\Phi_{II}}
-  PetscReal Lambda[DIM];
-  for (unsigned int I=0; I<DIM; I++){
-    Lambda[I] = sqrt(Phi[I][I]);
-  }
-
-  //define alpha and beta tensors
-  PetscReal alpha[DIM], beta[DIM][DIM];
-  for (unsigned int I=0; I<DIM; I++){
-    alpha[I] = anisoCoeff*alphaC*(Lambda[I] - (anisoCoeff - 1.)/anisoCoeff);
-    for (unsigned int J=0; J<DIM; J++){
-      //      beta[I][J] = betaC*Lambda[I]*Lambda[J];
-      beta[I][J] = betaC;
-    }
-  }
-  
-  //Compute F (I+ux), dF (uxx)
-  PetscReal F[DIM][DIM], dF[DIM][DIM][DIM];
-  for (unsigned int i=0; i<DIM; i++) {
-    for (unsigned int J=0; J<DIM; J++) {
-      F[i][J] = 0.;
-      for (unsigned int k=0; k<DIM; k++){
-      	//F[i][J] += ((i==k) + UUx[i][k] + ux[i][k])*chi_Inv[k][J];
-	F[i][J] += ((i==k) + ux[i][k])*chi_Inv[k][J]; //let u be the total deformation
-      }
-    }
-  }
-
-  //Compute strain metric, E=0.5*(F^T*F-I)
+  //Compute strain metric, E  (E=0.5*(F^T*F-I))
   PetscReal E[DIM][DIM];
   for (unsigned int I=0; I<DIM; I++){
     for (unsigned int J=0; J<DIM; J++){
@@ -124,26 +55,17 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 	E[I][J] += 0.5*F[k][I]*F[k][J];
       }
     }
-  }
-  
-  //compute P and Beta
-  PetscReal P[DIM][DIM];
+  } 
 
 	if(DIM==2){
 		//new strain metrics
-		PetscReal e1=(Xi[0][0]+Xi[1][1]);
-		PetscReal e2=(Xi[0][0]-Xi[1][1]);
-		PetscReal e6=Xi[0][1];
+  	PetscReal e1=(E[0][0]+E[1][1]);
+  	PetscReal e2=(E[0][0]-E[1][1]);
+  	PetscReal e6=E[0][1];
 		
 		//compute distance to nearest well
 		PetscReal dist=e2-Es;
 		unsigned int wellID=1;
-
-		for (unsigned int i=0; i<DIM; ++i){
-		  for (unsigned int J=0; J<DIM; ++J){
-		    P[i][J]=PiJ_2D;
-			}
-		}
 
 		//store L2 projection residual
 		const PetscReal (*N) = (PetscReal (*)) p->shape[0];;  
@@ -155,6 +77,8 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 		val=e2; break;
 		    case 1:
 		val=e6; break;
+      case 2:
+		val=c0; break;
 		    } 
 		    R[n1*dof+d1] = N[n1]*val;
 		  }
@@ -163,10 +87,10 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 	}
 	else if(DIM==3){
 		//new strain metrics
-		PetscReal e1=(Xi[0][0]+Xi[1][1]+Xi[2][2])/sqrt(3.0);
-		PetscReal e2=(Xi[0][0]-Xi[1][1])/sqrt(2.0);
-		PetscReal e3=(Xi[0][0]+Xi[1][1]-2*Xi[2][2])/sqrt(6.0);
-		PetscReal e4=Xi[1][2], e5=Xi[2][0], e6=Xi[0][1];
+  	PetscReal e1=(E[0][0]+E[1][1]+E[2][2])/sqrt(3.0);
+  	PetscReal e2=(E[0][0]-E[1][1])/sqrt(2.0);
+  	PetscReal e3=(E[0][0]+E[1][1]-2*E[2][2])/sqrt(6.0);
+  	PetscReal e4=E[1][2], e5=E[2][0], e6=E[0][1];
 		//compute distance to nearest well
 		PetscReal x[3],y[3]; 
 		x[0]=0; y[0]=-Es; //first well 
@@ -179,12 +103,6 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 		    dist=sqrt(pow(e2-x[i],2.0)+pow(e3-y[i],2.0));
 		    wellID=i+1;
 		  }
-		}
-
-		for (unsigned int i=0; i<DIM; ++i){
-		  for (unsigned int J=0; J<DIM; ++J){
-		    P[i][J]=PiJ_3D;
-			}
 		}
 
 		//store L2 projection residual
@@ -207,11 +125,6 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 		}
 
 	}
-  
-	//Assign values for measuring anisotropy
-	user->matParam["F00"] = F[0][0];
-	user->matParam["P00"] = P[0][0];
-	user->matParam["Lambda1"] = Lambda[0];
 
   return 0;
 }
@@ -266,7 +179,6 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   //Setup linear system for L2 Projection
   Mat A;
   Vec x,b;
-
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
@@ -281,10 +193,9 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = KSPSetOperators(ksp,A,A);CHKERRQ(ierr);
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
-
   //write solution
   char filename[256];
-  sprintf(filename,"./outE%d.dat",step+user->RESTART_IT);
+  sprintf(filename,"./outE%d.dat",step);
   ierr = IGAWriteVec(iga,x,filename);CHKERRQ(ierr);
   ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);
@@ -308,12 +219,34 @@ PetscErrorCode OutputMonitor(TS ts,PetscInt it_number,PetscReal c_time,Vec U,voi
   PetscErrorCode ierr;
   AppCtx *user = (AppCtx *)mctx;
   char           filename[256];
-
-  //output to file
-  sprintf(filename,"./outU%d.dat",it_number+user->RESTART_IT);
+  sprintf(filename,"./outU%d.dat",it_number);
   if (it_number%user->skipOutput==0){
     ierr = IGAWriteVec(user->iga,U,filename);CHKERRQ(ierr);
     ProjectSolution<dim>(user->iga, it_number, U, user); 
+  }
+  
+  //Check for min(C), and stop if min(C)>1
+  PetscReal minC, maxC;
+  VecSetBlockSize(U,dim+1);  
+  VecStrideMin(U,dim,NULL,&minC);
+  VecStrideMax(U,dim,NULL,&maxC);
+  PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C): %12.6e, max(C): %12.6e \n",minC, maxC);
+  if (minC>1.0){
+    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: min(C) > 1.0 so forcefully quitting \n");
+    exit(-1);
+  }
+
+  //check for no change in solution between every 100 timesteps and quit
+  PetscReal normC;
+  VecStrideNorm(U,dim,NORM_2,&normC);
+  if (it_number%100==0){
+    if (it_number>0){
+      PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration over last 100 time steps: %12.6e, norm: %12.6e, oldnorm: %12.6e\n",std::abs(normC-user->norm), normC, user->norm); 
+      if (std::abs(normC-user->norm)<1.0e-5){
+	PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: change in concentration below tol (1e-8) over last 100 time steps, solve probable stalled hence quitting\n"); exit(-1);     
+      }
+    }
+    user->norm=normC;
   }
 
   PetscFunctionReturn(0);

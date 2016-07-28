@@ -10,11 +10,13 @@ PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscRe
   AppCtx *user  = (AppCtx*) ctx;
   PetscPrintf(PETSC_COMM_WORLD,"xnorm:%12.6e snorm:%12.6e fnorm:%12.6e\n",xnorm,snorm,fnorm);
   //custom test
-  if ((it>10) && (fnorm<1.0e-7)) {
-    PetscPrintf(PETSC_COMM_WORLD,"USER SIGNAL: since it>10 forcefully setting convergence. \n");
-    *reason = SNES_CONVERGED_FNORM_ABS;
-    return(0);
+  if (user->Nx>=100){
+    if (it>400){
+      *reason = SNES_CONVERGED_ITS;
+      return(0);
+    }
   }
+  //default test
   PetscFunctionReturn(SNESConvergedDefault(snes,it,xnorm,snorm,fnorm,reason,ctx));
 }
 
@@ -59,16 +61,11 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
 	PetscPrintf(PETSC_COMM_WORLD,"applying bcs...\n");
 	ierr = boundaryConditions(user,0.);
 
-	//Clear stress output file
-	FILE	*output_file = NULL;
-	PetscFOpen(PETSC_COMM_WORLD,"stress_stretch.txt","w",&output_file);
-	PetscFClose(PETSC_COMM_WORLD,output_file);
-
 	//time stepping
   ierr = IGACreateTS(user.iga,&ts);CHKERRQ(ierr);
 	ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP);
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,100001,2.0);CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,100000,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,user.RESTART_TIME);CHKERRQ(ierr);
   ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor<DIM>,&user,NULL);CHKERRQ(ierr);
@@ -84,5 +81,5 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   return 0;
 }
 
-template int setup<2,4>(AppCtx& user,Vec *U,Vec *U0,TS &ts);
-template int setup<3,6>(AppCtx& user,Vec *U,Vec *U0,TS &ts);
+template int setup<2,3>(AppCtx& user,Vec *U,Vec *U0,TS &ts);
+template int setup<3,4>(AppCtx& user,Vec *U,Vec *U0,TS &ts);

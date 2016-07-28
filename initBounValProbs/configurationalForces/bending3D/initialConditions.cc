@@ -1,8 +1,8 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "applicationHeaders.h"
-#include "physicsHeaders.h"
+#include "IBVPHeaders.h"
+#include "utilsIGAHeaders.h"
 
 template<unsigned int dim>
 struct Field;

@@ -2,7 +2,7 @@
 #include "petiga.h"
 //}
 
-#include "applicationHeaders.h"
+#include "IBVPHeaders.h"
 //include automatic differentiation library
 #include <Sacado.hpp>
 
@@ -15,12 +15,16 @@ int defineParameters(AppCtx& user){
 	user.ADSacado = PETSC_TRUE;
 	user.numVars = 162;
 	user.uDirichlet = 0.1;
-	user.NVal = 10;
-	user.dtVal = 1.e-5;
-	user.skipOutput = 1;
+	user.Nx = 100;
+	user.Ny = 10;
+	user.Nz = 10;
+	user.Lx = 10.;
+	user.Ly = 1.;
+	user.Lz = 1.;
+	user.dtVal = 0.001;
+	user.skipOutput = 5;
 	user.RESTART_IT = 0;
 	user.RESTART_TIME = 0.;
-	user.beamRatio = 10; //Ratio of length to width of beam. Keep it an integer to make setting the number of elements easy.
 
 	//Anisotropic St. Venant-Kirchhoff
 	user.matParam["mu"] = 1e-1;

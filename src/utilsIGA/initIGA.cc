@@ -1,11 +1,11 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "applicationHeaders.h"
-#include "genericHeaders.h"
+#include "IBVPHeaders.h"
+#include "utilsIGAHeaders.h"
 
 template<unsigned int DIM, unsigned int DOF>
-int initIGA(AppCtx& user, PetscInt N, PetscInt p){
+int initIGA(AppCtx& user, PetscInt p){
   PetscErrorCode  ierr;
 
   //set discretization options
@@ -30,18 +30,18 @@ int initIGA(AppCtx& user, PetscInt N, PetscInt p){
   IGAAxis axis0;
   ierr = IGAGetAxis(user.iga,0,&axis0);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis0,user.beamRatio*N,0.0,user.beamRatio*1.0*user.GridScale,C);CHKERRQ(ierr); //beamRatio*M elements in the x direction
+  ierr = IGAAxisInitUniform(axis0,user.Nx,0.0,user.Lx*user.GridScale,C);CHKERRQ(ierr); //x direction
 
   IGAAxis axis1;
   ierr = IGAGetAxis(user.iga,1,&axis1);CHKERRQ(ierr);
   ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis1,N,0.0,1.0*user.GridScale,C);CHKERRQ(ierr); //N elements in the y direction
+  ierr = IGAAxisInitUniform(axis1,user.Ny,0.0,user.Ly*user.GridScale,C);CHKERRQ(ierr); //y direction
 
 	if(DIM==3){
 		IGAAxis axis2;
 		ierr = IGAGetAxis(user.iga,2,&axis2);CHKERRQ(ierr);
 		ierr = IGAAxisSetDegree(axis2,p);CHKERRQ(ierr);
-		ierr = IGAAxisInitUniform(axis2,N,0.0,1.0*user.GridScale,C);CHKERRQ(ierr); //N elements in the z direction
+		ierr = IGAAxisInitUniform(axis2,user.Nz,0.0,user.Lz*user.GridScale,C);CHKERRQ(ierr); //z direction
 	}
   ierr = IGASetFromOptions(user.iga);CHKERRQ(ierr);
   ierr = IGASetUp(user.iga);CHKERRQ(ierr);
@@ -70,7 +70,7 @@ int initIGA(AppCtx& user, PetscInt N, PetscInt p){
   return 0;
 }
 
-template int initIGA<2,3>(AppCtx& user, PetscInt N, PetscInt p);
-template int initIGA<2,4>(AppCtx& user, PetscInt N, PetscInt p);
-template int initIGA<3,4>(AppCtx& user, PetscInt N, PetscInt p);
-template int initIGA<3,6>(AppCtx& user, PetscInt N, PetscInt p);
+template int initIGA<2,3>(AppCtx& user, PetscInt p);
+template int initIGA<2,4>(AppCtx& user, PetscInt p);
+template int initIGA<3,4>(AppCtx& user, PetscInt p);
+template int initIGA<3,6>(AppCtx& user, PetscInt p);

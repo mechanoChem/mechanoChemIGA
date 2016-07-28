@@ -21,13 +21,13 @@ int main(int argc, char *argv[]) {
 
 	if(user.dim == 2){
 		const unsigned int dim = 2;
-		const unsigned int dof=2*dim;
+		const unsigned int dof=dim+1;
 		//Setup structures, initial conditions, boundary conditions
 		ierr = setup<dim,dof>(user,&U,&U0,ts);
 	}
 	else if(user.dim == 3){
 		const unsigned int dim = 3;
-		const unsigned int dof=2*dim;
+		const unsigned int dof=dim+1;
 		//Setup structures, initial conditions, boundary conditions
 		ierr = setup<dim,dof>(user,&U,&U0,ts);
 	}
@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
   ierr = VecDestroy(user.U);CHKERRQ(ierr);
   ierr = VecDestroy(user.U0);CHKERRQ(ierr);
   ierr = IGADestroy(&user.iga);CHKERRQ(ierr);
+
   ierr = PetscFinalize();CHKERRQ(ierr);
   return 0;
 }

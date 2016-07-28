@@ -20,7 +20,8 @@ struct AppCtx{
 	PetscBool ADSacado;
 	PetscInt numVars;
 	PetscReal uDirichlet;
-	PetscInt NVal;
+	PetscInt Nx, Ny, Nz; //Number of elements in each direction (note that Nz is not used if dim = 2)
+	PetscReal Lx, Ly, Lz; //Dimensions of body
 	PetscReal dtVal;
 	PetscInt skipOutput;
 	PetscInt RESTART_IT;
@@ -28,23 +29,6 @@ struct AppCtx{
 	PetscInt beamRatio; //Ratio of length to width of beam. Keep it an integer to make setting the number of elements easy.
 
 	std::map<std::string,PetscReal> matParam;
-/*
-	//For measuring anisotropy
-	PetscReal F00; //F_{11} - Deformation gradient
-	PetscReal P00; //P_{11} - 1st Piola-Kirchhoff stress
-	PetscReal Lambda1; //Configurational stretch in e_1 direction
-
-	//Anisotropic St. Venant-Kirchhoff
-	PetscReal mu;
-	PetscReal alphaC;
-	PetscReal betaC;
-	PetscReal anisoCoeff;
-
-	//Nonconvex free energy parameters
-	PetscReal Es;
-	PetscReal Ed;
-	PetscReal El;
-*/
 };
 
 #endif

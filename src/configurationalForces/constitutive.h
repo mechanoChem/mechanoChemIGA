@@ -1,5 +1,5 @@
-#ifndef Expressions_
-#define Expressions_
+#ifndef Constitutive_
+#define Constitutive_
 
 //2D material model (stress expressions)
 

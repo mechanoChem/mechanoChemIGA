@@ -1,10 +1,10 @@
-#include "../../include/physicsHeaders.h"
 //extern "C" {
 #include "petiga.h"
 //}
 #include "constitutive.h"
-#include "applicationHeaders.h"
-#include "genericHeaders.h"
+#include "physicsHeaders.h"
+#include "IBVPHeaders.h"
+#include "utilsIGAHeaders.h"
 
 //include automatic differentiation library
 #include <Sacado.hpp>

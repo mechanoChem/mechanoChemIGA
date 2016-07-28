@@ -1,7 +1,7 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "genericHeaders.h"
+#include "utilsIGAHeaders.h"
 #include "physicsHeaders.h"
 
 #include <math.h>

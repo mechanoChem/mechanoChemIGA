@@ -3,9 +3,9 @@
 #include "petiga.h"
 //}
 //generic functions
-#include "genericHeaders.h"
+#include "utilsIGAHeaders.h"
 //application specific functions
-#include "applicationHeaders.h"
+#include "IBVPHeaders.h"
 //physics functions
 #include "physicsHeaders.h"
 
@@ -37,6 +37,10 @@ int main(int argc, char *argv[]) {
   ierr = TSSolve(ts,*user.U);CHKERRQ(ierr);
 
   //finalize
+  ierr = TSDestroy(user.ts);CHKERRQ(ierr);
+  ierr = VecDestroy(user.U);CHKERRQ(ierr);
+  ierr = VecDestroy(user.U0);CHKERRQ(ierr);
+  ierr = IGADestroy(&user.iga);CHKERRQ(ierr);
   ierr = PetscFinalize();CHKERRQ(ierr);
   return 0;
 }

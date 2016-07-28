@@ -23,6 +23,6 @@ template <class T, unsigned int dim, unsigned int dof>
 void computeField(fieldType type, unsigned int index, IGAPoint p, const T* U, T* _value=0, T* _grad=0, T* _hess=0);
 
 template<unsigned int DIM, unsigned int DOF>
-int initIGA(AppCtx& user, PetscInt N, PetscInt p);
+int initIGA(AppCtx& user, PetscInt p);
 
 #endif

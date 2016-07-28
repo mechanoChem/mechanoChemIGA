@@ -1,8 +1,8 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "applicationHeaders.h"
-#include "genericHeaders.h"
+#include "IBVPHeaders.h"
+#include "utilsIGAHeaders.h"
 #include "physicsHeaders.h"
 
 PetscErrorCode SNESConvergedTest(SNES snes, PetscInt it,PetscReal xnorm, PetscReal snorm, PetscReal fnorm, SNESConvergedReason *reason, void *ctx)
@@ -25,7 +25,7 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
  
   //application context objects and parameters
   user.dt=user.dtVal;
-  user.he=user.GridScale*1.0/user.NVal;
+  user.he=user.GridScale*1.0/user.Nx;
   user.lambda=1.;
   PetscInt p=2;
 
@@ -36,7 +36,7 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   user.iga = iga;
 
   PetscPrintf(PETSC_COMM_WORLD,"initializing...\n");
-  initIGA<DIM,DOF>(user, user.NVal, p);
+  initIGA<DIM,DOF>(user, p);
 
   //initial conditions
   ierr = IGACreateVec(user.iga,user.U);CHKERRQ(ierr);

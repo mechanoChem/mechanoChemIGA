@@ -1,7 +1,7 @@
 //extern "C" {
 #include "petiga.h"
 //}
-#include "applicationHeaders.h"
+#include "IBVPHeaders.h"
 
 int boundaryConditions(AppCtx& user, double scale){
   PetscErrorCode  ierr;
