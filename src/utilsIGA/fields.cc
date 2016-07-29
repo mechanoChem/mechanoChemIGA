@@ -48,27 +48,39 @@ void computeField(fieldType type, unsigned int index, IGAPoint p, const T* U, T*
   }
 }
 
-template void computeField<Sacado::Fad::SFad<double,36>, 2, 4>(fieldType type, unsigned int index, IGAPoint p, 
-	const Sacado::Fad::SFad<double,36>* U, 
-	Sacado::Fad::SFad<double,36>* _value=0, 
-	Sacado::Fad::SFad<double,36>* _grad=0, 
-	Sacado::Fad::SFad<double,36>* _hess=0);
-template void computeField<Sacado::Fad::SFad<double,162>, 3, 6>(fieldType type, unsigned int index, IGAPoint p, 
-	const Sacado::Fad::SFad<double,162>* U, 
-	Sacado::Fad::SFad<double,162>* _value=0, 
-	Sacado::Fad::SFad<double,162>* _grad=0, 
-	Sacado::Fad::SFad<double,162>* _hess=0);
+template void computeField<Sacado::Fad::SFad<double,18>, 2, 2>(fieldType type, unsigned int index, IGAPoint p, 
+	const Sacado::Fad::SFad<double,18>* U, 
+	Sacado::Fad::SFad<double,18>* _value=0, 
+	Sacado::Fad::SFad<double,18>* _grad=0, 
+	Sacado::Fad::SFad<double,18>* _hess=0);
 template void computeField<Sacado::Fad::SFad<double,27>, 2, 3>(fieldType type, unsigned int index, IGAPoint p, 
 	const Sacado::Fad::SFad<double,27>* U, 
 	Sacado::Fad::SFad<double,27>* _value=0, 
 	Sacado::Fad::SFad<double,27>* _grad=0, 
 	Sacado::Fad::SFad<double,27>* _hess=0);
+template void computeField<Sacado::Fad::SFad<double,36>, 2, 4>(fieldType type, unsigned int index, IGAPoint p, 
+	const Sacado::Fad::SFad<double,36>* U, 
+	Sacado::Fad::SFad<double,36>* _value=0, 
+	Sacado::Fad::SFad<double,36>* _grad=0, 
+	Sacado::Fad::SFad<double,36>* _hess=0);
+template void computeField<Sacado::Fad::SFad<double,81>, 3, 3>(fieldType type, unsigned int index, IGAPoint p, 
+	const Sacado::Fad::SFad<double,81>* U, 
+	Sacado::Fad::SFad<double,81>* _value=0, 
+	Sacado::Fad::SFad<double,81>* _grad=0, 
+	Sacado::Fad::SFad<double,81>* _hess=0);
 template void computeField<Sacado::Fad::SFad<double,108>, 3, 4>(fieldType type, unsigned int index, IGAPoint p, 
 	const Sacado::Fad::SFad<double,108>* U, 
 	Sacado::Fad::SFad<double,108>* _value=0, 
 	Sacado::Fad::SFad<double,108>* _grad=0, 
 	Sacado::Fad::SFad<double,108>* _hess=0);
-template void computeField<PetscReal, 2, 4>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
-template void computeField<PetscReal, 3, 6>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
+template void computeField<Sacado::Fad::SFad<double,162>, 3, 6>(fieldType type, unsigned int index, IGAPoint p, 
+	const Sacado::Fad::SFad<double,162>* U, 
+	Sacado::Fad::SFad<double,162>* _value=0, 
+	Sacado::Fad::SFad<double,162>* _grad=0, 
+	Sacado::Fad::SFad<double,162>* _hess=0);
+template void computeField<PetscReal, 2, 2>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
 template void computeField<PetscReal, 2, 3>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
+template void computeField<PetscReal, 2, 4>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
+template void computeField<PetscReal, 3, 3>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
 template void computeField<PetscReal, 3, 4>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
+template void computeField<PetscReal, 3, 6>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);

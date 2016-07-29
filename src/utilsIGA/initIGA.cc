@@ -70,7 +70,9 @@ int initIGA(AppCtx& user, PetscInt p){
   return 0;
 }
 
+template int initIGA<2,2>(AppCtx& user, PetscInt p);
 template int initIGA<2,3>(AppCtx& user, PetscInt p);
 template int initIGA<2,4>(AppCtx& user, PetscInt p);
+template int initIGA<3,3>(AppCtx& user, PetscInt p);
 template int initIGA<3,4>(AppCtx& user, PetscInt p);
 template int initIGA<3,6>(AppCtx& user, PetscInt p);

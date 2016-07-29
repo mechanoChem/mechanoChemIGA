@@ -269,12 +269,22 @@ PetscErrorCode Function(IGAPoint p,PetscReal dt2,
   return 0;
 }
 
+template PetscErrorCode Function<PetscReal,2,2>(IGAPoint p,PetscReal dt2,
+						PetscReal shift,const PetscScalar *V,
+						PetscReal t,const PetscReal * U,
+						PetscReal t0,const PetscScalar * U0,
+						PetscReal *R,void *ctx);
 template PetscErrorCode Function<PetscReal,2,3>(IGAPoint p,PetscReal dt2,
 						PetscReal shift,const PetscScalar *V,
 						PetscReal t,const PetscReal * U,
 						PetscReal t0,const PetscScalar * U0,
 						PetscReal *R,void *ctx);
 template PetscErrorCode Function<PetscReal,2,4>(IGAPoint p,PetscReal dt2,
+						PetscReal shift,const PetscScalar *V,
+						PetscReal t,const PetscReal * U,
+						PetscReal t0,const PetscScalar * U0,
+						PetscReal *R,void *ctx);
+template PetscErrorCode Function<PetscReal,3,3>(IGAPoint p,PetscReal dt2,
 						PetscReal shift,const PetscScalar *V,
 						PetscReal t,const PetscReal * U,
 						PetscReal t0,const PetscScalar * U0,
@@ -290,6 +300,11 @@ template PetscErrorCode Function<PetscReal,3,6>(IGAPoint p,PetscReal dt2,
 						PetscReal t0,const PetscScalar * U0,
 						PetscReal *R,void *ctx);
 
+template PetscErrorCode Function<Sacado::Fad::SFad<double,18>,2,2>(IGAPoint p,PetscReal dt2,
+								   PetscReal shift,const PetscScalar *V,
+								   PetscReal t,const Sacado::Fad::SFad<double,18> * U,
+								   PetscReal t0,const PetscScalar * U0,
+								   Sacado::Fad::SFad<double,18> *R,void *ctx);
 template PetscErrorCode Function<Sacado::Fad::SFad<double,27>,2,3>(IGAPoint p,PetscReal dt2,
 								   PetscReal shift,const PetscScalar *V,
 								   PetscReal t,const Sacado::Fad::SFad<double,27> * U,
@@ -300,6 +315,11 @@ template PetscErrorCode Function<Sacado::Fad::SFad<double,36>,2,4>(IGAPoint p,Pe
 								   PetscReal t,const Sacado::Fad::SFad<double,36> * U,
 								   PetscReal t0,const PetscScalar * U0,
 								   Sacado::Fad::SFad<double,36> *R,void *ctx);
+template PetscErrorCode Function<Sacado::Fad::SFad<double,81>,3,3>(IGAPoint p,PetscReal dt2,
+								    PetscReal shift,const PetscScalar *V,
+								    PetscReal t,const Sacado::Fad::SFad<double,81> * U,
+								    PetscReal t0,const PetscScalar * U0,
+								    Sacado::Fad::SFad<double,81> *R,void *ctx);
 template PetscErrorCode Function<Sacado::Fad::SFad<double,108>,3,4>(IGAPoint p,PetscReal dt2,
 								    PetscReal shift,const PetscScalar *V,
 								    PetscReal t,const Sacado::Fad::SFad<double,108> * U,

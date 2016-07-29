@@ -86,13 +86,22 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 }
 
 
-
+template PetscErrorCode Residual<2,2>(IGAPoint p,PetscReal dt,
+                        PetscReal shift,const PetscScalar *V,
+                        PetscReal t,const PetscScalar *U,
+                        PetscReal t0,const PetscScalar *U0, 
+												PetscScalar *R,void *ctx);
 template PetscErrorCode Residual<2,3>(IGAPoint p,PetscReal dt,
                         PetscReal shift,const PetscScalar *V,
                         PetscReal t,const PetscScalar *U,
                         PetscReal t0,const PetscScalar *U0, 
 												PetscScalar *R,void *ctx);
 template PetscErrorCode Residual<2,4>(IGAPoint p,PetscReal dt,
+                        PetscReal shift,const PetscScalar *V,
+                        PetscReal t,const PetscScalar *U,
+                        PetscReal t0,const PetscScalar *U0, 
+												PetscScalar *R,void *ctx);
+template PetscErrorCode Residual<3,3>(IGAPoint p,PetscReal dt,
                         PetscReal shift,const PetscScalar *V,
                         PetscReal t,const PetscScalar *U,
                         PetscReal t0,const PetscScalar *U0, 
@@ -108,12 +117,22 @@ template PetscErrorCode Residual<3,6>(IGAPoint p,PetscReal dt,
                         PetscReal t0,const PetscScalar *U0, 
 												PetscScalar *R,void *ctx);
 
+template PetscErrorCode Jacobian<2,2>(IGAPoint p,PetscReal dt,
+				    PetscReal shift,const PetscScalar *V,
+				    PetscReal t,const PetscScalar *U,
+				    PetscReal t0,const PetscScalar *U0,
+				    PetscScalar *K,void *ctx);
 template PetscErrorCode Jacobian<2,3>(IGAPoint p,PetscReal dt,
 				    PetscReal shift,const PetscScalar *V,
 				    PetscReal t,const PetscScalar *U,
 				    PetscReal t0,const PetscScalar *U0,
 				    PetscScalar *K,void *ctx);
 template PetscErrorCode Jacobian<2,4>(IGAPoint p,PetscReal dt,
+				    PetscReal shift,const PetscScalar *V,
+				    PetscReal t,const PetscScalar *U,
+				    PetscReal t0,const PetscScalar *U0,
+				    PetscScalar *K,void *ctx);
+template PetscErrorCode Jacobian<3,3>(IGAPoint p,PetscReal dt,
 				    PetscReal shift,const PetscScalar *V,
 				    PetscReal t,const PetscScalar *U,
 				    PetscReal t0,const PetscScalar *U0,
