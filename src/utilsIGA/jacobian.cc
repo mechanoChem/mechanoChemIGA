@@ -18,7 +18,7 @@ PetscErrorCode Residual(IGAPoint p,PetscReal dt,
                         PetscReal t0,const PetscScalar *U0, 
 			PetscScalar *R,void *ctx)
 {
-  Function<PetscReal,DIM,DOF>(p, dt, shift, V, t, U, t0, U0, R, ctx);
+  quadPtResidual<PetscReal,DIM,DOF>(p, dt, shift, V, t, U, t0, U0, R, ctx);
   return 0;
 }
 
@@ -39,16 +39,13 @@ PetscErrorCode Jacobian(IGAPoint p,PetscReal dt,
 
 		const int numVars = DOF*power<3,DIM>::value; //DOF*3^DIM;
 		typedef Sacado::Fad::SFad<double,numVars> doubleAD;
-		if (dof*nen!=user->numVars) {
-		  PetscPrintf(PETSC_COMM_WORLD,"\ndof*nen!=numVars.... Set numVars = %u\n",dof*nen); exit(-1);
-		}
 		std::vector<doubleAD> U_AD(nen*dof);
 		for(int i=0; i<nen*dof; i++){
 		  U_AD[i]=U[i];
 		  U_AD[i].diff(i, dof*nen);
 		} 
 		std::vector<doubleAD> R(nen*dof);
-		Function<doubleAD,DIM,DOF> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
+		quadPtResidual<doubleAD,DIM,DOF> (p, dt, shift, V, t, &U_AD[0], t0, U0, &R[0], ctx);
 		for(int n1=0; n1<nen; n1++){
 		  for(int d1=0; d1<dof; d1++){
 		    for(int n2=0; n2<nen; n2++){

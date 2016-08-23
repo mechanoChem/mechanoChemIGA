@@ -4,18 +4,18 @@ from igakit.nurbs import NURBS
 import numpy as np
 import itertools
 import scipy.io
+import os, sys
 
-writeMat=0;
-
-geom = PetIGA().read('mesh.dat')
 data={};
+cwdir=os.getcwd();
+geom = PetIGA().read('mesh.dat')
 inc=1;
 for filename1, filename2 in zip(glob.glob('outU*.dat'), glob.glob('outE*.dat')):
     #print filename1, filename2
+    filename2= "outE" + filename1.split(".")[0][4:] + ".dat"
     outname = "out" + filename1.split(".")[0][4:] + ".vtk"
-    sol1 = PetIGA().read_vec(filename1,geom)
-    sol2 = PetIGA().read_vec(filename2,geom)
+    sol2 = PetIGA().read_vec(filename1,geom)
+    sol1 = PetIGA().read_vec(filename2,geom)
     sol=np.concatenate((sol1,sol2),axis=2);
     nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
-    VTK().write(outname,nrb,scalars=dict(c=0, e2=3, e3=4, e1=5),vectors=dict(displacement=[1,2]))
-
+    VTK().write(outname,nrb,scalars=dict(e2=0, e3=1, well=2, dist=3),vectors=dict(Displacement=[4,5],displacement=[6,7]))

@@ -13,7 +13,6 @@ int defineParameters(AppCtx& user){
 	user.dim = 3;
 	user.GridScale = 1.0;
 	user.ADSacado = PETSC_TRUE;
-	user.numVars = 162;
 	user.uDirichlet = 0.1;
 	user.Nx = 5;
 	user.Ny = 5;

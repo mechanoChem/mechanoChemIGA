@@ -10,8 +10,10 @@
 
 #define PI 3.14159265
 
+#undef  __FUNCT__
+#define __FUNCT__ "ProjectionResidual"
 template <int DIM>
-PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
+PetscErrorCode ProjectionResidual(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx)
 {	
   AppCtx *user = (AppCtx *)ctx;
 
@@ -110,12 +112,12 @@ PetscErrorCode E22Function(IGAPoint p, const PetscScalar *U, PetscScalar *R, voi
 
   return 0;
 }
-template PetscErrorCode E22Function<2>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
-template PetscErrorCode E22Function<3>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
+template PetscErrorCode ProjectionResidual<2>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
+template PetscErrorCode ProjectionResidual<3>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
 
 #undef  __FUNCT__
-#define __FUNCT__ "E22Jacobian"
-PetscErrorCode E22Jacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, void *ctx)
+#define __FUNCT__ "ProjectionJacobian"
+PetscErrorCode ProjectionJacobian(IGAPoint p, const PetscScalar *U, PetscScalar *K, void *ctx)
 {	
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
@@ -164,8 +166,8 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx *user)
   ierr = IGACreateMat(iga,&A);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&x);CHKERRQ(ierr);
   ierr = IGACreateVec(iga,&b);CHKERRQ(ierr);
-  ierr = IGASetFormFunction(iga,E22Function<dim>,user);CHKERRQ(ierr);
-  ierr = IGASetFormJacobian(iga,E22Jacobian,user);CHKERRQ(ierr);
+  ierr = IGASetFormFunction(iga,ProjectionResidual<dim>,user);CHKERRQ(ierr);
+  ierr = IGASetFormJacobian(iga,ProjectionJacobian,user);CHKERRQ(ierr);
   ierr = IGAComputeFunction(iga,U,b);CHKERRQ(ierr);
   ierr = IGAComputeJacobian(iga,U,A);CHKERRQ(ierr);
 

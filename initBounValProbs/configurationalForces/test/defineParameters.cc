@@ -9,7 +9,7 @@
 int defineParameters(AppCtx& user){
 
   PetscErrorCode ierr;
- 
+ /*
 	user.dim = 2;
 	user.GridScale = 1.0;
 	user.ADSacado = PETSC_TRUE;
@@ -33,6 +33,7 @@ int defineParameters(AppCtx& user){
 	user.matParam["Es"] = 0.1;
 	user.matParam["Ed"] = 1.0;
 	user.matParam["El"] = .1;
+*/
 
   return 0;
 }

@@ -26,7 +26,6 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   PetscErrorCode ierr;
  
   //application context objects and parameters
-  user.dt=user.dtVal;
   user.he=user.GridScale*1.0/user.Nx;
   user.lambda=1.;
   PetscInt p=2;
@@ -67,7 +66,7 @@ int setup(AppCtx& user,Vec *U,Vec *U0,TS &ts){
   ierr = TSSetType(ts,TSBEULER);CHKERRQ(ierr);
   ierr = TSSetDuration(ts,100000,1.0);CHKERRQ(ierr);
   ierr = TSSetTime(ts,user.RESTART_TIME);CHKERRQ(ierr);
-  ierr = TSSetTimeStep(ts,user.dt);CHKERRQ(ierr);
+  ierr = TSSetTimeStep(ts,user.dtVal);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,OutputMonitor<DIM>,&user,NULL);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,loadStep,&user,NULL);CHKERRQ(ierr);
   ierr = TSMonitorSet(ts,adaptiveTimeStep,&user,NULL);CHKERRQ(ierr);
