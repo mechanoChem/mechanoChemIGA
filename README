@@ -1,0 +1,77 @@
+mechanoChemistry code: modeling solid mechanics, chemistry, and their interactions
+
+from the Computational Physics Group at the University of Michigan, adviser: Prof. Krishna Garikipati
+
+developed by: Greg Teichert and Dr. Shiva Rudraraju
+
+
+Overview
+=======================================================================
+The mechanoChemistry code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/].
+
+
+Installation
+=======================================================================
+1) Install PETSc:
+
+-Download and extract PETSc source code.
+-Quick installation as follows (the symbol $ denotes the command prompt):
+
+	$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich
+	$ make all test
+
+-Set the appropriate PETSC_DIR and PETSC_ARCH environment variables, e.g.
+
+	$ export PETSC_DIR=/path/to/petsc-3.6.4
+	$ export PETSC_ARch=arch-linux2-c-debug
+
+Note that this also installs mpich. It is possible to use an existing version of mpi by including a flag to its directory. If you will be using the local PETSc installation of mpich, set the following:
+
+	$ alias mpirun=$PETSC_DIR/$PETSC_ARCH/bin/mpirun
+
+Download: http://www.mcs.anl.gov/petsc/download/index.html
+Installation instructions: http://www.mcs.anl.gov/petsc/documentation/installation.html
+
+
+2) Install PetIGA:
+
+-Download and extract or clone the PetIGA source code.
+
+-Enter the PetIGA top directory and install using make:
+
+	$ make all
+	$ make test
+
+-Export path to PetIGA directory:
+
+	$ export PETIGA_DIR=/path/to/petiga/
+
+Download: https://bitbucket.org/dalcinl/petiga/downloads (or clone the bitbucket repository)
+Installation instructions: https://bitbucket.org/dalcinl/petiga/
+
+
+3) Install CMake:
+
+Download: https://cmake.org/download/
+
+
+4) Install the Sacado package from Trilinos (version 11.10.2 recommended)
+
+-Download and extract or clone the Trilinos source code.
+-Simple installation of Sacado as follows (from the Trilinos top directory), with the desire /path/to/trilinos/installation/:
+
+	$ mkdir build
+	$ cd build
+	$ cmake -DTrilinos_ENABLE_Sacado=ON -DTrilinos_ENABLE_Teuchos=OFF -DCMAKE_INSTALL_PREFIX=/path/to/trilinos/installation/ ../
+	$ make install
+
+-Export path to Trilinos:
+
+	$ export TRILINOS_DIR=/path/to/trilinos/installation/
+
+Download: http://trilinos.org/oldsite/download/
+Installation instructions: https://trilinos.org/docs/files/TrilinosBuildReference.html
+
+
+Usage
+=======================================================================
