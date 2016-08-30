@@ -13,7 +13,7 @@ int boundaryConditions(AppCtx& user, double scale){
 	}
 	else{
 		scale1 = 1;
-		scale2 = t-1+user.dt;
+		scale2 = t-1+user.dtVal;
 	}
   double dVal=scale2*user.uDirichlet*user.GridScale; //In this case, this is just the applied standard displacmenet
 

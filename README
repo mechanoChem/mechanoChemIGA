@@ -29,6 +29,8 @@ Note that this also installs mpich. It is possible to use an existing version of
 
 	$ alias mpirun=$PETSC_DIR/$PETSC_ARCH/bin/mpirun
 
+If you would like to use a parallel direct solver, we recommend using superlu_dist. Add the following flags when configuring PETSc: --download-metis --download-parmetis --download-superlu_dist
+
 Download: http://www.mcs.anl.gov/petsc/download/index.html
 Installation instructions: http://www.mcs.anl.gov/petsc/documentation/installation.html
 
@@ -75,3 +77,22 @@ Installation instructions: https://trilinos.org/docs/files/TrilinosBuildReferenc
 
 Usage
 =======================================================================
+To run the example initial boundary value problems, navigate to the desired example folder. Create a makefile using cmake:
+
+	$ cmake CMakeLists.txt
+
+To compile the code (default is debug mode):
+
+	$ make
+
+To switch the compilation to release mode:
+
+	$ make release
+
+To switch the compilation to debug mode:
+
+	$ make debug
+
+To run the code (replace "nproc" with the number of processors to be use), with some recommended flags:
+
+	$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type fgmres

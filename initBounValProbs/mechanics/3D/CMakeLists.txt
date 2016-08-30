@@ -2,9 +2,17 @@ cmake_minimum_required (VERSION 2.8.2)
 project(main)
 
 #MPI
-find_package(MPI REQUIRED)
-set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
-set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
+find_package(MPI)
+
+IF(NOT MPI_CXX_FOUND)
+	set(MPI_CXX_COMPILER $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/bin/mpicxx)
+	set(MPI_C_COMPILER $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/bin/mpicc)
+	set(MPI_FORTRAN_COMPILER $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/bin/mpifort)
+	find_package(MPI REQUIRED)
+ENDIF(NOT MPI_CXX_FOUND)
+
+set(CMAKE_CXX_COMPILE_FLAGS "${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS}")
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS}")
 
 #PETSc
 find_library(PETSC_LIBRARY 
@@ -22,7 +30,7 @@ find_library(SACADO_LIBRARY
 						HINTS "$ENV{TRILINOS_DIR}/lib/")
 
 #Include directories
-include_directories("${MPI_INCLUDE_PATH}" 
+include_directories("${MPI_CXX_INCLUDE_PATH}" 
 										"$ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include" 
 										"$ENV{PETSC_DIR}/include" 
 										"$ENV{PETIGA_DIR}/$ENV{PETSC_ARCH}/include" 
@@ -31,7 +39,7 @@ include_directories("${MPI_INCLUDE_PATH}"
 										"../../../include")
 
 #Add src
-file(GLOB SOURCES "../../../src/utilsIGA/*.cc" "../../../src/mechanics/*.cc" "*.cc")
+file(GLOB SOURCES "../../../src/utilsIGA/*.cc" "../../../src/configurationalForces/*.cc" "*.cc")
 add_executable(main ${SOURCES})
 
 #Link libraries
