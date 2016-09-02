@@ -7,6 +7,11 @@
 #include <map>
 #include <string>
 
+/**
+ * Structure to hold parameters and variables used by PetIGA, the model, the IBVP, etc. Values used universally are explicitly
+ * listed. Otherwise, they should be stored in the std::map matParam.
+*/
+
 struct AppCtx{
   IGA iga;
   TS* ts;
