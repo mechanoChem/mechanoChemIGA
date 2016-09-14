@@ -33,6 +33,51 @@ NSF CDI Type I grant: CHE1027729 "Meta-Codes for Computational Kinetics"
 DOE BES, Division of Materials Sciences and Engineering: Award #DE-SC0008637 that funds the PRedictive Integrated Structural Materials Science (PRISMS) Center at University of Michigan
 
 
+Referencing this code
+=======================================================================
+If you write a paper using results obtained with the help of this code,  please consider citing one or more of the following:
+
+"A variational treatment of material configurations with application to interface motion and microstructural evolution" (under review)
+G. Teichert, S. Rudraraju, K. Garikipati 
+
+@Article{Teichert2016a,
+  Title                    = {A variational treatment of material configurations with application to interface motion and microstructural evolution},
+  Author                   = {G. Teichert and S. Rudraraju and K. Garikipati},
+  Journal                  = {ArXiv e-prints},
+  archivePrefix            = "arXiv",
+  eprint                   = {1608.05355},
+  Year                     = {2016},
+  Month                    = {Jul},
+  Url                      = {https://arxiv.org/abs/1608.05355}
+}
+
+"A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations" (under review)
+G. Teichert, H. Gunda, S. Rudraraju, A. Natarajan, B. Puchala, K. Garikipati, A. Van der Ven
+
+@Article{Teichert2016b,
+  Title                    = {A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations},
+  Author                   = {G. Teichert and N. S. H. Gunda and S. Rudraraju and A. R. Natarajan and B. Puchala and A. Van der Ven and K. Garikipati},
+  Journal                  = {ArXiv e-prints},
+  archivePrefix            = "arXiv",
+  eprint                   = {1609.00704},
+  Year                     = {2016},
+  Month                    = {Aug},
+  Url                      = {https://arxiv.org/abs/1609.00704}
+}
+
+"Mechano-chemical spinodal decomposition: A phenomenological theory of phase transformations in multi-component, crystalline solids" (Nature npj Computational Materials)
+S. Rudraraju, A. Van der Ven, K. Garikipati 
+
+@Article{Rudraraju2016,
+  Title                    = {Phenomenological treatment of chemo-mechanical spinodal decomposition},
+  Author                   = {S. Rudraraju and A. Van der Ven and K. Garikipati},
+  Journal                  = {npj Computational Materials},
+  Year                     = {2016},
+  Volume                   = {2},
+  Doi                      = {10.1038/npjcompumats.2016.12}
+}
+
+
 Installation
 =======================================================================
 1) Install PETSc:
