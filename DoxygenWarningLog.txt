@@ -1,4 +1,0 @@
-error: Tag file `/opt/software/numerics/dealiiDir/doc/doxygen/deal.tag' does not exist or is not a file. Skipping it...
-/home/gregteichert/temp/mechanoChem/README.md:43: warning: Found unknown command `\Article'
-/home/gregteichert/temp/mechanoChem/README.md:57: warning: Found unknown command `\Article'
-/home/gregteichert/temp/mechanoChem/README.md:71: warning: Found unknown command `\Article'
