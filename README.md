@@ -1,17 +1,16 @@
-mechanoChemistry code: modeling solid mechanics, chemistry, and their interactions
+mechanoChem: Modeling solid mechanics, chemistry, and their interactions
 
-from the Computational Physics Group at the University of Michigan, adviser: Prof. Krishna Garikipati
-
-current lead developer: Greg Teichert
+Developed by the Computational Physics Group at the University of Michigan. 
+http://www.umich.edu/~compphys/index.html
 
 List of contributors:
-Greg Teichert
+Greg Teichert (Lead Developer)
 Shiva Rudraraju
-
+Krishna Garikipati
 
 Overview
 =======================================================================
-The mechanoChemistry code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/].
+The mechanoChem code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/].
 
 
 Version information
