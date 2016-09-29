@@ -78,67 +78,145 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">mechanoChem Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>mechanoChem: Modeling solid mechanics, chemistry, and their interactions</p>
-<p>Developed by the Computational Physics Group at the University of Michigan. <a href="http://www.umich.edu/~compphys/index.html">http://www.umich.edu/~compphys/index.html</a></p>
-<p>List of contributors: Greg Teichert (Lead Developer) Shiva Rudraraju Krishna Garikipati</p>
-<h1>Overview </h1>
-<p>The mechanoChem code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [<a href="https://trilinos.org/packages/sacado/">https://trilinos.org/packages/sacado/</a>].</p>
-<h1>Version information </h1>
-<p>This is version 0.1, the intial release of the code.</p>
-<h1>License </h1>
-<p>GNU Lesser General Public License (LGPL). Please see the file LICENSE for details.</p>
-<h1>Acknowledgements </h1>
-<p>This code has been developed under the support of the following:</p>
-<p>NSF DMREF grant: DMR1436154 "DMREF: Integrated Computational Framework for Designing Dynamically Controlled Alloy-Oxide Heterostructures" NSF CDI Type I grant: CHE1027729 "Meta-Codes for Computational Kinetics" DOE BES, Division of Materials Sciences and Engineering: Award DE-SC0008637 that funds the PRedictive Integrated Structural Materials Science (PRISMS) Center at University of Michigan</p>
-<h1>Referencing this code </h1>
-<p>If you write a paper using results obtained with the help of this code, please consider citing one or more of the following:</p>
-<p>"A variational treatment of material configurations with application to interface motion and microstructural evolution" (under review) G. Teichert, S. Rudraraju, K. Garikipati</p>
-<p>{Teichert2016a, Title = {A variational treatment of material configurations with application to interface motion and microstructural evolution}, Author = {G. Teichert and S. Rudraraju and K. Garikipati}, Journal = {ArXiv e-prints}, archivePrefix = "arXiv", eprint = {1608.05355}, Year = {2016}, Month = {Jul}, Url = {<a href="https://arxiv.org/abs/1608.05355">https://arxiv.org/abs/1608.05355</a>} }</p>
-<p>"A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations" (under review) G. Teichert, H. Gunda, S. Rudraraju, A. Natarajan, B. Puchala, K. Garikipati, A. Van der Ven</p>
-<p>{Teichert2016b, Title = {A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations}, Author = {G. Teichert and N. S. H. Gunda and S. Rudraraju and A. R. Natarajan and B. Puchala and A. Van der Ven and K. Garikipati}, Journal = {ArXiv e-prints}, archivePrefix = "arXiv", eprint = {1609.00704}, Year = {2016}, Month = {Aug}, Url = {<a href="https://arxiv.org/abs/1609.00704">https://arxiv.org/abs/1609.00704</a>} }</p>
-<p>"Mechano-chemical spinodal decomposition: A phenomenological theory of phase transformations in multi-component, crystalline solids" (Nature npj Computational Materials) S. Rudraraju, A. Van der Ven, K. Garikipati</p>
-<p>{Rudraraju2016, Title = {Phenomenological treatment of chemo-mechanical spinodal decomposition}, Author = {S. Rudraraju and A. Van der Ven and K. Garikipati}, Journal = {npj Computational Materials}, Year = {2016}, Volume = {2}, Doi = {10.1038/npjcompumats.2016.12} }</p>
-<h1>Installation </h1>
-<p>1) Install PETSc:</p>
-<p>-Download and extract PETSc source code. -Quick installation as follows (the symbol $ denotes the command prompt): </p>
+<div class="textblock"><p>======================================================================= </p>
+<h1><b>mechanoChem: Modeling solid mechanics, chemistry, and their interactions</b> <br/>
+ </h1>
+<p>Developed by the Computational Physics Group at the University of Michigan. <a href="http://www.umich.edu/~compphys/index.html">http://www.umich.edu/~compphys/index.html</a> <br/>
+</p>
+<p><b>List of contributors:</b> <br/>
+ Greg Teichert (Lead Developer) <br/>
+ Shiva Rudraraju <br/>
+ Krishna Garikipati <br/>
+</p>
+<p><b>Code documentation:</b> <a href="https://goo.gl/VNAt2Y">https://goo.gl/VNAt2Y</a> <br/>
+</p>
+<h1><b>Overview</b> <br/>
+ </h1>
+<p>The mechanoChem code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [<a href="https://trilinos.org/packages/sacado/">https://trilinos.org/packages/sacado/</a>]. <br/>
+</p>
+<h1><b>Version information</b> </h1>
+<p>This is version 0.1, the intial release of the code. <br/>
+</p>
+<h1><b>License</b> </h1>
+<p>GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. <br/>
+</p>
+<h1><b>Acknowledgements</b> </h1>
+<p>This code has been developed under the support of the following: <br/>
+</p>
+<p>NSF DMREF grant: DMR1436154 "DMREF: Integrated Computational Framework for Designing Dynamically Controlled Alloy-Oxide Heterostructures" <br/>
+ NSF CDI Type I grant: CHE1027729 "Meta-Codes for Computational Kinetics" <br/>
+ DOE BES, Division of Materials Sciences and Engineering: Award DE-SC0008637 that funds the PRedictive Integrated Structural Materials Science (PRISMS) Center at University of Michigan <br/>
+</p>
+<h1><b>Referencing this code</b> </h1>
+<p>If you write a paper using results obtained with the help of this code, please consider citing one or more of the following: <br/>
+</p>
+<p>"A variational treatment of material configurations with application to interface motion and microstructural evolution" (under review) <br/>
+ G. Teichert, S. Rudraraju, K. Garikipati <br/>
+</p>
+<pre>
+@article{Teichert2016a,
+  Title                    = {A variational treatment of material configurations with application to interface motion and microstructural evolution},
+  Author                   = {G. Teichert and S. Rudraraju and K. Garikipati},
+  Journal                  = {ArXiv e-prints},
+  archivePrefix            = "arXiv",
+  eprint                   = {1608.05355},
+  Year                     = {2016},
+  Month                    = {Jul},
+  Url                      = {<a href="https://arxiv.org/abs/1608.05355">https://arxiv.org/abs/1608.05355</a>}
+}
+</pre><p>"A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations" (under review) <br/>
+ G. Teichert, H. Gunda, S. Rudraraju, A. Natarajan, B. Puchala, K. Garikipati, A. Van der Ven <br/>
+</p>
+<pre>
+@article{Teichert2016b,
+  Title                    = {A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations},
+  Author                   = {G. Teichert and N. S. H. Gunda and S. Rudraraju and A. R. Natarajan and B. Puchala and A. Van der Ven and K. Garikipati},
+  Journal                  = {ArXiv e-prints},
+  archivePrefix            = "arXiv",
+  eprint                   = {1609.00704},
+  Year                     = {2016},
+  Month                    = {Aug},
+  Url                      = {<a href="https://arxiv.org/abs/1609.00704">https://arxiv.org/abs/1609.00704</a>}
+}
+</pre><p>"Mechano-chemical spinodal decomposition: A phenomenological theory of phase transformations in multi-component, crystalline solids" (Nature npj Computational Materials) <br/>
+ S. Rudraraju, A. Van der Ven, K. Garikipati <br/>
+</p>
+<pre>
+@article{Rudraraju2016,
+  Title                    = {Phenomenological treatment of chemo-mechanical spinodal decomposition},
+  Author                   = {S. Rudraraju and A. Van der Ven and K. Garikipati},
+  Journal                  = {npj Computational Materials},
+  Year                     = {2016},
+  Volume                   = {2},
+  Doi                      = {10.1038/npjcompumats.2016.12}
+}
+</pre><h1><b>Installation</b> </h1>
+<p>1) Install PETSc: <br/>
+</p>
+<p>-Download and extract PETSc source code. <br/>
+ -Quick installation as follows (the symbol $ denotes the command prompt): <br/>
+ </p>
 <pre class="fragment">$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich
 $ make all test
-</pre><p>-Set the appropriate PETSC_DIR and PETSC_ARCH environment variables, e.g. </p>
+</pre><p>-Set the appropriate PETSC_DIR and PETSC_ARCH environment variables, e.g. <br/>
+ </p>
 <pre class="fragment">$ export PETSC_DIR=/path/to/petsc-3.6.4
 $ export PETSC_ARch=arch-linux2-c-debug
 </pre><p>Note that this also installs mpich. It is possible to use an existing version of mpi by including a flag to its directory. If you will be using the local PETSc installation of mpich, set the following: </p>
 <pre class="fragment">$ alias mpirun=$PETSC_DIR/$PETSC_ARCH/bin/mpirun
-</pre><p>If you would like to use a parallel direct solver, we recommend using superlu_dist. Add the following flags when configuring PETSc: &ndash;download-metis &ndash;download-parmetis &ndash;download-superlu_dist</p>
-<p>Download: <a href="http://www.mcs.anl.gov/petsc/download/index.html">http://www.mcs.anl.gov/petsc/download/index.html</a> Installation instructions: <a href="http://www.mcs.anl.gov/petsc/documentation/installation.html">http://www.mcs.anl.gov/petsc/documentation/installation.html</a></p>
-<p>2) Install PetIGA:</p>
-<p>-Download and extract or clone the PetIGA source code.</p>
-<p>-Enter the PetIGA top directory and install using make: </p>
+</pre><p>If you would like to use a parallel direct solver, we recommend using superlu_dist. Add the following flags when configuring PETSc: &ndash;download-metis &ndash;download-parmetis &ndash;download-superlu_dist <br/>
+</p>
+<p>Download: <a href="http://www.mcs.anl.gov/petsc/download/index.html">http://www.mcs.anl.gov/petsc/download/index.html</a> <br/>
+ Installation instructions: <a href="http://www.mcs.anl.gov/petsc/documentation/installation.html">http://www.mcs.anl.gov/petsc/documentation/installation.html</a> <br/>
+</p>
+<p>2) Install PetIGA: <br/>
+</p>
+<p>-Download and extract or clone the PetIGA source code. <br/>
+</p>
+<p>-Enter the PetIGA top directory and install using make: <br/>
+ </p>
 <pre class="fragment">$ make all
 $ make test
-</pre><p>-Export path to PetIGA directory: </p>
+</pre><p>-Export path to PetIGA directory: <br/>
+ </p>
 <pre class="fragment">$ export PETIGA_DIR=/path/to/petiga/
-</pre><p>Download: <a href="https://bitbucket.org/dalcinl/petiga/downloads">https://bitbucket.org/dalcinl/petiga/downloads</a> (or clone the bitbucket repository) Installation instructions: <a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a></p>
-<p>3) Install CMake:</p>
-<p>Download: <a href="https://cmake.org/download/">https://cmake.org/download/</a></p>
-<p>4) Install the Sacado package from Trilinos (version 11.10.2 recommended)</p>
-<p>-Download and extract or clone the Trilinos source code. -Simple installation of Sacado as follows (from the Trilinos top directory), with the desire /path/to/trilinos/installation/: </p>
+</pre><p>Download: <a href="https://bitbucket.org/dalcinl/petiga/downloads">https://bitbucket.org/dalcinl/petiga/downloads</a> (or clone the bitbucket repository) <br/>
+ Installation instructions: <a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a> <br/>
+</p>
+<p>3) Install CMake: <br/>
+</p>
+<p>Download: <a href="https://cmake.org/download/">https://cmake.org/download/</a> <br/>
+</p>
+<p>4) Install the Sacado package from Trilinos (version 11.10.2 recommended) <br/>
+</p>
+<p>-Download and extract or clone the Trilinos source code. <br/>
+ -Simple installation of Sacado as follows (from the Trilinos top directory), with the desire /path/to/trilinos/installation/: <br/>
+ </p>
 <pre class="fragment">$ mkdir build
 $ cd build
 $ cmake -DTrilinos_ENABLE_Sacado=ON -DTrilinos_ENABLE_Teuchos=OFF -DCMAKE_INSTALL_PREFIX=/path/to/trilinos/installation/ ../
 $ make install
-</pre><p>-Export path to Trilinos: </p>
+</pre><p>-Export path to Trilinos: <br/>
+ </p>
 <pre class="fragment">$ export TRILINOS_DIR=/path/to/trilinos/installation/
-</pre><p>Download: <a href="http://trilinos.org/oldsite/download/">http://trilinos.org/oldsite/download/</a> Installation instructions: <a href="https://trilinos.org/docs/files/TrilinosBuildReference.html">https://trilinos.org/docs/files/TrilinosBuildReference.html</a></p>
-<h1>Usage </h1>
-<p>To run the example initial boundary value problems, navigate to the desired example folder. Create a makefile using cmake: </p>
+</pre><p>Download: <a href="http://trilinos.org/oldsite/download/">http://trilinos.org/oldsite/download/</a> <br/>
+ Installation instructions: <a href="https://trilinos.org/docs/files/TrilinosBuildReference.html">https://trilinos.org/docs/files/TrilinosBuildReference.html</a> <br/>
+</p>
+<h1><b>Usage</b> </h1>
+<p>To run the example initial boundary value problems, navigate to the desired example folder. Create a makefile using cmake: <br/>
+ </p>
 <pre class="fragment">$ cmake CMakeLists.txt
-</pre><p>To compile the code (default is debug mode): </p>
+</pre><p>To compile the code (default is debug mode): <br/>
+ </p>
 <pre class="fragment">$ make
-</pre><p>To switch the compilation to release mode: </p>
+</pre><p>To switch the compilation to release mode: <br/>
+ </p>
 <pre class="fragment">$ make release
-</pre><p>To switch the compilation to debug mode: </p>
+</pre><p>To switch the compilation to debug mode: <br/>
+ </p>
 <pre class="fragment">$ make debug
-</pre><p>To run the code (replace "nproc" with the number of processors to be use), with some recommended flags: </p>
+</pre><p>To run the code (replace "nproc" with the number of processors to be use), with some recommended flags: <br/>
+ </p>
 <pre class="fragment">$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type fgmres</pre> </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
