@@ -39,7 +39,7 @@ include_directories("${MPI_CXX_INCLUDE_PATH}"
 										"../../../include")
 
 #Add src
-file(GLOB SOURCES "../../../src/utilsIGA/*.cc" "../../../src/configurationalForces/*.cc" "*.cc")
+file(GLOB SOURCES "../../../src/utilsIGA/*.cc" "../../../src/mechanochemo/*.cc" "*.cc")
 add_executable(main ${SOURCES})
 
 #Link libraries

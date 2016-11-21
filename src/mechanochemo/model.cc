@@ -9,17 +9,73 @@
 //include automatic differentiation library
 #include <Sacado.hpp>
 
+//Compute mu and mu_c (the derivative of the potential) with provided curve fit data
+#undef  __FUNCT__
+#define __FUNCT__ "compute_mu"
+template <class T>
+PetscErrorCode compute_mu(T c, T &val_mu, T &val_mu_c, AppCtx *user)
+{
+
+  //Note that currently this assumes log terms scaled to be over 0 and 1/2
+  PetscReal k_B = 8.6173324e-5; //eV per K
+  PetscReal temp = 800; //K
+
+  if(user->matParam["splineOrRK"] == 1){ //Spline fit
+    //Find piecewise domain for c
+    unsigned int i, size = user->breaks.size();
+    if(c > user->breaks[size-1]){
+      i = size - 2;
+    }
+    else{
+      for(i=0; i<size-1; i++){
+	if(c < user->breaks[i+1]){
+	  break;
+	}
+      }
+    }
+
+    val_mu = 0; val_mu_c = 0;
+    unsigned int n = user->coeffs[0].size();
+    for(unsigned int j=0; j<n; j++){
+      val_mu += user->coeffs[i][j]*pow(c - user->breaks[i],n-1-j);
+      val_mu_c += (n-1-j)*user->coeffs[i][j]*pow(c - user->breaks[i],n-2-j);
+    }
+    if(c == 0)
+      c = 1.e-8;
+    val_mu += k_B*temp*(log(c) - log(1. - 2.*c));
+    val_mu_c += k_B*temp/(c*(1. - 2.*c));
+  }
+
+  else if(user->matParam["splineOrRK"] == 2){ //Redlich-Kister polynomial fit
+    val_mu = 0; val_mu_c = 0;
+    unsigned int n = user->coeffs.size() - 1;
+    for(unsigned int i=0; i<n; i++){
+      val_mu += user->coeffs[n-i-1][0]*(pow(0.5 - 2.*c,i+1) - 2.*i*c*(0.5-c)*pow(0.5-2*c,i-1));
+      val_mu_c += user->coeffs[n-i-1][0]*(-2.*(2.*i+1)*pow(0.5 - 2.*c,i) + 4*i*(i-1)*c*(0.5-c)*pow(0.5-2.*c,i-2));
+    }
+    if(c == 0)
+      c = 1.e-8;
+    else if(c==0.5)
+      c = 0.5 - 1.e-8;
+    val_mu += user->coeffs[n][0] + k_B*temp*(log(c) - log(1. - 2.*c));
+    val_mu_c += k_B*temp/(c*(1. - 2.*c));
+  }
+
+  return 0;
+}
+
 //residual function implementation
 #undef  __FUNCT__
 #define __FUNCT__ "quadPtResidual"
 template <class T,unsigned int DIM, unsigned int DOF>
 PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
-			PetscReal shift,const PetscScalar *V,
-			PetscReal t,const T * U,
-			PetscReal t0,const PetscScalar * U0,
-			T *R,void *ctx)
+			      PetscReal shift,const PetscScalar *V,
+			      PetscReal t,const T * U,
+			      PetscReal t0,const PetscScalar * U0,
+			      T *R,void *ctx)
 {
   AppCtx *user = (AppCtx *)ctx;
+  PetscErrorCode ierr;
 
   PetscInt nen, dof;
   IGAPointGetSizes(p,0,&nen,&dof);
@@ -38,33 +94,33 @@ PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
   PetscReal CVal = user->matParam["CVal"];
   PetscReal gamma = user->matParam["gamma"];
 
-	//Ensure certain input values are nonzero.
-	if(Es == 0){
-		PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Es\"] in defineParameters.cc.\n"); 
-		exit(-1);  
-	}
-	if(Ed == 0){
-		PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Ed\"] in defineParameters.cc.\n"); 
-		exit(-1);  
-	}
-	if(Cs == 0){
-		PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Es\"] in defineParameters.cc.\n"); 
-		exit(-1);  
-	}
-	if(Cd == 0){
-		PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Ed\"] in defineParameters.cc.\n"); 
-		exit(-1);  
-	}
-	if(DVal == 0){
-		PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"DVal\"] in defineParameters.cc.\n"); 
-		exit(-1);  
-	}
-	if(CVal == 0){
-		Cval = 5.;
-	}
-	if(gamma == 0){
-		gamma = 1.; 
-	}
+  //Ensure certain input values are nonzero.
+  if(Es == 0){
+    PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Es\"] in defineParameters.cc.\n"); 
+    exit(-1);  
+  }
+  if(Ed == 0){
+    PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Ed\"] in defineParameters.cc.\n"); 
+    exit(-1);  
+  }
+  if(Cs == 0){
+    PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Es\"] in defineParameters.cc.\n"); 
+    exit(-1);  
+  }
+  if(Cd == 0){
+    PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"Ed\"] in defineParameters.cc.\n"); 
+    exit(-1);  
+  }
+  if(DVal == 0){
+    PetscPrintf(PETSC_COMM_WORLD,"\n  Error: must give nozero value for user.matParam[\"DVal\"] in defineParameters.cc.\n"); 
+    exit(-1);  
+  }
+  if(CVal == 0){
+    CVal = 5.;
+  }
+  if(gamma == 0){
+    gamma = 1.; 
+  }
 
   PetscReal flux[2*DIM];
   flux[0] = user->matParam["flux_xmin"];
@@ -109,7 +165,7 @@ PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
 
   //compute P and Beta
   T P[DIM][DIM], Beta[DIM][DIM][DIM];
-  T mu_c, mu_eX[DIM-1], eX_x[DIM-1][DIM];
+  T mu, mu_c, mu_eX[DIM-1], eX_x[DIM-1][DIM];
  
   //2D model
   if(DIM==2){  
@@ -144,7 +200,12 @@ PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
 	}
       }
     }
-    mu_c = mu_c_2D;
+    if(user->matParam["splineOrRK"] == 1 || user->matParam["splineOrRK"] == 2){
+      ierr = compute_mu(c, mu, mu_c, user);CHKERRQ(ierr);
+    }
+    else{
+      mu_c = mu_c_2D;
+    }
     mu_eX[0] = mu_e2_2D;
   }
   
@@ -197,7 +258,12 @@ PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
 	}
       }
     }
-    mu_c = mu_c_3D;
+    if(user->matParam["splineOrRK"] == 1 || user->matParam["splineOrRK"] == 2){
+      ierr = compute_mu(c, mu, mu_c, user);CHKERRQ(ierr);
+    }
+    else{
+      mu_c = mu_c_3D;
+    }
     mu_eX[0] = mu_e2_3D;
     mu_eX[1] = mu_e3_3D;
   }
@@ -298,63 +364,63 @@ PetscErrorCode quadPtResidual(IGAPoint p,PetscReal dt2,
 }
 
 template PetscErrorCode quadPtResidual<PetscReal,2,2>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 template PetscErrorCode quadPtResidual<PetscReal,2,3>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 template PetscErrorCode quadPtResidual<PetscReal,2,4>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 template PetscErrorCode quadPtResidual<PetscReal,3,3>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 template PetscErrorCode quadPtResidual<PetscReal,3,4>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 template PetscErrorCode quadPtResidual<PetscReal,3,6>(IGAPoint p,PetscReal dt2,
-						PetscReal shift,const PetscScalar *V,
-						PetscReal t,const PetscReal * U,
-						PetscReal t0,const PetscScalar * U0,
-						PetscReal *R,void *ctx);
+						      PetscReal shift,const PetscScalar *V,
+						      PetscReal t,const PetscReal * U,
+						      PetscReal t0,const PetscScalar * U0,
+						      PetscReal *R,void *ctx);
 
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,18>,2,2>(IGAPoint p,PetscReal dt2,
-								   PetscReal shift,const PetscScalar *V,
-								   PetscReal t,const Sacado::Fad::SFad<double,18> * U,
-								   PetscReal t0,const PetscScalar * U0,
-								   Sacado::Fad::SFad<double,18> *R,void *ctx);
+									 PetscReal shift,const PetscScalar *V,
+									 PetscReal t,const Sacado::Fad::SFad<double,18> * U,
+									 PetscReal t0,const PetscScalar * U0,
+									 Sacado::Fad::SFad<double,18> *R,void *ctx);
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,27>,2,3>(IGAPoint p,PetscReal dt2,
-								   PetscReal shift,const PetscScalar *V,
-								   PetscReal t,const Sacado::Fad::SFad<double,27> * U,
-								   PetscReal t0,const PetscScalar * U0,
-								   Sacado::Fad::SFad<double,27> *R,void *ctx);
+									 PetscReal shift,const PetscScalar *V,
+									 PetscReal t,const Sacado::Fad::SFad<double,27> * U,
+									 PetscReal t0,const PetscScalar * U0,
+									 Sacado::Fad::SFad<double,27> *R,void *ctx);
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,36>,2,4>(IGAPoint p,PetscReal dt2,
-								   PetscReal shift,const PetscScalar *V,
-								   PetscReal t,const Sacado::Fad::SFad<double,36> * U,
-								   PetscReal t0,const PetscScalar * U0,
-								   Sacado::Fad::SFad<double,36> *R,void *ctx);
+									 PetscReal shift,const PetscScalar *V,
+									 PetscReal t,const Sacado::Fad::SFad<double,36> * U,
+									 PetscReal t0,const PetscScalar * U0,
+									 Sacado::Fad::SFad<double,36> *R,void *ctx);
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,81>,3,3>(IGAPoint p,PetscReal dt2,
-								    PetscReal shift,const PetscScalar *V,
-								    PetscReal t,const Sacado::Fad::SFad<double,81> * U,
-								    PetscReal t0,const PetscScalar * U0,
-								    Sacado::Fad::SFad<double,81> *R,void *ctx);
+									 PetscReal shift,const PetscScalar *V,
+									 PetscReal t,const Sacado::Fad::SFad<double,81> * U,
+									 PetscReal t0,const PetscScalar * U0,
+									 Sacado::Fad::SFad<double,81> *R,void *ctx);
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,108>,3,4>(IGAPoint p,PetscReal dt2,
-								    PetscReal shift,const PetscScalar *V,
-								    PetscReal t,const Sacado::Fad::SFad<double,108> * U,
-								    PetscReal t0,const PetscScalar * U0,
-								    Sacado::Fad::SFad<double,108> *R,void *ctx);
+									  PetscReal shift,const PetscScalar *V,
+									  PetscReal t,const Sacado::Fad::SFad<double,108> * U,
+									  PetscReal t0,const PetscScalar * U0,
+									  Sacado::Fad::SFad<double,108> *R,void *ctx);
 template PetscErrorCode quadPtResidual<Sacado::Fad::SFad<double,162>,3,6>(IGAPoint p,PetscReal dt2,
-								    PetscReal shift,const PetscScalar *V,
-								    PetscReal t,const Sacado::Fad::SFad<double,162> * U,
-								    PetscReal t0,const PetscScalar * U0,
-								    Sacado::Fad::SFad<double,162> *R,void *ctx);
+									  PetscReal shift,const PetscScalar *V,
+									  PetscReal t,const Sacado::Fad::SFad<double,162> * U,
+									  PetscReal t0,const PetscScalar * U0,
+									  Sacado::Fad::SFad<double,162> *R,void *ctx);

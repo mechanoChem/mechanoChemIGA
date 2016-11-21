@@ -1,0 +1,12 @@
+===========================================================
+Spline Fit Scripts:
+Greg Teichert, University of Michigan
+===========================================================
+
+The purpose of these scripts are to perform curve fits to chemical potential data using Redlich-Kister polynomials and splines. (They also accept as input the free energy data for plotting purpose.) These are the scripts used in the paper "A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations", Teichert et al, Computational Materials Science, 2016.
+
+The script "fit_mu_RKPoly_matlab.m" is a Matlab script to perform the curve fit using Redlich-Kister polynomials. The functions used are located in the "RedlichKisterFit" folder. The polynomial degree can be chosen, as well as the scaling factor for the domain (1 for [0,1] and 2 for [0,1/2]).
+
+The script "fit_mu_Spline_Octave.m" is a GNU Octave script to perform a spline fit. The degree of the spline and the scaling factor can also be set in this script.
+
+Data is read from the "inputData" folder, which contains chemical potential and free energy data for the material at 800K. Chemical potential data is also included for the material at 1800K. Data is written to the "outputData" folder.
