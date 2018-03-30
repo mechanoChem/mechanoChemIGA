@@ -7,9 +7,10 @@ http://www.umich.edu/~compphys/index.html <br>
 <B>List of contributors:</B> <br>
 Greg Teichert (Lead Developer) <br>
 Shiva Rudraraju <br>
+Koki Sagiyama <br>
 Krishna Garikipati <br>
 
-<B>Code documentation:</B> https://goo.gl/VNAt2Y <br>
+<B>[Code documentation](https://goo.gl/VNAt2Y)</B><br>
 
 <B>Overview</B> <br>
 =======================================================================
@@ -18,7 +19,7 @@ The mechanoChem code is an isogeometric analysis based code used to solve the pa
 
 <B>Version information</B>
 =======================================================================
-This is version 0.1, the intial release of the code. <br>
+This is version 0.2, the second release of the code. <br>
 
 
 <B>License</B>
@@ -30,6 +31,7 @@ GNU Lesser General Public License (LGPL). Please see the file LICENSE for detail
 =======================================================================
 This code has been developed under the support of the following: <br>
 
+Toyota Research Institute, Award #849910 "Computational framework for data-driven, predictive, multi-scale and multi-physics modeling of battery materials" <br>
 NSF DMREF grant: DMR1436154 "DMREF: Integrated Computational Framework for Designing Dynamically Controlled Alloy-Oxide Heterostructures" <br>
 NSF CDI Type I grant: CHE1027729 "Meta-Codes for Computational Kinetics" <br>
 DOE BES, Division of Materials Sciences and Engineering: Award #DE-SC0008637 that funds the PRedictive Integrated Structural Materials Science (PRISMS) Center at University of Michigan <br>
@@ -39,35 +41,37 @@ DOE BES, Division of Materials Sciences and Engineering: Award #DE-SC0008637 tha
 =======================================================================
 If you write a paper using results obtained with the help of this code,  please consider citing one or more of the following: <br>
 
-"A variational treatment of material configurations with application to interface motion and microstructural evolution" (under review) <br>
+"A variational treatment of material configurations with application to interface motion and microstructural evolution" (Journal of the Mechanics and Physics of Solids) <br>
 G. Teichert, S. Rudraraju, K. Garikipati  <br>
 
 <pre>
 \@article{Teichert2016a,
-  Title                    = {A variational treatment of material configurations with application to interface motion and microstructural evolution},
-  Author                   = {G. Teichert and S. Rudraraju and K. Garikipati},
-  Journal                  = {ArXiv e-prints},
-  archivePrefix            = "arXiv",
-  eprint                   = {1608.05355},
-  Year                     = {2016},
-  Month                    = {Jul},
-  Url                      = {https://arxiv.org/abs/1608.05355}
+	title	= "A variational treatment of material configurations with application to interface motion and microstructural evolution ",
+	journal = "Journal of the Mechanics and Physics of Solids ",
+	volume 	= "99",
+	pages 	= "338 - 356",
+	year 	= "2017",
+	issn 	= "0022-5096",
+	doi 	= "https://doi.org/10.1016/j.jmps.2016.11.008",
+	url 	= "http://www.sciencedirect.com/science/article/pii/S0022509616305221",
+	author 	= "Gregory H. Teichert and Shiva Rudraraju and Krishna Garikipati",
 }
 </pre>
 
-"A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations" (under review) <br>
+"A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations" (Computational Materials Science) <br>
 G. Teichert, H. Gunda, S. Rudraraju, A. Natarajan, B. Puchala, K. Garikipati, A. Van der Ven <br>
 
 <pre>
 \@article{Teichert2016b,
-  Title                    = {A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations},
-  Author                   = {G. Teichert and N. S. H. Gunda and S. Rudraraju and A. R. Natarajan and B. Puchala and A. Van der Ven and K. Garikipati},
-  Journal                  = {ArXiv e-prints},
-  archivePrefix            = "arXiv",
-  eprint                   = {1609.00704},
-  Year                     = {2016},
-  Month                    = {Aug},
-  Url                      = {https://arxiv.org/abs/1609.00704}
+	title	= "A comparison of Redlich-Kister polynomial and cubic spline representations of the chemical potential in phase field computations ",
+	journal = "Computational Materials Science ",
+	volume 	= "128",
+	pages 	= "127 - 139",
+	year 	= "2017",
+	issn 	= "0927-0256",
+	doi 	= "https://doi.org/10.1016/j.commatsci.2016.11.024",
+	url 	= "http://www.sciencedirect.com/science/article/pii/S0927025616305754",
+	author 	= "Gregory H. Teichert and N.S. Harsha Gunda and Shiva Rudraraju and Anirudh Raju Natarajan and Brian Puchala and Krishna Garikipati and Anton Van der Ven",
 }
 </pre>
 
@@ -150,6 +154,9 @@ Download: https://cmake.org/download/ <br>
 Download: http://trilinos.org/oldsite/download/ <br>
 Installation instructions: https://trilinos.org/docs/files/TrilinosBuildReference.html <br>
 
+5) Install igakit (required to convert binary output files to .vtk files)
+
+Download and installation instructions: https://bitbucket.org/dalcinl/igakit
 
 <B>Usage</B>
 =======================================================================
@@ -172,3 +179,14 @@ To switch the compilation to debug mode: <br>
 To run the code (replace "nproc" with the number of processors to be use), with some recommended flags: <br>
 
 	$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type fgmres
+
+To use superlu_dist: <br>
+
+	$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package superlu_dist
+
+The ouput files created by the code are .dat binary files and a fieldInfo.txt file. These files can be converted to .vtk files and visualized using tools such as VisIt or ParaView using the igakit package (see step 5 of the installation instructions). To do this file conversion, run the initBounValProbs/writeVTKFile.py script from the directory containing the output files. For example, if the .dat and fieldInfo.txt ouput files were located in the initBounValProb/nonGradientMechanics/3D folder, the following commands would create the .vtk files: <br>
+
+	$ cd initBounValProb/nonGradientMechanics/3D
+	$ python ../../writeVTKFiles.py
+
+

@@ -31,3 +31,4 @@ configForce.o*
 stress_stretch.txt
 Makefile
 build
+.DS_Store

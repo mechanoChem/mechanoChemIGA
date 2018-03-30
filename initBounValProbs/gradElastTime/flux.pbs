@@ -1,0 +1,17 @@
+#PBS -N flux
+#PBS -M sagiyama@umich.edu
+
+#PBS -A prismsproject_fluxoe
+#PBS -l qos=flux
+#PBS -q fluxoe
+
+#PBS -l nodes=1:ppn=8,pmem=3800mb
+#PBS -l walltime=3:00:00
+#PBS -j oe
+#PBS -V
+#PBS -p -200
+
+cd /home/sagiyama/mechanoChemistry/initBounValProbs/gradElast
+mpirun -np 8 ./main -ts_monitor -snes_type newtontr -ksp_type fgmres 
+
+
