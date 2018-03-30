@@ -10,7 +10,7 @@ Shiva Rudraraju <br>
 Koki Sagiyama <br>
 Krishna Garikipati <br>
 
-<B>[Code documentation](https://goo.gl/VNAt2Y)</B><br>
+<B>[Code documentation](https://htmlpreview.github.io/?https://raw.githubusercontent.com/mechanoChem/mechanoChem/master/doxygen/html/index.html)</B><br>
 
 <B>Overview</B> <br>
 =======================================================================
