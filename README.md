@@ -176,13 +176,13 @@ To switch the compilation to debug mode: <br>
 
 	$ make debug
 
-To run the code (replace "nproc" with the number of processors to be use), with some recommended flags: <br>
+To run the code (replace "nproc" with the number of processors to be use; superlu_dist is used by default if available, gmres is used otherwise): <br>
 
-	$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type fgmres
+	$ mpirun -np nproc ./main
 
-To use superlu_dist: <br>
+To use use gmres instead of superlu_dist: <br>
 
-	$ mpirun -np nproc ./main -ts_monitor -snes_type newtontr -ksp_type preonly -pc_type lu -pc_factor_mat_solver_package superlu_dist
+	$ mpirun -np nproc ./main -ksp_type gmres -pc_type none
 
 The ouput files created by the code are .dat binary files and a fieldInfo.txt file. These files can be converted to .vtk files and visualized using tools such as VisIt or ParaView using the igakit package (see step 5 of the installation instructions). To do this file conversion, run the initBounValProbs/writeVTKFile.py script from the directory containing the output files. For example, if the .dat and fieldInfo.txt ouput files were located in the initBounValProb/nonGradientMechanics/3D folder, the following commands would create the .vtk files: <br>
 

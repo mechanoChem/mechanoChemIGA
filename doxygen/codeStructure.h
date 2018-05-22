@@ -1,7 +1,8 @@
 /**
  * @page codestructure Code Structure
  *
- * The code is divided into two parts: user defined functions and core functions.
+ * The code is divided into three parts: the (optional) parameters file, user defined functions, and core functions.
+ * The parameters file includes the definition of parameters used in the simulation (mesh refinement, time step size, material parameters, etc.).
  * The user defined functions is a list of functions that can/must be defined by the user.
  * The \c defineParameters and \c residual functions (italicized) require a user definition;
  * the remaining functions have default definitions that can be overridden by the user if desired.
@@ -12,13 +13,32 @@
 {
   graph[rankdir="LR",bgcolor="transparent",splines="ortho"];
 
-  subgraph cluster_userFunctions{
+  Subgraph cluster_parametersFile{
+   node [fontname="FreeSans",fontsize=13,fontcolor="black",
+        shape=record,height=0.2,width=0.4,
+        color="black", fillcolor="white", style="filled"];
+   fontname="FreeSans";
+   fontsize=15;
+   label=<<U>  User level 1  </U><BR/> <BR/>Parameters file>;
+   color="transparent";
+   space1 [color="transparent",label=""];
+   space2 [color="transparent",label=""];
+   params [label="parameters.prm"];
+   space3 [color="transparent",label=""];
+   space4 [color="transparent",label=""];
+   space5 [color="transparent",label=""];
+   space6 [color="transparent",label=""];
+   space7 [color="transparent",label=""];
+   {rank=same; space1, space2, params, space3, space4, space5, space6, space7}
+  }
+
+  Subgraph cluster_userFunctions{
    node [fontname="FreeSans",fontsize=13,fontcolor="blue",
         shape=record,height=0.2,width=0.4,
         color="black", fillcolor="white", style="filled"];
    fontname="FreeSans";
    fontsize=15;
-   label=< <u>  User level 0  </u><br/><br/>User defined functions>;
+   label=<<U>  User level 0  </U><BR/> <BR/>User defined functions>;
    color="transparent";
    scalarIC [label="scalarInitialConditions",URL="\ref scalarInitialConditions"];
    vectorIC [label="vectorInitialConditions",URL="\ref vectorInitialConditions"];
@@ -37,7 +57,7 @@
         color="black", fillcolor="white", style="filled"];
    fontname="FreeSans";
    fontsize=15;
-   label = < <u>  Developer level  </u><br/><br/>Core functions>;
+   label = <<u>  Developer level  </u><br/> <br/>Core functions>;
    color="transparent";
    Space1 [color="transparent",label=""];
    formIC [label="FormInitialCondition",URL="\ref FormInitialCondition"];
@@ -68,6 +88,7 @@
   d2 [shape=point,width=0.001,height=0.001];
   d3 [shape=point,width=0.001,height=0.001];
 
+  params -> defineParameters [color="black",fontsize=10,style="solid",fontname="FreeSans"];
   {scalarIC,vectorIC} -> d1 [color="black",fontsize=10,style="solid",fontname="FreeSans",dir=none];
   d1 -> formIC [color="black",fontsize=10,style="solid",fontname="FreeSans"];
   formIC -> setup [color="black",fontsize=10,style="solid",fontname="FreeSans"];

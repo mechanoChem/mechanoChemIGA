@@ -10,7 +10,11 @@
 int ReadDim(){
   int dim = 0;
 
-  std::fstream file("../parameters.prm");
+  std::fstream file("parameters.prm");
+  if (!file){
+    file.close();
+    file.open("../parameters.prm");
+  }
   if(file){
     std::string line, temp1;
 
@@ -37,13 +41,17 @@ int ReadDim(){
 template<int dim>
 int ReadParameters(AppCtx<dim> &user){
   
-  std::fstream file("../parameters.prm");
+  std::fstream file("parameters.prm");
+  if (!file){
+    file.close();
+    file.open("../parameters.prm");
+  }
   if(file){
     std::string line, temp1;
   
     std::map<std::string,double*> doubles;
     std::map<std::string,int*> ints;
-    //std::map<std::string,std::string*> strings;
+    std::map<std::string,std::string*> strings;
     //std::map<std::string,bool*> bools;
     std::map<std::string,Tensor<1,dim,int>* > tensorsInt;
     std::map<std::string,Tensor<1,dim,double>* > tensorsDouble;
@@ -56,6 +64,7 @@ int ReadParameters(AppCtx<dim> &user){
     ints["globalContinuity"] = &user.globalContinuity;
     tensorsInt["N"] = &user.N;
     tensorsDouble["L"] = &user.L;
+    strings["outputDir"] = &user.outputDir;
 
     while( std::getline(file,line) ){
       if (line.find("=") != -1){
@@ -85,9 +94,9 @@ int ReadParameters(AppCtx<dim> &user){
 	  //else if(bools.count(temp1) == 1){
 	  //  iss >> std::boolalpha >> *bools[temp1];
 	  //}
-	  //else if(strings.count(temp1) == 1){
-	  //  iss >> *strings[temp1];
-	  //}
+	  else if(strings.count(temp1) == 1){
+	    iss >> *strings[temp1];
+	  }
 	  else if(tensorsInt.count(temp1) == 1){
 	    //If a tensor, go back and remove "x" from the line
 	    while (line.find("x") != -1){
@@ -112,8 +121,10 @@ int ReadParameters(AppCtx<dim> &user){
 	      iss2 >> (*tensorsDouble[temp1])[i];
 	    }
 	  }
+	  //Otherwise, put it in the matParam map
 	  else if(temp1 != "DIM" && temp1 != "dim"){
-	    PetscPrintf(PETSC_COMM_WORLD,"%s is not a valid variable.\n",temp1.c_str());
+	    iss >> user.matParam[temp1];
+	    //PetscPrintf(PETSC_COMM_WORLD,"%s is not a valid variable.\n",temp1.c_str());
 	  }
 	}
       }

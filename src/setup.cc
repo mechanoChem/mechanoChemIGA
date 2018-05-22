@@ -36,6 +36,10 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   defineParameters<DIM>(user);
   ReadParameters<DIM>(user);
   user.dt = user.dtVal;
+  //Check that the output directory does not end with a "/"
+  if (user.outputDir.back()=='/'){
+    user.outputDir.pop_back();
+  }
 
   //define number of fields base on vector of names
   PetscInt nScalars = user.scalarSolnFields.size();
@@ -115,9 +119,28 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   user.iga->form->ops->FunCtx= &user;
   user.iga->form->ops->JacCtx= &user;
 
-    //Nonlinear solver
+  //Nonlinear solver
   ierr = IGACreateSNES_mod<DIM>(user.iga,&snes);CHKERRQ(ierr);
+  //PetscReal atol, rtol, stol;
+  //PetscInt maxit, maxf;
+  //ierr = SNESGetTolerances(snes,&atol,&rtol,&stol,&maxit,&maxf);
+  //std::cout << atol << " " << rtol << " " << stol << " " << maxit << " " << maxf << std::endl;
+  ierr = SNESSetTolerances(snes,1.e-50,1.e-8,1.e-8,10,1000);
   ierr = SNESSetConvergenceTest(snes,SNESConvergedTest,(void*)&user,NULL); CHKERRQ(ierr);
+  ierr = SNESSetType(snes,"newtonls");
+
+  KSP ksp;
+  ierr = SNESGetKSP(snes,&ksp);
+#if defined(PETSC_HAVE_SUPERLU_DIST)
+  PC pc;
+  ierr = KSPGetPC(ksp,&pc);
+  ierr = KSPSetType(ksp,"preonly");
+  ierr = PCSetType(pc,"lu");
+  ierr = PCFactorSetMatSolverPackage(pc,"superlu_dist");
+#else
+  ierr = KSPSetType(ksp,"gmres");
+#endif
+
   ierr = SNESSetFromOptions(snes);CHKERRQ(ierr);
 
   return 0;

@@ -3,7 +3,7 @@
 # Geometry and mesh
 set dim = 2
 set L = 1 x 1
-set N = 20 x 20
+set N = 100 x 100
 
 # Time stepping
 set dtVal = 0.1
@@ -14,7 +14,7 @@ set RESTART_TIME = 0
 set RESTART_IT = 0
 
 # Output
-set skipOutput = 2
+set skipOutput = 1
 
 # Splines
 set polyOrder = 2

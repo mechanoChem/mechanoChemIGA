@@ -1,5 +1,5 @@
 /**
- * @page example1 Example 1 : Nongradient, finite strain mechanics
+ * @page example1 Example 1 : Nongradient, finite strain elasticity
  * \dontinclude nonGradientMechanics/3D/userFunctions.cc
  *
  * To model nongradient, finite strain elasticity, we will specify the following through defining user functions: <br>
@@ -147,10 +147,10 @@
  * \c operator* - single contraction between tensors or scalar multiplication \n
  * \c double_contract - double contraction of two 2nd order tensors, or
  *                   a 4th order tensor and a 2nd order tensor. \n
- * \c trans( ) - transpose 2nd order tensor
- * \c trace( ) - trace of 2nd order tensor
- * \c det( ) - determinant of 2nd order tensor
- * \c inv( ) - inverse of 2nd order tensor
+ * \c trans( ) - transpose 2nd order tensor \n
+ * \c trace( ) - trace of 2nd order tensor \n
+ * \c det( ) - determinant of 2nd order tensor \n
+ * \c inv( ) - inverse of 2nd order tensor \n
  *
  * The example code here implements the weak form for finite strain elasticity,
  * \f$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0\f$

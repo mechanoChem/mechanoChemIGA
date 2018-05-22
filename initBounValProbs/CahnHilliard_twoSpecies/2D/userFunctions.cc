@@ -16,12 +16,7 @@ template<typename T>
 T F_c1c1(T c1, T c2){
   return 2*c2*(std::pow(2.*c1-1.,2) + 2.*(c1-0.1)*(c1-.9));
 }
-/*
-template<typename T>
-T F_c2(T c1, T c2){
-  return std::pow(c1-0.1,2)*std::pow(c1-0.9,2) + 2.*(c2-0.2)*(c2-0.8)*(2.*c2-1.);
-}
-*/
+
 template<typename T>
 T F_c1c2(T c1, T c2){
   return 2.*(c1-0.1)*std::pow(c1-0.9,2) + 2.*std::pow(c1-0.1,2)*(c1-0.9);
@@ -30,19 +25,16 @@ T F_c1c2(T c1, T c2){
 template<typename T>
 T F_c2c2(T c1, T c2){
   return 2.*((c2-0.8)*(2.*c2-1.)+(c2-0.2)*(2.*c2-1.)+2.*(c2-0.2)*(c2-0.8));
-}
+} //end free energy derivatives
 
 template<unsigned int dim>
 void defineParameters(AppCtx<dim>& user){
  
   user.N[0] = 20;
   user.N[1] = 20;
+  
   user.L[0] = 1.;
   user.L[1] = 1.;
-
-  //Set the domain to be periodic in the x and y directions
-  //user.periodic[0] = PETSC_TRUE;
-  //user.periodic[1] = PETSC_TRUE;
 
   user.dtVal = .1;
   user.totalTime = 20;
@@ -73,7 +65,7 @@ void residual(bool dV,
 	      Sacado::Fad::SimpleFad<T> &r){
 
   //Chemistry
-  double dt = user.dtVal;
+  double dt = user.dt;
   double jn1 = 0, jn2 = 0;
   double M = .1, L = 2.; //Mobility
   double kappa1 = .0005, kappa2 = .0005;

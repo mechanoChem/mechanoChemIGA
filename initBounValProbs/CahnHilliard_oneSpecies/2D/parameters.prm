@@ -1,0 +1,31 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 2  # spatial dimension
+set L = 1 x 1  # dimensions of geometry
+set N = 100 x 100 # mesh discretization
+
+# Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2
+set alpha = 0.25  # free energy coefficient
+set c_a = 0.2  # composition of phase a
+set c_b = 0.7  # composition of phase b
+
+# Material parameters
+set inFlux = 0.  # flux through the top boundary
+set mobility = 0.1
+set kappa = 0.0001  # gradient energy parameter
+
+# Time stepping
+set dtVal = 1.  # initial time step size
+set totalTime = 100.
+
+# Restart
+set RESTART_TIME = 0.
+set RESTART_IT = 0
+
+# Output
+set skipOutput = 1
+
+# Splines
+set polyOrder = 2
+set globalContinuity = 1

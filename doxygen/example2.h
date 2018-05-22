@@ -171,10 +171,10 @@
  * \c operator* - single contraction between tensors or scalar multiplication \n
  * \c double_contract - double contraction of two 2nd order tensors, or
  *                   a 4th order tensor and a 2nd order tensor. \n
- * \c trans( ) - transpose 2nd order tensor
- * \c trace( ) - trace of 2nd order tensor
- * \c det( ) - determinant of 2nd order tensor
- * \c inv( ) - inverse of 2nd order tensor
+ * \c trans( ) - transpose 2nd order tensor \n
+ * \c trace( ) - trace of 2nd order tensor \n
+ * \c det( ) - determinant of 2nd order tensor \n
+ * \c inv( ) - inverse of 2nd order tensor \n
  *
  * The example code here implements the weak form for the coupled Cahn-Hilliard and Allen-Cahn equations, as shown above.
  *

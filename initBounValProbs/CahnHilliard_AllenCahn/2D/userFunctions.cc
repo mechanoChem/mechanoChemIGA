@@ -68,7 +68,7 @@ void residual(bool dV,
 	      Sacado::Fad::SimpleFad<T> &r){
 
   //Chemistry
-  double dt = user.dtVal;
+  double dt = user.dt;
   double jn = 0;
   double M = .1, L = 2.; //Mobility
   double kappa1 = .0005, kappa2 = .0005;

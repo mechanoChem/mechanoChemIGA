@@ -197,7 +197,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx<dim> *user)
   ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
   //write solution
   char filename[256];
-  sprintf(filename,"./outE%d.dat",step);
+  sprintf(filename,"%s/outE%d.dat",user->outputDir.c_str(),step);
   ierr = IGAWriteVec(iga,x,filename);CHKERRQ(ierr);
   ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);
@@ -221,7 +221,7 @@ PetscErrorCode StepUpdate(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<dim> 
   //output to file
   char filename[256];
   if (step%user.skipOutput==0){
-    sprintf(filename,"./outU%d.dat",step);
+    sprintf(filename,"%s/outU%d.dat",user.outputDir.c_str(),step);
     ierr = IGAWriteVec(user.iga,U,filename);CHKERRQ(ierr);
 
     if(user.scalarProjectnFields.size()+user.vectorProjectnFields.size() > 0){

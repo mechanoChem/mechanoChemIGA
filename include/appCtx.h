@@ -161,6 +161,11 @@ struct AppCtx{
   PetscReal RESTART_TIME;
 
   /**
+   * The output directory. The code will not create the directory if it does not exist. Defaults to "." (the current directory).
+   */
+  std::string outputDir;
+
+  /**
    * Vector of strings defining the names of the scalar solution fields. The vector length is used to set the number of scalar solution fields.
    */
   std::vector<std::string> scalarSolnFields;
@@ -234,7 +239,7 @@ struct AppCtx{
   PFFunction<DIM> projectFields;
 
   //Define default values
-  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), polyOrder(2), globalContinuity(1) {}
+  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1) {}
 };
 
 #endif

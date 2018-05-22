@@ -41,5 +41,5 @@ var searchData=
   ['totaltime',['totalTime',['../struct_app_ctx.html#a17b4070be131d7cee7880bbc695f9169',1,'AppCtx']]],
   ['trace',['trace',['../class_tensor.html#aa49dbdc74bfc6fba3f707032e4918b7c',1,'Tensor']]],
   ['trans',['trans',['../class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8',1,'Tensor']]],
-  ['triple_5fcontract',['triple_contract',['../class_tensor.html#a0d8d7cd689342c88f61442873c060b89',1,'Tensor']]]
+  ['triple_5fcontract',['triple_contract',['../class_tensor.html#a9a49017206bb763b5c8dc4dfdb38b288',1,'Tensor']]]
 ];
