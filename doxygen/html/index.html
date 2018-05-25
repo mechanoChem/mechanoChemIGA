@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>mechanoChem: Main Page</title>
+<title>mechanoChemIGA: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">mechanoChem
+   <div id="projectname">mechanoChemIGA
    &#160;<span id="projectnumber">0.2</span>
    </div>
   </td>
@@ -79,7 +79,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div class="header">
   <div class="headertitle">
-<div class="title">mechanoChem Documentation</div>  </div>
+<div class="title">mechanoChemIGA Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>Developed by the Computational Physics Group at the University of Michigan. <a href="http://www.umich.edu/~compphys/index.html">http://www.umich.edu/~compphys/index.html</a> <br/>
@@ -94,13 +94,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </p>
 <h1><b>Overview</b> <br/>
  </h1>
-<p>The mechanoChem code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [<a href="https://trilinos.org/packages/sacado/">https://trilinos.org/packages/sacado/</a>]. <br/>
+<p>The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [<a href="https://trilinos.org/packages/sacado/">https://trilinos.org/packages/sacado/</a>]. <br/>
 </p>
 <h1><b>Version information</b> </h1>
 <p>This is version 0.2, the second release of the code. <br/>
 </p>
 <h1><b>License</b> </h1>
-<p>GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. <br/>
+<p>GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. Note that the functions IGAElementNextFormFunction and IGAComputeProjectionFunction in the file src/output.cc, as well as all functions in the file src/petigasnes_mod.h were derived from the PetIGA/src/petigasnes.c source code in the PetIGA library [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>]. Accordingly, we include the license/copyright notice for the PetIGA library here in the file LICENSE_PetIGA to apply to the above functions.<br/>
 </p>
 <h1><b>Acknowledgements</b> </h1>
 <p>This code has been developed under the support of the following: <br/>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>mechanoChem: Example 2 : Coupled Cahn-Hilliard/Allen-Cahn</title>
+<title>mechanoChemIGA: Example 2 : Cahn-Hilliard (one species)</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,7 +22,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">mechanoChem
+   <div id="projectname">mechanoChemIGA
    &#160;<span id="projectnumber">0.2</span>
    </div>
   </td>
@@ -79,22 +79,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">Example 2 : Coupled Cahn-Hilliard/Allen-Cahn </div>  </div>
+<div class="title">Example 2 : Cahn-Hilliard (one species) </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling, as described by the following weak form of the PDE. The two scalar fields are composition, <img class="formulaInl" alt="$c$" src="form_5.png"/>, and an order parameter, <img class="formulaInl" alt="$\eta$" src="form_6.png"/>). Note the application of the higher-order Dirichlet boundary conditions <img class="formulaInl" alt="$\nabla c\cdot\boldsymbol{n}=0$" src="form_7.png"/> and <img class="formulaInl" alt="$\nabla \eta\cdot\boldsymbol{n}=0$" src="form_8.png"/> using Nitsche's method.</p>
+<div class="textblock"><p>This example implements the Cahn-Hilliard equation for phase-field modeling of a single species, as described by the following weak form of the PDE. The scalar field is composition, <img class="formulaInl" alt="$c$" src="form_5.png"/>. Note the application of the higher-order Dirichlet boundary condition <img class="formulaInl" alt="$\nabla c\cdot\boldsymbol{n}=0$" src="form_7.png"/> using Nitsche's method.</p>
 <p>Cahn-Hilliard:</p>
 <p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(w_1j_n + M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right) - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_9.png"/>
-</p>
-<p>Allen-Cahn:</p>
-<p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n}) - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_10.png"/>
+<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(w_1j_n + M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right) - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_24.png"/>
 </p>
 <p>Free energy density:</p>
 <p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2 \end{eqnarray*}" src="form_11.png"/>
+<img class="formulaDsp" alt="\begin{eqnarray*} f(c) = \alpha(c - c_a)^2(c - c_b)^2 \end{eqnarray*}" src="form_25.png"/>
 </p>
+<p>The current settings prescribe random initial conditions and zero-flux boundary conditions. With these settings, the following evolution of the concentration is obtained:</p>
+ <style>div.image img[src="plots.png"]{width:20cm;}</style>  <div class="image">
+<img src="plots.png" alt="plots.png"/>
+</div>
 <p>To implement this model, we will specify the following through defining user functions: <br/>
 </p>
 <ul>
@@ -112,63 +112,60 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></p>
 <p>Now, we first define any optional user functions. Optional user functions have a default definition that can be redefined by the user using a function pointer. This will be done in the <code>defineParameters</code> function. The available list of optional user functions includes: <code>boundaryConditions</code>, <code>scalarInitialConditions</code>, <code>vectorInitialConditions</code>, <code>loadStep</code>, <code>adaptiveTimeStep</code>, and <code>projectFields</code>. In this example, we redefine only the <code>scalarInitialConditions</code> function, while using the default functions for the others.</p>
 <p><b> The <code>scalarInitialConditions</code> function </b></p>
-<p>We initialized the composition and order parameters fields to be random about 0.5.</p>
+<p>We initialized the composition field to be random about 0.5.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
 <div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
-<div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
-<div class="line">  <span class="keywordflow">case</span> 0: <span class="keywordflow">return</span> 0.5 + 0.1*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
-<div class="line">  <span class="keywordflow">case</span> 1: <span class="keywordflow">return</span> 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
-<div class="line">  <span class="keywordflow">default</span>: <span class="keywordflow">return</span> 0.;</div>
-<div class="line">  }</div>
+<div class="line">  <span class="keywordflow">return</span> 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end scalarInitialConditions</span></div>
 </div><!-- fragment --></p>
 <p><b> Free energy density derivative functions </b></p>
-<p>This phase-field implementation requires several derivatives of the chemical free energy density function <img class="formulaInl" alt="$f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2$" src="form_12.png"/>. We define the functions computing <img class="formulaInl" alt="$\partial f/\partial\eta$" src="form_13.png"/>, <img class="formulaInl" alt="$\partial^2 f/\partial c \partial c$" src="form_14.png"/>, and <img class="formulaInl" alt="$\partial^2 f/\partial\eta \partial c$" src="form_15.png"/> here. Note that these free energy derivative functions are used only in this file. They are not members of any class, nor will we use them to set any function pointers.</p>
+<p>This phase-field implementation requires the second derivative of the chemical free energy density function <img class="formulaInl" alt="$f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2$" src="form_26.png"/>. We define the function computing <img class="formulaInl" alt="$\partial^2 f/\partial c \partial c$" src="form_14.png"/> here. Note that this free energy derivative function is used only in this file. It is not a member of any class, nor will we use it to set any function pointers.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#ad1838058dcdb7487706b8f5e55ce2217">F_eta</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> std::pow(c-0.1,2)*std::pow(c-0.9,2) + 2.*(eta-0.2)*(eta-0.8)*(2.*eta-1.);</div>
-<div class="line">}</div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> 2*eta*(std::pow(2.*c-1.,2) + 2.*(c-0.1)*(c-.9));</div>
-<div class="line">}</div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a5e324a2cfc6ffec7d625f60e8ebb73d7">F_ceta</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> 2.*(c-0.1)*(c-0.9)*(2.*c-1.);</div>
-<div class="line">} <span class="comment">//end free energy derivative functions</span></div>
+<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(T c, <span class="keywordtype">double</span> alpha, <span class="keywordtype">double</span> ca, <span class="keywordtype">double</span> cb){</div>
+<div class="line">  </div>
+<div class="line">  <span class="comment">//Second derivative of the free energy density: f(c) = alpha*(c-ca)^2*(c-cb)^2</span></div>
+<div class="line">  <span class="keywordflow">return</span> 2*alpha*(std::pow(2.*c-ca-cb,2) + 2.*(c-ca)*(c-cb));</div>
+<div class="line">  </div>
+<div class="line">} <span class="comment">//end F_cc</span></div>
 </div><!-- fragment --></p>
 <p><b> The <code>defineParameters</code> function </b></p>
 <p>The user is required to define the <code>defineParameters</code> and <code>residual</code> functions. The <code>defineParameters</code> defines variables and functions in the <code>AppCtx</code> object. The <code>AppCtx</code> object is defined in the appCtx.h file. This function is used to define any values in <code>user</code> that will be needed in the problem. It is also used to set any function pointers for user functions that we have redefined.</p>
+<p>Many of these values can be overwritten by the parameters.prm file, which we will look at later.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
 <div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gadbccf6631ad847d5a681a548f921ef29">defineParameters</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user){</div>
 </div><!-- fragment --></p>
-<p>Here, we define the mesh by setting the number of elements in each direction, e.g. a 20x20 element mesh.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 20;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 20;</div>
+<p>Here, we define the mesh by setting the number of elements in each direction, e.g. a 100x100 element mesh.</p>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 100;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 100;</div>
 </div><!-- fragment --></p>
 <p>We also define the dimensions of the domain, e.g. a unit square.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0] = 1.;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1] = 1.;</div>
 </div><!-- fragment --></p>
-<p>We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions. Here, we override the default and define periodicity in both the x and y directions.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">periodic</a>[0] = PETSC_TRUE;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">periodic</a>[1] = PETSC_TRUE;</div>
+<p>We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions. Here, we override the default and define periodicity in both the x directions.</p>
+<p><div class="fragment"></div><!-- fragment --></p>
+<p>We can define additional material parameters that are not explicity listed in the <code>user</code> structure by defining elements of the <code>matParam</code> C++ map, which maps <code>std::string</code> to <code>double</code>. These values can also be overwritten in the parameters file.</p>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>] = 0; <span class="comment">//Infux through top</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>] = .1; <span class="comment">//Mobility</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>] = .0001; <span class="comment">//Gradient energy parameter</span></div>
+<div class="line"></div>
+<div class="line">  <span class="comment">//Define some free energy parameters</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;alpha&quot;</span>] = 0.25; <span class="comment">//Free energy coefficient</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_a&quot;</span>] = 0.2; <span class="comment">//Composition of phase a</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_b&quot;</span>] = 0.9; <span class="comment">//Composition of phase b</span></div>
 </div><!-- fragment --></p>
-<p>We define the time step and total simulation time. We also have the options to use restart files, in which case we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation. We also have the option to output results at regular intervals (e.g. every 5 time steps).</p>
+<p>We define the initial time step and total simulation time. We also have the options to use restart files, in which case we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation. We also have the option to output results at regular intervals (e.g. every 5 time steps).</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = .1;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a17b4070be131d7cee7880bbc695f9169">totalTime</a> = 20;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a28a6be93b52da95fb5e891f10a9a5d87">RESTART_IT</a> = 0;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a6d5465cb515bc053db8785edd2e1b21b">RESTART_TIME</a> = 0.;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a7c81203929d679b6ee72dec416c9bea9">skipOutput</a> = 2;</div>
 </div><!-- fragment --></p>
-<p>We specify the number of vector and scalar solution and projection fields by adding the name of each field to their respective vector. Here, we have two scalar solution field (the composition and an order parameter). We do not use any vector solution fields or projection fields in this example.</p>
+<p>We specify the number of vector and scalar solution and projection fields by adding the name of each field to their respective vector. Here, we have one scalar solution field (the composition). We do not use any vector solution fields or projection fields in this example.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a6794fa3a8512e9239c9f2e4c7bf18ec3">scalarSolnFields</a>.push_back(<span class="stringliteral">&quot;c&quot;</span>);</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a6794fa3a8512e9239c9f2e4c7bf18ec3">scalarSolnFields</a>.push_back(<span class="stringliteral">&quot;eta&quot;</span>);</div>
 </div><!-- fragment --></p>
 <p>We can specify the polynomial order of the basis splines, as well as the global continuity. Note that the global continuity must be less than the polynomial order. Here, we use quadratic basis functions with C-1 global continuity.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 2;</div>
@@ -228,88 +225,143 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>trace( )</code> - trace of 2nd order tensor <br/>
 <code>det( )</code> - determinant of 2nd order tensor <br/>
 <code>inv( )</code> - inverse of 2nd order tensor <br/>
- The example code here implements the weak form for the coupled Cahn-Hilliard and Allen-Cahn equations, as shown above.</p>
-<p>First, we set the values for necessary parameters.</p>
+ The example code here implements the weak form for the Cahn-Hilliard equation, as shown above.</p>
+<p>First, we set the values for necessary parameters, using some predefined material parameters.</p>
 <p><div class="fragment"><div class="line">  <span class="keywordtype">double</span> dt = user.<a class="code" href="struct_app_ctx.html#a102ae36ef6e9df9f12c7e988659b5ff0">dt</a>;</div>
-<div class="line">  <span class="keywordtype">double</span> jn = 0;</div>
-<div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
-<div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
+<div class="line">  <span class="keywordtype">double</span> jn = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>]*(x[1]==user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1]); <span class="comment">//Influx through the top</span></div>
+<div class="line">  <span class="keywordtype">double</span> M = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>]; <span class="comment">//Mobility</span></div>
+<div class="line">  <span class="keywordtype">double</span> kappa = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>];</div>
 <div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
 </div><!-- fragment --></p>
-<p>Next, we get the values for the free energy derivatives <img class="formulaInl" alt="$f_{,cc}$" src="form_16.png"/>, <img class="formulaInl" alt="$f_{,c\eta}$" src="form_17.png"/>, and <img class="formulaInl" alt="$f_{,\eta}$" src="form_18.png"/> based on the current quadrature point.</p>
-<p><div class="fragment"><div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>, f_ceta, f_eta;</div>
-<div class="line">  f_cc = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
-<div class="line">  f_ceta = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a5e324a2cfc6ffec7d625f60e8ebb73d7">F_ceta</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
-<div class="line">  f_eta = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#ad1838058dcdb7487706b8f5e55ce2217">F_eta</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
+<p>Next, we get the values for the free energy derivative <img class="formulaInl" alt="$f_{,cc}$" src="form_16.png"/> based on the current quadrature point.</p>
+<p><div class="fragment"><div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>;</div>
+<div class="line">  f_cc = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;alpha&quot;</span>],user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_a&quot;</span>],user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_b&quot;</span>]);</div>
 </div><!-- fragment --></p>
-<p>Now, we compute the residual in a manner very similar to the analytical form. First, the weak form of the Cahn-Hilliard equation:</p>
+<p>Now, we compute the residual in a manner very similar to the analytical form:</p>
 <p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(w_1j_n + M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right) - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_9.png"/>
+<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(w_1j_n + M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right) - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_24.png"/>
 </p>
 <p><div class="fragment"><div class="line">  r = ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(0)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(0))/dt )*dV;  </div>
-<div class="line">  r += ( M*w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*(f_cc*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0) + f_ceta*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)))*dV;</div>
-<div class="line">  r += M*kappa1*w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*dV;</div>
+<div class="line">  r += M*w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*f_cc*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*dV;</div>
+<div class="line">  r += M*kappa*w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*dV;</div>
 <div class="line">  </div>
 <div class="line">  r += -w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(0)*jn*dS; <span class="comment">//Boundary flux</span></div>
-<div class="line">  r += -M*kappa1*( c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal) + w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal) )*dS;</div>
+<div class="line">  r += -M*kappa*( c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal) + w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal) )*dS;</div>
 <div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal)*dS;</div>
-</div><!-- fragment --></p>
-<p>And finally, the Allen-Cahn equation, which completes the residual function.</p>
-<p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n}) - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_10.png"/>
-</p>
-<p> <div class="fragment"><div class="line">  r += ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(1))/dt )*dV;</div>
-<div class="line">  r += L*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*f_eta + kappa2*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)) )*dV;</div>
-<div class="line"></div>
-<div class="line">  r += -L*kappa2*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal) + c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal) )*dS;</div>
-<div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal)*dS;</div>
 <div class="line">  </div>
 <div class="line">} <span class="comment">//end residual</span></div>
 </div><!-- fragment --></p>
-<p>Finally, we include a file that instatiates the template functions <code>defineParameters</code> and <code>residual</code>. This bit of code will generally be the same for any problem (unless you decide to use a different automatic differentation library), the user does not need to modify it.</p>
+<p>Finally, we include a file that instatiates the template functions <code>defineParameters</code> and <code>residual</code>. This bit of code will generally be the same for any problem (unless you decide to use a different automatic differentation library); the user does not need to modify it.</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_instantiation_8h.html">userFunctionsInstantiation.h</a>&quot;</span></div>
 </div><!-- fragment --></p>
+<p>Now let's look at the parameters file, <code>parameters.prm</code>. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. <p>The parameters defined in the parameters file overwrite any previous values defined in the <code>defineParameters</code> function. Anything following the pound sign (#) is a comment. A parameter is defined using the syntax:</p>
+<p><code>set</code> <code>parameterName</code> <code>=</code> <code>parameterValue</code> </p>
+<p>There is a set list of variables that can be read from the parameters file. Anything else will be added to the <code>matParam</code> structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), where the number of components must equal the spatial dimension of the problem.</p>
+<p>In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:</p>
+<p><div class="fragment"><div class="line">set dim = 2  # spatial dimension</div>
+<div class="line">set L = 1 x 1  # dimensions of geometry</div>
+<div class="line">set N = 100 x 100 # mesh discretization</div>
+</div><!-- fragment --></p>
+<p>Next, we define some parameters that are specific to this problem, so they become elements of <code>matParam</code> (see the <code>residual</code> and  functions above).</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2</span></div>
+<div class="line"><span class="preprocessor"></span>set alpha = 0.25  # free energy coefficient</div>
+<div class="line">set c_a = 0.2  # composition of phase a</div>
+<div class="line">set c_b = 0.7  # composition of phase b</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Material parameters</span></div>
+<div class="line"><span class="preprocessor"></span>set inFlux = 0.  # flux through the top boundary</div>
+<div class="line">set mobility = 0.1</div>
+<div class="line">set kappa = 0.0001  # gradient energy parameter</div>
+</div><!-- fragment --></p>
+<p>We then define time stepping, restart information, output frequency, and spline parameters.</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Time stepping</span></div>
+<div class="line"><span class="preprocessor"></span>set dtVal = 1.  # initial time step size</div>
+<div class="line">set totalTime = 100.</div>
+<div class="line"></div>
+<div class="line"># Restart</div>
+<div class="line">set RESTART_TIME = 0.</div>
+<div class="line">set RESTART_IT = 0</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Output</span></div>
+<div class="line"><span class="preprocessor"></span>set skipOutput = 1</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Splines</span></div>
+<div class="line"><span class="preprocessor"></span>set polyOrder = 2</div>
+<div class="line">set globalContinuity = 1</div>
+</div><!-- fragment --></p>
+<p>Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.</p>
 <h1>The complete code </h1>
+<p>The <code>parameters.prm</code> file: </p>
+<div class="fragment"><div class="line"><span class="preprocessor"># Parameters file</span></div>
+<div class="line"><span class="preprocessor"></span></div>
+<div class="line"><span class="preprocessor"># Geometry and mesh</span></div>
+<div class="line"><span class="preprocessor"></span>set dim = 2  # spatial dimension</div>
+<div class="line">set L = 1 x 1  # dimensions of geometry</div>
+<div class="line">set N = 100 x 100 # mesh discretization</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2</span></div>
+<div class="line"><span class="preprocessor"></span>set alpha = 0.25  # free energy coefficient</div>
+<div class="line">set c_a = 0.2  # composition of phase a</div>
+<div class="line">set c_b = 0.7  # composition of phase b</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Material parameters</span></div>
+<div class="line"><span class="preprocessor"></span>set inFlux = 0.  # flux through the top boundary</div>
+<div class="line">set mobility = 0.1</div>
+<div class="line">set kappa = 0.0001  # gradient energy parameter</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Time stepping</span></div>
+<div class="line"><span class="preprocessor"></span>set dtVal = 1.  # initial time step size</div>
+<div class="line">set totalTime = 100.</div>
+<div class="line"></div>
+<div class="line"># Restart</div>
+<div class="line">set RESTART_TIME = 0.</div>
+<div class="line">set RESTART_IT = 0</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Output</span></div>
+<div class="line"><span class="preprocessor"></span>set skipOutput = 1</div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor"># Splines</span></div>
+<div class="line"><span class="preprocessor"></span>set polyOrder = 2</div>
+<div class="line">set globalContinuity = 1</div>
+</div><!-- fragment --><p>The <code>userFunctions.cc</code> source code: </p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
 <div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
-<div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
-<div class="line">  <span class="keywordflow">case</span> 0: <span class="keywordflow">return</span> 0.5 + 0.1*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
-<div class="line">  <span class="keywordflow">case</span> 1: <span class="keywordflow">return</span> 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
-<div class="line">  <span class="keywordflow">default</span>: <span class="keywordflow">return</span> 0.;</div>
-<div class="line">  }</div>
+<div class="line">  <span class="keywordflow">return</span> 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); <span class="comment">//Random about 0.5</span></div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end scalarInitialConditions</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#ad1838058dcdb7487706b8f5e55ce2217">F_eta</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> std::pow(c-0.1,2)*std::pow(c-0.9,2) + 2.*(eta-0.2)*(eta-0.8)*(2.*eta-1.);</div>
-<div class="line">}</div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> 2*eta*(std::pow(2.*c-1.,2) + 2.*(c-0.1)*(c-.9));</div>
-<div class="line">}</div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a5e324a2cfc6ffec7d625f60e8ebb73d7">F_ceta</a>(T c, T eta){</div>
-<div class="line">  <span class="keywordflow">return</span> 2.*(c-0.1)*(c-0.9)*(2.*c-1.);</div>
-<div class="line">} <span class="comment">//end free energy derivative functions</span></div>
+<div class="line">T <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(T c, <span class="keywordtype">double</span> alpha, <span class="keywordtype">double</span> ca, <span class="keywordtype">double</span> cb){</div>
+<div class="line">  </div>
+<div class="line">  <span class="comment">//Second derivative of the free energy density: f(c) = alpha*(c-ca)^2*(c-cb)^2</span></div>
+<div class="line">  <span class="keywordflow">return</span> 2*alpha*(std::pow(2.*c-ca-cb,2) + 2.*(c-ca)*(c-cb));</div>
+<div class="line">  </div>
+<div class="line">} <span class="comment">//end F_cc</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
 <div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gadbccf6631ad847d5a681a548f921ef29">defineParameters</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user){</div>
 <div class="line"> </div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 20;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 20;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 100;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 100;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0] = 1.;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1] = 1.;</div>
 <div class="line"></div>
-<div class="line">  <span class="comment">//Set the domain to be periodic in the x and y directions</span></div>
+<div class="line">  <span class="comment">//Set the domain to be periodic in the x directions</span></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">periodic</a>[0] = PETSC_TRUE;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">periodic</a>[1] = PETSC_TRUE;</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">//Define some material parameters (can be overwritten by parameters file)</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>] = 0; <span class="comment">//Infux through top</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>] = .1; <span class="comment">//Mobility</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>] = .0001; <span class="comment">//Gradient energy parameter</span></div>
+<div class="line"></div>
+<div class="line">  <span class="comment">//Define some free energy parameters</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;alpha&quot;</span>] = 0.25; <span class="comment">//Free energy coefficient</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_a&quot;</span>] = 0.2; <span class="comment">//Composition of phase a</span></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_b&quot;</span>] = 0.9; <span class="comment">//Composition of phase b</span></div>
 <div class="line"></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = .1;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a17b4070be131d7cee7880bbc695f9169">totalTime</a> = 20;</div>
@@ -318,8 +370,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a7c81203929d679b6ee72dec416c9bea9">skipOutput</a> = 2;</div>
 <div class="line"></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a6794fa3a8512e9239c9f2e4c7bf18ec3">scalarSolnFields</a>.push_back(<span class="stringliteral">&quot;c&quot;</span>);</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a6794fa3a8512e9239c9f2e4c7bf18ec3">scalarSolnFields</a>.push_back(<span class="stringliteral">&quot;eta&quot;</span>);</div>
-<div class="line"></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 2;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 <div class="line"></div>
@@ -341,32 +391,23 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"></div>
 <div class="line">  <span class="comment">//Chemistry</span></div>
 <div class="line">  <span class="keywordtype">double</span> dt = user.<a class="code" href="struct_app_ctx.html#a102ae36ef6e9df9f12c7e988659b5ff0">dt</a>;</div>
-<div class="line">  <span class="keywordtype">double</span> jn = 0;</div>
-<div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
-<div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
+<div class="line">  <span class="keywordtype">double</span> jn = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>]*(x[1]==user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1]); <span class="comment">//Influx through the top</span></div>
+<div class="line">  <span class="keywordtype">double</span> M = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>]; <span class="comment">//Mobility</span></div>
+<div class="line">  <span class="keywordtype">double</span> kappa = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>];</div>
 <div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
 <div class="line">  </div>
-<div class="line">  <span class="comment">//Get chemical potential and derivatives</span></div>
-<div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>, f_ceta, f_eta;</div>
-<div class="line">  f_cc = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
-<div class="line">  f_ceta = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a5e324a2cfc6ffec7d625f60e8ebb73d7">F_ceta</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
-<div class="line">  f_eta = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#ad1838058dcdb7487706b8f5e55ce2217">F_eta</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1));</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Cahn-Hilliard with Nitche&#39;s method</span></div>
+<div class="line">  <span class="comment">//Get the second derivative of the free energy</span></div>
+<div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>;</div>
+<div class="line">  f_cc = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#acf9953d272a25dde719af6ce9d2763cb">F_cc</a>(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0),user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;alpha&quot;</span>],user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_a&quot;</span>],user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;c_b&quot;</span>]);</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">//Cahn-Hilliard with Nitche&#39;s method - c</span></div>
 <div class="line">  r = ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(0)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(0) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(0))/dt )*dV;  </div>
-<div class="line">  r += ( M*w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*(f_cc*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0) + f_ceta*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)))*dV;</div>
-<div class="line">  r += M*kappa1*w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*dV;</div>
+<div class="line">  r += M*w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*f_cc*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*dV;</div>
+<div class="line">  r += M*kappa*w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*dV;</div>
 <div class="line">  </div>
 <div class="line">  r += -w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(0)*jn*dS; <span class="comment">//Boundary flux</span></div>
-<div class="line">  r += -M*kappa1*( c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal) + w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal) )*dS;</div>
+<div class="line">  r += -M*kappa*( c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal) + w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal) )*dS;</div>
 <div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal)*dS;</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Allen-Cahn with Nitche&#39;s method</span></div>
-<div class="line">  r += ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(1))/dt )*dV;</div>
-<div class="line">  r += L*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*f_eta + kappa2*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)) )*dV;</div>
-<div class="line"></div>
-<div class="line">  r += -L*kappa2*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal) + c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal) )*dS;</div>
-<div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal)*dS;</div>
 <div class="line">  </div>
 <div class="line">} <span class="comment">//end residual</span></div>
 <div class="line"></div>

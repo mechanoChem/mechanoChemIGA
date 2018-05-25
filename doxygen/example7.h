@@ -1,247 +1,104 @@
 /**
- * @page example7 Example 7 : Cahn-Hilliard (one species)
- * \dontinclude CahnHilliard_oneSpecies/2D/userFunctions.cc
+ * @page example7 Example 7 : Unconditionally stable scheme for mechano-chemistry
+ * \dontinclude mechanoChemStab/userFunctions.cc
+ * As in previous examples, we include the header file declaring the required user functions.
  *
- * This example implements the Cahn-Hilliard equation for phase-field modeling of a single species,
- * as described by the following weak form of the PDE. The scalar field is composition, \f$c\f$.
- * Note the application of the higher-order Dirichlet boundary condition \f$\nabla c\cdot\boldsymbol{n}=0\f$
- * using Nitsche's method.
+ * \line userFunction
  *
- * Cahn-Hilliard:
+ * Then, we define initial/boundary conditions.
  *
- * \f{eqnarray*}{
- * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
- * M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
- * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
- *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
- * \f}
+ * <b> The \c boundaryConditions function </b>
  *
- * Free energy density:
+ * We apply boundary conditions so that the material is free to move in tangential directions except on z=1, where we have the free-surface condition.  
  *
- * \f{eqnarray*}{
- * f(c) = \alpha(c - c_a)^2(c - c_b)^2
- * \f}
+ * \skip boundary
+ * \until //end
  *
- * To implement this model, we will specify the following through defining user functions: <br>
- * - Initial conditions <br>
- * - Constitutive model (via free energy density functions) <br>
- * - Parameter values <br>
- * - Weak form of the PDEs <br>
+ * <b> The \c cmuinit function and the \c uinit function </b>
  *
- * First, we include the header file declaring the required user functions. These functions will be defined in this file.
- *
- * \line userFunctions
- *
- * Now, we first define any optional user functions. Optional user functions have a default definition that can be 
- * redefined by the user using a function pointer.
- * This will be done in the \c defineParameters function. The available list of optional user functions includes:
- * \c boundaryConditions, \c scalarInitialConditions, \c vectorInitialConditions, \c loadStep, \c adaptiveTimeStep, and \c projectFields.
- * In this example, we redefine only the \c scalarInitialConditions function, while using the default functions for the others.
- *
- * <b> The \c scalarInitialConditions function </b>
- *
- * We initialized the composition field to be random about 0.5.
+ * The initial conditions for the scalar and the vector fields are defined for this example problem as following.  
  *
  * \skip template
  * \until //end
- *
- * <b> Free energy density derivative functions </b>
- *
- * This phase-field implementation requires the second derivative of the chemical free energy density function
- * \f$f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2\f$. We define the function computing
- * \f$\partial^2 f/\partial c \partial c\f$ here.
- * Note that this free energy derivative function is used only in this file. It is not a member of any class,
- * nor will we use it to set any function pointers.
  *
  * \skip template
  * \until //end
  *
  * <b> The \c defineParameters function </b>
  *
- * The user is required to define the \c defineParameters and \c residual functions. The \c defineParameters defines variables
- * and functions in the \c AppCtx object. The \c AppCtx object is defined
- * in the appCtx.h file. This function is used to define any values in \c user that will be needed in the problem.
- * It is also used to set any function pointers for user functions that we have redefined.
- *
- * Many of these values can be overwritten by the parameters.prm file, which we will look at later.
- *
- * \skip template
- * \until void
- *
- * Here, we define the mesh by setting the number of elements in each direction, e.g. a 100x100 element mesh.
+ * Here, we define the mesh by setting the number of elements in each direction, e.g. a 64x64x64 element mesh.
  *
  * \skip user.N[0]
- * \until user.N[1]
+ * \until user.N[2]
  *
- * We also define the dimensions of the domain, e.g. a unit square.
+ * We also define the dimensions of the domain, e.g. a unit cube.
  *
  * \skip user.L[0]
- * \until user.L[1]
- *
- * We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions.
- * Here, we override the default and define periodicity in both the x directions.
- *
- * \line user.periodic[0]
- *
- * We can define additional material parameters that are not explicity listed in the \c user structure by
- * defining elements of the \c matParam C++ map, which maps \c std::string to \c double. These values can also be overwritten
- * in the parameters file.
- *
- * \skip "inFlux"
- * \until "c_b"
- *
- * We define the initial time step and total simulation time. We also have the options to use restart files, in which case
- * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
- * We also have the option to output results at regular intervals (e.g. every 5 time steps).
- *
- * \skip user.dtVal
- * \until user.skipOutput
+ * \until user.L[2]
  *
  * We specify the number of vector and scalar solution and projection fields by adding the name of each field to
- * their respective vector. Here, we have one scalar solution field (the composition).
- * We do not use any vector solution fields or projection fields in this example.
+ * their respective vector. Here, we have one vector solution field (the displacement) and two scalar projection field
+ * (the chemical composition and the chemical potential).
  *
- * \line "c"
+ * \skip "c"
+ * \until "displacement"
  * 
- * We can specify the polynomial order of the basis splines, as well as the global continuity.
- * Note that the global continuity must be less than the polynomial order.
- * Here, we use quadratic basis functions with C-1 global continuity.
- *
+ * We also specify the polynomial order of the basis splines and the global continuity.
+ * 
  * \skip polyOrder
  * \until globalContinuity
  *
- * Finally, we redirect the desired user function pointers to the \c scalarInitialConditions function that we
- * defined above. This completes the \c defineParameters function.
+ * We redirect the desired user function pointers to the \c boundaryConditions, \c cmuinit, and \c uinit functions that we
+ * defined above.
  *
- * \skip scalarInitialConditions
- * \until //end
+ * \skip boundaryConditions
+ * \until = uinit
+ *
+ * We then define the timestep size.
+ *
+ * \skip 1.e-4
+ * \line dtVal
+ *
+ * Finally, we define various (25) material parameters that describe the mechano-chemistry.
+ *
+ * \skip malloc
+ * \until par_mat[24]
  *
  * <b> The \c residual function </b>
  *
- * The residual function defines the residual that is to be driven to zero.
- * This is the central function of the code.
- * It is set up to follow the analytical weak form of the PDE.
- * It has a number of arguments that give problem information at the current quadrature point.
+ * The residual function for an unconditionally stable second-order scheme for mechano-chemistry is used in this example.
  *
+ * We first declare \c "eval_residual" non-member function to be used in the member function, \c "residual".
+ * 
  * \skip template
- * \until &r
+ * \until eval_residual
  *
- * \c dV is a boolean, "true" if \c residual is being called for the volume integral and 
- * "false" if \c residual is being called for the surface integral.\n
- * \c dS is a boolean, "false" if \c residual is being called for the volume integral and 
- * "true" if \c residual is being called for the surface integral.\n
- * \c x gives the coordinates of the quadrature point.\n
- * \c normal gives the unit normal for a surface quadrature point.\n
- * \c c gives the information (values, gradients, etc.) for the scalar solution fields at the current quadrature point
- * (see documentation for solutionScalars class).\n
- * \c u gives the information (values, gradients, etc.) for the vector solution fields at the current quadrature point
- * (see documentation for solutionVectors class).\n
- * \c w1 gives the information for the scalar test functions.\n
- * \c w2 gives the information for the vector test functions.\n
- * \c user is a structure available for parameters related to the initial boundary value problem (e.g. elasticity tensor).\n
- * \c r stores the scalar value of the residual for the weak form of the PDE which is then used by the core assembly functions.
+ * The definition of the \c eval_residual function is postponed until the end of the file as it is lengthy.
+ * 
+ * For a complex problem like this example, where  it is convenient to unfold "c.val" and "u.val", "c.grad" and "u.grad", and "c.hess" and "u.hess" and put them into a single array, ui[]. 
  *
- * The following functions are available for the solution objects \c c and \c u,
- * where the argument is the field index, i.
+ * \skip ui[]=
+ * \until };
+ * 
+ * We do the same for previous solutions represented by ".valP", ".gradP", and ".hessP" as well as for the test functions "w1" and "w2" and produce arrays, u0[] and w[], respectively.
+ * 
+ * We then evaluate the residual vector at a given quadrature point (residual[]) using the declared function "eval_residual".
  *
- * \c c.val(i) - Value of scalar field i, scalar \n
- * \c c.grad(i) - Gradient of scalar field i, 1st order tensor \n
- * \c c.hess(i) - Hessian of scalar field i, 2nd order tensor \n
- * \c c.laplacian(i) - Laplacian of scalar field i, scalar \n
- * \c c.valP(i) - Value of scalar field i at previous time step, scalar \n
- * \c c.gradP(i) - Gradient of scalar field i at previous time step, 1st order tensor \n
- * \c c.hessP(i) - Hessian of scalar field i at previous time step, 2nd order tensor \n
- * \c c.laplacianP(i) - Laplacian of scalar field i at previous time step, scalar
+ * \skip T residual[
+ * \until eval
  *
- * \c u.val(i) - Value of vector field i, 1st order tensor \n
- * \c u.grad(i) - Gradient of vector field i, 2nd order tensor \n
- * \c u.hess(i) - Hessian of vector field i, 3rd order tensor \n
- * \c u.valP(i) - Value of vector field i at previous time step, 1st order tensor \n
- * \c u.gradP(i) - Gradient of vector field i at previous time step, 2nd order tensor \n
- * \c u.hessP(i) - Hessian of vector field i at previous time step, 3rd order tensor
+ * Finally, we multiply residual[] by test functions and form the integrand of the weak form at the given quadrature point. 
  *
- * Similar functions are available for the test functions. Also, the following tensor operations are useful:
+ * \skip r=0
+ * \until dV
  *
- * Tensor operations: \n
- * \c operator+ - tensor addition \n
- * \c operator- - tensor subraction \n
- * \c operator* - single contraction between tensors or scalar multiplication \n
- * \c double_contract - double contraction of two 2nd order tensors, or
- *                   a 4th order tensor and a 2nd order tensor. \n
- * \c trans( ) - transpose 2nd order tensor \n
- * \c trace( ) - trace of 2nd order tensor \n
- * \c det( ) - determinant of 2nd order tensor \n
- * \c inv( ) - inverse of 2nd order tensor \n
- *
- * The example code here implements the weak form for the Cahn-Hilliard equation, as shown above.
- *
- * First, we set the values for necessary parameters, using some predefined material parameters.
- *
- * \skip dt
- * \until tau
- *
- * Next, we get the values for the free energy derivative \f$f_{,cc}\f$  based on the current quadrature point.
- *
- * \skip f_cc;
- * \until f_cc =
- *
- * Now, we compute the residual in a manner very similar to the analytical form:
- *
- * \f{eqnarray*}{
- * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
- * M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
- * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
- *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
- * \f}
- *
- * \skip r =
- * \until //end
- *
- * Finally, we include a file that instatiates the template functions \c defineParameters and \c residual. This bit of code
- * will generally be the same for any problem (unless you decide to use a different automatic differentation library);
- * the user does not need to modify it.
- *
- * \line "userFunctionsInstantiation.h"
- *
- * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
- * these values can be changed without recompiling the code and it can provide a clean interface to the code.
- * \dontinclude CahnHilliard_oneSpecies/2D/parameters.prm
- *
- * The parameters defined in the parameters file overwrite any previous values defined in the \c defineParameters function.
- * Anything following the pound sign (#) is a comment. A parameter is defined using the syntax: 
- *
- * \c set \c parameterName \c = \c parameterValue
- *
- * There is a set list of variables that can be read from the parameters file. Anything else will be added to 
- * the \c matParam structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), 
- * where the number of components must equal the spatial dimension of the problem.
- *
- * In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:
- *
- * \skip dim
- * \until set N
- *
- * Next, we define some parameters that are specific to this problem,
- * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
- *
- * \skip Free energy
- * \until kappa
- *
- * We then define time stepping, restart information, output frequency, and spline parameters.
- *
- * \skip Time stepping
- * \until globalContinuity
- *
- * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
- *
- * The complete code
+ * A snippet of the code
  * ==============================
+ * 
+ * \dontinclude mechanoChemStab/userFunctions.cc
+ * \skip userFunctions.h
+ * \until comp[63]
  *
- * The \c parameters.prm file:
- * \include CahnHilliard_oneSpecies/2D/parameters.prm
  *
- * The \c userFunctions.cc source code:
- * \include CahnHilliard_oneSpecies/2D/userFunctions.cc
+ * 
  */

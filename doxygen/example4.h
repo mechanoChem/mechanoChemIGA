@@ -1,17 +1,42 @@
 /**
- * @page example4 Example 4 : Nongradient, finite strain mechanics
- * \dontinclude configurationalForces/bending2D/userFunctions.cc
+ * @page example4 Example 4 : Coupled Cahn-Hilliard/Allen-Cahn
+ * \dontinclude CahnHilliard_AllenCahn/2D/userFunctions.cc
  *
- * To model evolving material configurations with two displacment fields, we will specify the following through defining user functions: <br>
- * - Boundary conditions <br>
- * - Load stepping <br>
- * - Derived fields for output <br>
- * - Constitutive model <br>
+ * This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling,
+ * as described by the following weak form of the PDE. The two scalar fields are composition, \f$c\f$, and an order parameter, \f$\eta\f$).
+ * Note the application of the higher-order Dirichlet boundary conditions \f$\nabla c\cdot\boldsymbol{n}=0\f$
+ * and \f$\nabla \eta\cdot\boldsymbol{n}=0\f$ using Nitsche's method.
+ *
+ * Cahn-Hilliard:
+ *
+ * \f{eqnarray*}{
+ * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
+ * M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
+ * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
+ * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
+ *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
+ * \f}
+ *
+ * Allen-Cahn:
+ *
+ * \f{eqnarray*}{
+ * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
+ * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
+ * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
+ * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
+ * \f}
+ *
+ * Free energy density:
+ *
+ * \f{eqnarray*}{
+ * f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2
+ * \f}
+ *
+ * To implement this model, we will specify the following through defining user functions: <br>
+ * - Initial conditions <br>
+ * - Constitutive model (via free energy density functions) <br>
  * - Parameter values <br>
- * - Weak form of the PDE <br>
- *
- * See the paper "A variational treatment of material configurations with application to interface motion and microstructural evolution",
- * G. Teichert, et al. (Journal of the Mechanics and Physics of Solids, 2017).
+ * - Weak form of the PDEs <br>
  *
  * First, we include the header file declaring the required user functions. These functions will be defined in this file.
  *
@@ -21,82 +46,24 @@
  * redefined by the user using a function pointer.
  * This will be done in the \c defineParameters function. The available list of optional user functions includes:
  * \c boundaryConditions, \c scalarInitialConditions, \c vectorInitialConditions, \c loadStep, \c adaptiveTimeStep, and \c projectFields.
- * In this example, we redefine the \c boundaryConditions and \c projectFields functions, while using the default functions for the others.
+ * In this example, we redefine only the \c scalarInitialConditions function, while using the default functions for the others.
  *
- * <b> The \c boundaryConditions function </b>
+ * <b> The \c scalarInitialConditions function </b>
  *
- * This function defines Dirichlet boundary conditions using PetIGA's \c IGASetBoundaryValue function.
- * The arguments to this function are as follows: the iga object (user.iga),
- * the "axis" (0, 1, or 2, corresponding to the x, y, or z-axis),
- * the "side" (0 or 1), the "dof", and the "value" that is to be imposed.
- * Note that this can only set a uniform value for a degree-of-freedom on any side.
- * Here, we fix all displacements for both configurational and total displacement fields at x=0 (axis=0,side=0).
- * We also define vertical configurational and total displacements at x=10 (axis=0,side=1).
- * Note that the magnitude of the displacement is dependent on the \c scale parameter, which is defined in the next function, \c loadStep.
+ * We initialized the composition and order parameters fields to be random about 0.5.
  *
  * \skip template
  * \until //end
  *
- * <b> The \c loadStep function </b>
+ * <b> Free energy density derivative functions </b>
  *
- * This function allows us to update the \c scale parameter and call the \c boundaryConditions function with the updated value
- * at every time step. This is useful when the Dirichlet boundary condition is too large to allow convergence when applied all at once.
- * Here, the value for /scale is taken from the current "time".
- *
- * \skip template
- * \until //end
- *
- * <b> The \c projectFields function </b>
- *
- * If there are field values derived from the solution fields that are of interest, we can compute these
- * values at each quadrature point and project the value to the nodes. Here, we compute the value \c eta2,
- * which is a function of the configurational displacement that reflects the local rectangular variant of the crystal structure.
+ * This phase-field implementation requires several derivatives of the chemical free energy density function
+ * \f$f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2\f$. We define the functions computing
+ * \f$\partial f/\partial\eta\f$, \f$\partial^2 f/\partial c \partial c\f$, and \f$\partial^2 f/\partial\eta \partial c\f$ here.
+ * Note that these free energy derivative functions are used only in this file. They are not members of any class,
+ * nor will we use them to set any function pointers.
  *
  * \skip template
- * \until //end
- *
- * <b> The \c constitutiveModel function </b>
- *
- * This function defines the standard and configurational stresses, strain energy densities, and kinematic values that appear in the resiudal.
- * Note that it is used only in this file (by the \c residual functions),
- * so it is not a class member function nor does it have an associated function pointer.
- *
- * \skip template
- * \until solutionVectors
- *
- * The first part of this function computes variables associated with the standard strain energy density function \f$\psi^\mathrm{S}\f$:
- *
- * \f{eqnarray*}{
- * \boldsymbol{E} &=& \frac{1}{2}(\boldsymbol{F}^T\boldsymbol{F} - \mathbbm{1})\\
- * \alpha_I(\boldsymbol{\chi}) &=& \alpha\Lambda_I(\boldsymbol{\chi}), \, \Lambda_I^2 = \sum_{i=1}^3\chi_{iI}^2\\
- * \mathbb{C}(\boldsymbol{\chi}) &=& \beta(\mathbbm{1}\otimes\mathbbm{1}) + 2\mu\mathbb{I} +
- * \sum_{I=1}^3 \left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right)
- * \boldsymbol{e}_I\otimes \boldsymbol{e}_I\otimes\boldsymbol{e}_I\otimes \boldsymbol{e}_I\\
- * \psi^\mathrm{S} &=& \frac{1}{2} \boldsymbol{E}:\mathbb{C}(\boldsymbol{\chi}):\boldsymbol{E} \\
- * &=& \frac{1}{2}\left[\beta\mathrm{tr}(\boldsymbol{E})^2 + 2\mu(\boldsymbol{E}:\boldsymbol{E}) + 
- * \sum_{I=1}^3 E_{II}^2\left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right) \right]\\
- * \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} &=& 
- * \frac{1}{2} \sum_{I=1}^3 \frac{\alpha}{\Lambda_I}\boldsymbol{\chi}(\boldsymbol{e}_I\otimes \boldsymbol{e}_I) E_{II}^2
- * \f}
- *
- * \skip mu
- * \until trans(F)*P
- *
- * The second part computes variables associated with the material strain energy density function \f$\psi^\mathrm{M}\f$:
- *
- * \f{eqnarray*}{
- * \boldsymbol{\Theta} &=& \half(\boldsymbol{\chi}^T\boldsymbol{\chi} - \mathbbm{1})\\
- * \eta_1 &=& \Theta_{11} + \Theta_{22},\,
- * \eta_2 = \Theta_{11} - \Theta_{22},\,
- * \eta_6 = \Theta_{12}\\
- * \psi^\mathrm{M} &=& \frac{d}{s^2}\left(\eta_1^2 + \eta_6^2\right)
- * -\frac{2d}{s^2}\eta_2^2 + \frac{d}{s^4}\eta_2^4
- * + \frac{l^2d}{s^2}|\nabla^0 \eta_2|^2\\
- * \boldsymbol{D} &=& \frac{\partial \psi^\mathrm{M}}{\partial \boldsymbol{\chi}},\,
- * \boldsymbol{B} = \frac{\partial \psi^\mathrm{M}}{\partial \nabla^0\boldsymbol{\chi}}\\
- * \f}
- *
- * \skip Es
  * \until //end
  *
  * <b> The \c defineParameters function </b>
@@ -109,35 +76,47 @@
  * \skip template
  * \until void
  *
- * We define the mesh, domain, and total applied displacement.
+ * Here, we define the mesh by setting the number of elements in each direction, e.g. a 20x20 element mesh.
  *
  * \skip user.N[0]
- * \until user.uDirichlet
+ * \until user.N[1]
+ *
+ * We also define the dimensions of the domain, e.g. a unit square.
+ *
+ * \skip user.L[0]
+ * \until user.L[1]
+ *
+ * We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions.
+ * Here, we override the default and define periodicity in both the x and y directions.
+ *
+ * \skip user.periodic[0]
+ * \until user.periodic[1]
+ *
+ * We define the time step and total simulation time. We also have the options to use restart files, in which case
+ * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
+ * We also have the option to output results at regular intervals (e.g. every 5 time steps).
+ *
+ * \skip user.dtVal
+ * \until user.skipOutput
  *
  * We specify the number of vector and scalar solution and projection fields by adding the name of each field to
- * their respective vector. Here, we have two vector solution fields (the configurational displacement and total displacement) and one scalar projection field
- * (eta2). We do not use any scalar solution or vector projection fields in this example.
+ * their respective vector. Here, we have two scalar solution field (the composition and an order parameter).
+ * We do not use any vector solution fields or projection fields in this example.
  *
- * \skip Displacement
- * \until "eta2"
+ * \skip "c"
+ * \until "eta"
  * 
  * We can specify the polynomial order of the basis splines, as well as the global continuity.
  * Note that the global continuity must be less than the polynomial order.
- * Here, we use a quadratic basis function with C-1 continuity because of the gradient elasticity terms.
+ * Here, we use quadratic basis functions with C-1 global continuity.
  *
  * \skip polyOrder
  * \until globalContinuity
  *
- * We specify the value \c dtVal, which is a load step in this problem, as well as the \c totalTime, or total loading.
- * We can also specify a location (iteration number and time) to restart.
- *
- * \skip dtVal
- * \until RESTART_TIME
- *
- * Finally, we redirect the desired user function pointers to the \c boundaryConditions, \c projectFields, and \c loadStep functions that we
+ * Finally, we redirect the desired user function pointers to the \c scalarInitialConditions function that we
  * defined above. This completes the \c defineParameters function.
  *
- * \skip boundaryConditions
+ * \skip scalarInitialConditions
  * \until //end
  *
  * <b> The \c residual function </b>
@@ -145,23 +124,92 @@
  * The residual function defines the residual that is to be driven to zero.
  * This is the central function of the code.
  * It is set up to follow the analytical weak form of the PDE.
- * It has a number of arguments that give problem information at the current quadrature point
- * (see Example 1 and the documentation for the arguments' classes for further information).
- *
- * The example code here implements the following weak form (neglecting body force and traction boundary conditions):
- *
- * \f{eqnarray*}{
- * 0 &=& \int \limits_{{\Omega}_0} \nabla^0\nabla^0\boldsymbol{W}\,\vdots\,\boldsymbol{B} \,\mathrm{d}V_0+\\
- * &\phantom{=}& +\int \limits_{{\Omega}_0} \nabla^0\boldsymbol{W}:\left[\boldsymbol{D}+J_\chi\left(\mathcal{E} \boldsymbol{\chi}^{-T}
- *  + \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} \right) \right] \, \mathrm{d}V_0\\
- * &\phantom{=}& + \int \limits_{{\Omega}_0} \nabla^0\bar{\boldsybmol{w}}:\left(J_\chi\boldsymbol{P} \boldsymbol{\chi}^{-T} \right)
- *  \, \mathrm{d}V_0
- * \f}
- *
- * After calling the \c constitutiveModel function to compute the necessary values,
- * we compute the residual in a manner very similar to the analytical weak form:
+ * It has a number of arguments that give problem information at the current quadrature point.
  *
  * \skip template
+ * \until &r
+ *
+ * \c dV is a boolean, "true" if \c residual is being called for the volume integral and 
+ * "false" if \c residual is being called for the surface integral.\n
+ * \c dS is a boolean, "false" if \c residual is being called for the volume integral and 
+ * "true" if \c residual is being called for the surface integral.\n
+ * \c x gives the coordinates of the quadrature point.\n
+ * \c normal gives the unit normal for a surface quadrature point.\n
+ * \c c gives the information (values, gradients, etc.) for the scalar solution fields at the current quadrature point
+ * (see documentation for solutionScalars class).\n
+ * \c u gives the information (values, gradients, etc.) for the vector solution fields at the current quadrature point
+ * (see documentation for solutionVectors class).\n
+ * \c w1 gives the information for the scalar test functions.\n
+ * \c w2 gives the information for the vector test functions.\n
+ * \c user is a structure available for parameters related to the initial boundary value problem (e.g. elasticity tensor).\n
+ * \c r stores the scalar value of the residual for the weak form of the PDE which is then used by the core assembly functions.
+ *
+ * The following functions are available for the solution objects \c c and \c u,
+ * where the argument is the field index, i.
+ *
+ * \c c.val(i) - Value of scalar field i, scalar \n
+ * \c c.grad(i) - Gradient of scalar field i, 1st order tensor \n
+ * \c c.hess(i) - Hessian of scalar field i, 2nd order tensor \n
+ * \c c.laplacian(i) - Laplacian of scalar field i, scalar \n
+ * \c c.valP(i) - Value of scalar field i at previous time step, scalar \n
+ * \c c.gradP(i) - Gradient of scalar field i at previous time step, 1st order tensor \n
+ * \c c.hessP(i) - Hessian of scalar field i at previous time step, 2nd order tensor \n
+ * \c c.laplacianP(i) - Laplacian of scalar field i at previous time step, scalar
+ *
+ * \c u.val(i) - Value of vector field i, 1st order tensor \n
+ * \c u.grad(i) - Gradient of vector field i, 2nd order tensor \n
+ * \c u.hess(i) - Hessian of vector field i, 3rd order tensor \n
+ * \c u.valP(i) - Value of vector field i at previous time step, 1st order tensor \n
+ * \c u.gradP(i) - Gradient of vector field i at previous time step, 2nd order tensor \n
+ * \c u.hessP(i) - Hessian of vector field i at previous time step, 3rd order tensor
+ *
+ * Similar functions are available for the test functions. Also, the following tensor operations are useful:
+ *
+ * Tensor operations: \n
+ * \c operator+ - tensor addition \n
+ * \c operator- - tensor subraction \n
+ * \c operator* - single contraction between tensors or scalar multiplication \n
+ * \c double_contract - double contraction of two 2nd order tensors, or
+ *                   a 4th order tensor and a 2nd order tensor. \n
+ * \c trans( ) - transpose 2nd order tensor \n
+ * \c trace( ) - trace of 2nd order tensor \n
+ * \c det( ) - determinant of 2nd order tensor \n
+ * \c inv( ) - inverse of 2nd order tensor \n
+ *
+ * The example code here implements the weak form for the coupled Cahn-Hilliard and Allen-Cahn equations, as shown above.
+ *
+ * First, we set the values for necessary parameters.
+ *
+ * \skip dt
+ * \until tau
+ *
+ * Next, we get the values for the free energy derivatives \f$f_{,cc}\f$, \f$f_{,c\eta}\f$, and \f$f_{,\eta}\f$ based on the current quadrature point.
+ *
+ * \skip f_eta;
+ * \until f_eta =
+ *
+ * Now, we compute the residual in a manner very similar to the analytical form. First, the weak form of the Cahn-Hilliard equation:
+ *
+ * \f{eqnarray*}{
+ * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
+ * M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
+ * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
+ * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
+ *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
+ * \f}
+ *
+ * \skip r =
+ * \until tau
+ *
+ * And finally, the Allen-Cahn equation, which completes the residual function.
+ *
+ * \f{eqnarray*}{
+ * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
+ * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
+ * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
+ * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
+ * \f}
+ * \skip r +=
  * \until //end
  *
  * Finally, we include a file that instatiates the template functions \c defineParameters and \c residual. This bit of code
@@ -173,5 +221,5 @@
  * The complete code
  * ==============================
  *
- * \include configurationalForces/bending2D/userFunctions.cc
+ * \include CahnHilliard_AllenCahn/2D/userFunctions.cc
  */

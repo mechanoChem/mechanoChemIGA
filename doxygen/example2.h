@@ -1,36 +1,34 @@
 /**
- * @page example2 Example 2 : Coupled Cahn-Hilliard/Allen-Cahn
- * \dontinclude CahnHilliard_AllenCahn/2D/userFunctions.cc
+ * @page example2 Example 2 : Cahn-Hilliard (one species)
+ * \dontinclude CahnHilliard_oneSpecies/2D/userFunctions.cc
  *
- * This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling,
- * as described by the following weak form of the PDE. The two scalar fields are composition, \f$c\f$, and an order parameter, \f$\eta\f$).
- * Note the application of the higher-order Dirichlet boundary conditions \f$\nabla c\cdot\boldsymbol{n}=0\f$
- * and \f$\nabla \eta\cdot\boldsymbol{n}=0\f$ using Nitsche's method.
+ * This example implements the Cahn-Hilliard equation for phase-field modeling of a single species,
+ * as described by the following weak form of the PDE. The scalar field is composition, \f$c\f$.
+ * Note the application of the higher-order Dirichlet boundary condition \f$\nabla c\cdot\boldsymbol{n}=0\f$
+ * using Nitsche's method.
  *
  * Cahn-Hilliard:
  *
  * \f{eqnarray*}{
  * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
- * M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
+ * M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
  * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
  * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
  *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
  * \f}
  *
- * Allen-Cahn:
- *
- * \f{eqnarray*}{
- * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
- * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
- * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
- * \f}
- *
  * Free energy density:
  *
  * \f{eqnarray*}{
- * f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2
+ * f(c) = \alpha(c - c_a)^2(c - c_b)^2
  * \f}
+ *
+ * The current settings prescribe random initial conditions and zero-flux
+ * boundary conditions. With these settings, the following evolution 
+ * of the concentration is obtained:
+ *
+ * \htmlonly <style>div.image img[src="plots.png"]{width:20cm;}</style> \endhtmlonly
+ * @image html plots.png 
  *
  * To implement this model, we will specify the following through defining user functions: <br>
  * - Initial conditions <br>
@@ -50,18 +48,18 @@
  *
  * <b> The \c scalarInitialConditions function </b>
  *
- * We initialized the composition and order parameters fields to be random about 0.5.
+ * We initialized the composition field to be random about 0.5.
  *
  * \skip template
  * \until //end
  *
  * <b> Free energy density derivative functions </b>
  *
- * This phase-field implementation requires several derivatives of the chemical free energy density function
- * \f$f(c,\eta) = (c - 0.1)^2(c - 0.9)^2\eta + (\eta - 0.2)^2(\eta-0.8)^2\f$. We define the functions computing
- * \f$\partial f/\partial\eta\f$, \f$\partial^2 f/\partial c \partial c\f$, and \f$\partial^2 f/\partial\eta \partial c\f$ here.
- * Note that these free energy derivative functions are used only in this file. They are not members of any class,
- * nor will we use them to set any function pointers.
+ * This phase-field implementation requires the second derivative of the chemical free energy density function
+ * \f$f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2\f$. We define the function computing
+ * \f$\partial^2 f/\partial c \partial c\f$ here.
+ * Note that this free energy derivative function is used only in this file. It is not a member of any class,
+ * nor will we use it to set any function pointers.
  *
  * \skip template
  * \until //end
@@ -73,10 +71,12 @@
  * in the appCtx.h file. This function is used to define any values in \c user that will be needed in the problem.
  * It is also used to set any function pointers for user functions that we have redefined.
  *
+ * Many of these values can be overwritten by the parameters.prm file, which we will look at later.
+ *
  * \skip template
  * \until void
  *
- * Here, we define the mesh by setting the number of elements in each direction, e.g. a 20x20 element mesh.
+ * Here, we define the mesh by setting the number of elements in each direction, e.g. a 100x100 element mesh.
  *
  * \skip user.N[0]
  * \until user.N[1]
@@ -87,12 +87,18 @@
  * \until user.L[1]
  *
  * We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions.
- * Here, we override the default and define periodicity in both the x and y directions.
+ * Here, we override the default and define periodicity in both the x directions.
  *
- * \skip user.periodic[0]
- * \until user.periodic[1]
+ * \line user.periodic[0]
  *
- * We define the time step and total simulation time. We also have the options to use restart files, in which case
+ * We can define additional material parameters that are not explicity listed in the \c user structure by
+ * defining elements of the \c matParam C++ map, which maps \c std::string to \c double. These values can also be overwritten
+ * in the parameters file.
+ *
+ * \skip "inFlux"
+ * \until "c_b"
+ *
+ * We define the initial time step and total simulation time. We also have the options to use restart files, in which case
  * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
  * We also have the option to output results at regular intervals (e.g. every 5 time steps).
  *
@@ -100,11 +106,10 @@
  * \until user.skipOutput
  *
  * We specify the number of vector and scalar solution and projection fields by adding the name of each field to
- * their respective vector. Here, we have two scalar solution field (the composition and an order parameter).
+ * their respective vector. Here, we have one scalar solution field (the composition).
  * We do not use any vector solution fields or projection fields in this example.
  *
- * \skip "c"
- * \until "eta"
+ * \line "c"
  * 
  * We can specify the polynomial order of the basis splines, as well as the global continuity.
  * Note that the global continuity must be less than the polynomial order.
@@ -176,50 +181,74 @@
  * \c det( ) - determinant of 2nd order tensor \n
  * \c inv( ) - inverse of 2nd order tensor \n
  *
- * The example code here implements the weak form for the coupled Cahn-Hilliard and Allen-Cahn equations, as shown above.
+ * The example code here implements the weak form for the Cahn-Hilliard equation, as shown above.
  *
- * First, we set the values for necessary parameters.
+ * First, we set the values for necessary parameters, using some predefined material parameters.
  *
  * \skip dt
  * \until tau
  *
- * Next, we get the values for the free energy derivatives \f$f_{,cc}\f$, \f$f_{,c\eta}\f$, and \f$f_{,\eta}\f$ based on the current quadrature point.
+ * Next, we get the values for the free energy derivative \f$f_{,cc}\f$  based on the current quadrature point.
  *
- * \skip f_eta;
- * \until f_eta =
+ * \skip f_cc;
+ * \until f_cc =
  *
- * Now, we compute the residual in a manner very similar to the analytical form. First, the weak form of the Cahn-Hilliard equation:
+ * Now, we compute the residual in a manner very similar to the analytical form:
  *
  * \f{eqnarray*}{
  * 0 &=& \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + 
- * M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
+ * M\left(\nabla w_1\cdot(f_{,cc}\nabla c) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\
  * &\phantom{=}& - \int_{\partial\Omega} \left(w_1j_n + 
  * M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right)
  *  - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS
  * \f}
  *
  * \skip r =
- * \until tau
- *
- * And finally, the Allen-Cahn equation, which completes the residual function.
- *
- * \f{eqnarray*}{
- * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
- * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
- * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
- * \f}
- * \skip r +=
  * \until //end
  *
  * Finally, we include a file that instatiates the template functions \c defineParameters and \c residual. This bit of code
- * will generally be the same for any problem (unless you decide to use a different automatic differentation library),
+ * will generally be the same for any problem (unless you decide to use a different automatic differentation library);
  * the user does not need to modify it.
  *
  * \line "userFunctionsInstantiation.h"
  *
+ * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
+ * these values can be changed without recompiling the code and it can provide a clean interface to the code.
+ * \dontinclude CahnHilliard_oneSpecies/2D/parameters.prm
+ *
+ * The parameters defined in the parameters file overwrite any previous values defined in the \c defineParameters function.
+ * Anything following the pound sign (#) is a comment. A parameter is defined using the syntax: 
+ *
+ * \c set \c parameterName \c = \c parameterValue
+ *
+ * There is a set list of variables that can be read from the parameters file. Anything else will be added to 
+ * the \c matParam structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), 
+ * where the number of components must equal the spatial dimension of the problem.
+ *
+ * In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:
+ *
+ * \skip dim
+ * \until set N
+ *
+ * Next, we define some parameters that are specific to this problem,
+ * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
+ *
+ * \skip Free energy
+ * \until kappa
+ *
+ * We then define time stepping, restart information, output frequency, and spline parameters.
+ *
+ * \skip Time stepping
+ * \until globalContinuity
+ *
+ * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
+ *
  * The complete code
  * ==============================
  *
- * \include CahnHilliard_AllenCahn/2D/userFunctions.cc
+ * The \c parameters.prm file:
+ * \include CahnHilliard_oneSpecies/2D/parameters.prm
+ *
+ * The \c userFunctions.cc source code:
+ * \include CahnHilliard_oneSpecies/2D/userFunctions.cc
  */

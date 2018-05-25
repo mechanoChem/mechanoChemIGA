@@ -1,4 +1,4 @@
-<B>mechanoChem: Modeling solid mechanics, chemistry, and their interactions</B> <br>
+<B>mechanoChemIGA: Modeling solid mechanics, chemistry, and their interactions</B> <br>
 =======================================================================
 
 Developed by the Computational Physics Group at the University of Michigan. 
@@ -14,7 +14,7 @@ Krishna Garikipati <br>
 
 <B>Overview</B> <br>
 =======================================================================
-The mechanoChem code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/]. <br>
+The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/]. <br>
 
 
 <B>Version information</B>
@@ -24,7 +24,11 @@ This is version 0.2, the second release of the code. <br>
 
 <B>License</B>
 =======================================================================
-GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. <br>
+GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. Note that the functions IGAElementNextFormFunction and IGAComputeProjectionFunction in the file src/output.cc, as well as all functions 
+in the file src/petigasnes_mod.h were derived from the PetIGA/src/petigasnes.c source code
+in the PetIGA library [https://bitbucket.org/dalcinl/petiga/]. Accordingly,
+we include the license/copyright notice for the PetIGA library here in the file LICENSE_PetIGA 
+to apply to the above functions.<br>
 
 
 <B>Acknowledgements</B>

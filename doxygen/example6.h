@@ -1,28 +1,27 @@
 /**
- * @page example6 Example 6 : Unconditionally stable scheme for gradient elasticity
- * \dontinclude gradElastTime/userFunctions.cc
+ * @page example6 Example 6 : Gradient elasticity with periodic boundary conditions.
+ * \dontinclude gradElast/userFunctions.cc
  * As in previous examples, we include the header file declaring the required user functions.
  *
  * \line userFunction
  *
- * We define the initial conditions.
+ * Then, we define the initial condition.
  *
  * <b> The \c uinit function </b>
  *
- * The initial conditions for the vector field are defined for this example problem as following.  
+ * The initial condition for the vector field is defined for this example problem to introduce small perturbation as following.  
  *
  * \skip template
  * \until //end
  *
  * <b> The \c defineParameters function </b>
- *
- * We are going to use periodic boundary conditions, which can be set as:
+ * 
+ * Instead of applying Dirichlet boundary conditions, in this example, we apply periodic conditions as:
  *
  * \skip user.periodic[0]
  * \until user.periodic[2]
- *
- *
- * Here, we define the mesh by setting the number of elements in each direction, e.g. a 4x4x4 element mesh.
+ * 
+ * We also define the mesh as in other examples by setting the number of elements in each direction.
  *
  * \skip user.N[0]
  * \until user.N[2]
@@ -32,31 +31,27 @@
  * \skip user.L[0]
  * \until user.L[2]
  *
- * We specify the number of vector and scalar solution by adding the name of each field to
- * their respective vector. Here, we only have one vector solution field (the displacement).
+ * We specify the number of vector solution by adding the name of the field to a vector. 
  *
- * \skip "displacement"
- * \until "displacement"
+ * \line "displacement"
  * 
  * We also specify the polynomial order of the basis splines and the global continuity.
  * 
  * \skip polyOrder
  * \until globalContinuity
  *
- * We redirect the desired user function pointer to the \c uinit functions that we
- * defined above.
+ * We redirect the desired user function pointer \c uinit function that we defined above.
  *
- * \skip InitialConditions
- * \until = uinit
+ * \line InitialConditions
  *
- * Finally, we define various (9) material parameters that describe our gradient elasticity.
+ * Finally, we define various (9) material parameters that describe the gradient elasticity.
  *
  * \skip malloc
  * \until par_mat[8]
  *
  * <b> The \c residual function </b>
  *
- * The residual function for an unconditionally stable second-order scheme for gradient-elasticity is used in this example.
+ * The residual function for the gradient elasticity with periodic conditions is used in this example.
  *
  * We first declare \c "eval_residual" non-member function to be used in the member function, \c "residual".
  * 
@@ -65,12 +60,12 @@
  *
  * The definition of the \c eval_residual function is postponed until the end of the file as it is lengthy.
  * 
- * For a complex problem like this example, where  it is convenient to unfold "u.val", "u.grad", and "u.hess" and put them into a single array, ui[]. 
+ * It is convenient to unfold "u.val", "u.grad", and "u.hess" and put them into a single array, ui[]. 
  *
  * \skip ui[]=
  * \until };
  * 
- * We do the same for previous solutions represented by ".valP", ".gradP", and ".hessP", and ".valPP", ".gradPP", and ".hessPP" as well as for the test functions "w1" and "w2" and produce arrays, up[], upp[], and w[], respectively.
+ * We do the same for previous solutions represented by ".valP", ".gradP", and ".hessP" as well as for the test functions "w2" and produce arrays, u0[] and w[], respectively.
  * 
  * We then evaluate the residual vector at a given quadrature point (residual[]) using the declared function "eval_residual".
  *
@@ -82,12 +77,12 @@
  * \skip r=0
  * \until dV
  *
- * A snippet of the code
+ * The complete code
  * ==============================
  * 
- * \dontinclude gradElastTime/userFunctions.cc
+ * \dontinclude gradElast/userFunctions.cc
  * \skip userFunctions.h
- * \until comp+63
+ * \until "userFunctionsInstantiation.h"
  *
  *
  * 
