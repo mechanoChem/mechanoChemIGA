@@ -1,3 +1,14 @@
+/*
+Note that the functions IGAElementNextFormFunction and 
+IGAComputeProjectionFunction in the file src/output.cc, 
+as well as all functions in the file src/petigasnes_mod.h 
+were derived from the PetIGA/src/petigasnes.c source code
+in the PetIGA library [https://bitbucket.org/dalcinl/petiga/].
+Accordingly, we include the license/copyright notice for the 
+PetIGA library here in the file LICENSE_PetIGA to apply
+to the above functions.
+*/
+
 #ifndef PETIGASNES_MOD_H
 #define PETIGASNES_MOD_H
 
