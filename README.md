@@ -19,7 +19,7 @@ The mechanoChemIGA code is an isogeometric analysis based code used to solve the
 
 <B>Version information</B>
 =======================================================================
-This is version 0.21. <br>
+This is version 0.2.1. <br>
 
 
 <B>License</B>
