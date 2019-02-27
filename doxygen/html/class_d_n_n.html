@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -94,7 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="_d_n_n_8h_source.html">DNN.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="2_d__bsplines_2_d_n_n_8h_source.html">DNN.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -119,7 +119,76 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ac939ec4152f3a9a99aa3b9a259fe1d16">actFun2ndDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
 <tr class="separator:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aa00cf9fe7136a99de842ab4d7130b1bc">mult</a> (std::vector&lt; T &gt; &amp;z, const std::vector&lt; T &gt; &amp;a, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;<a class="el" href="class_d_n_n.html#a0f4fa0f26717e587a37f48362741be1b">weights</a>)</td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aa00cf9fe7136a99de842ab4d7130b1bc">mult</a> (std::vector&lt; T &gt; &amp;z, const std::vector&lt; T &gt; &amp;a, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;<a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">weights</a>)</td></tr>
+<tr class="separator:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a6032c2b0e0040f5d8b20eecdd3134226">DNN</a> ()</td></tr>
+<tr class="separator:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59ff681739cffcc0cc566bf0c605ca72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a59ff681739cffcc0cc566bf0c605ca72">reinit</a> (unsigned int nLayers)</td></tr>
+<tr class="separator:a59ff681739cffcc0cc566bf0c605ca72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aca71b02ab692a61c497d8bad6c919987">eval</a> (const std::vector&lt; T &gt; &amp;x, std::vector&lt; T &gt; &amp;y, std::vector&lt; std::vector&lt; T &gt; &gt; &amp;dy_dx, std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;ddy_dxdx)</td></tr>
+<tr class="separator:aca71b02ab692a61c497d8bad6c919987"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b65e3fd7d586ab16247e85529247455"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a1b65e3fd7d586ab16247e85529247455">readVector</a> (std::string filename, std::vector&lt; double &gt; &amp;vec)</td></tr>
+<tr class="separator:a1b65e3fd7d586ab16247e85529247455"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae776add3f31902d19c7b13b60adc8398"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ae776add3f31902d19c7b13b60adc8398">readMatrix</a> (std::string filename, std::vector&lt; std::vector&lt; double &gt; &gt; &amp;mat)</td></tr>
+<tr class="separator:ae776add3f31902d19c7b13b60adc8398"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a0d5a39eeed7c14788ee025099db0c2d3">actFun</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a99047da2a3e15f56ed59fef12edd03c7">actFunDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a99047da2a3e15f56ed59fef12edd03c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ac939ec4152f3a9a99aa3b9a259fe1d16">actFun2ndDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aa00cf9fe7136a99de842ab4d7130b1bc">mult</a> (std::vector&lt; T &gt; &amp;z, const std::vector&lt; T &gt; &amp;a, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;<a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">weights</a>)</td></tr>
+<tr class="separator:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a6032c2b0e0040f5d8b20eecdd3134226">DNN</a> ()</td></tr>
+<tr class="separator:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59ff681739cffcc0cc566bf0c605ca72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a59ff681739cffcc0cc566bf0c605ca72">reinit</a> (unsigned int nLayers)</td></tr>
+<tr class="separator:a59ff681739cffcc0cc566bf0c605ca72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aca71b02ab692a61c497d8bad6c919987">eval</a> (const std::vector&lt; T &gt; &amp;x, std::vector&lt; T &gt; &amp;y, std::vector&lt; std::vector&lt; T &gt; &gt; &amp;dy_dx, std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;ddy_dxdx)</td></tr>
+<tr class="separator:aca71b02ab692a61c497d8bad6c919987"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b65e3fd7d586ab16247e85529247455"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a1b65e3fd7d586ab16247e85529247455">readVector</a> (std::string filename, std::vector&lt; double &gt; &amp;vec)</td></tr>
+<tr class="separator:a1b65e3fd7d586ab16247e85529247455"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae776add3f31902d19c7b13b60adc8398"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ae776add3f31902d19c7b13b60adc8398">readMatrix</a> (std::string filename, std::vector&lt; std::vector&lt; double &gt; &gt; &amp;mat)</td></tr>
+<tr class="separator:ae776add3f31902d19c7b13b60adc8398"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a0d5a39eeed7c14788ee025099db0c2d3">actFun</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a99047da2a3e15f56ed59fef12edd03c7">actFunDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a99047da2a3e15f56ed59fef12edd03c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ac939ec4152f3a9a99aa3b9a259fe1d16">actFun2ndDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aa00cf9fe7136a99de842ab4d7130b1bc">mult</a> (std::vector&lt; T &gt; &amp;z, const std::vector&lt; T &gt; &amp;a, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;<a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">weights</a>)</td></tr>
+<tr class="separator:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a6032c2b0e0040f5d8b20eecdd3134226">DNN</a> ()</td></tr>
+<tr class="separator:a6032c2b0e0040f5d8b20eecdd3134226"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59ff681739cffcc0cc566bf0c605ca72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a59ff681739cffcc0cc566bf0c605ca72">reinit</a> (unsigned int nLayers)</td></tr>
+<tr class="separator:a59ff681739cffcc0cc566bf0c605ca72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aca71b02ab692a61c497d8bad6c919987"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aca71b02ab692a61c497d8bad6c919987">eval</a> (const std::vector&lt; T &gt; &amp;x, std::vector&lt; T &gt; &amp;y, std::vector&lt; std::vector&lt; T &gt; &gt; &amp;dy_dx, std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;ddy_dxdx)</td></tr>
+<tr class="separator:aca71b02ab692a61c497d8bad6c919987"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b65e3fd7d586ab16247e85529247455"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a1b65e3fd7d586ab16247e85529247455">readVector</a> (std::string filename, std::vector&lt; double &gt; &amp;vec)</td></tr>
+<tr class="separator:a1b65e3fd7d586ab16247e85529247455"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae776add3f31902d19c7b13b60adc8398"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ae776add3f31902d19c7b13b60adc8398">readMatrix</a> (std::string filename, std::vector&lt; std::vector&lt; double &gt; &gt; &amp;mat)</td></tr>
+<tr class="separator:ae776add3f31902d19c7b13b60adc8398"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a0d5a39eeed7c14788ee025099db0c2d3">actFun</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a0d5a39eeed7c14788ee025099db0c2d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a99047da2a3e15f56ed59fef12edd03c7"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a99047da2a3e15f56ed59fef12edd03c7">actFunDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:a99047da2a3e15f56ed59fef12edd03c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#ac939ec4152f3a9a99aa3b9a259fe1d16">actFun2ndDer</a> (std::vector&lt; T &gt; &amp;a, const std::vector&lt; T &gt; &amp;z)</td></tr>
+<tr class="separator:ac939ec4152f3a9a99aa3b9a259fe1d16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#aa00cf9fe7136a99de842ab4d7130b1bc">mult</a> (std::vector&lt; T &gt; &amp;z, const std::vector&lt; T &gt; &amp;a, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;<a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">weights</a>)</td></tr>
 <tr class="separator:aa00cf9fe7136a99de842ab4d7130b1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -128,14 +197,83 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ac300fff701746f5dd17d3ff3f6cb915d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84192d18fd3386d8f14a90a5d29f144b"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a84192d18fd3386d8f14a90a5d29f144b">n_features</a></td></tr>
 <tr class="separator:a84192d18fd3386d8f14a90a5d29f144b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ab257067d287c935a7b39b0d2664027"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector<br class="typebreak"/>
-&lt; double &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a9ab257067d287c935a7b39b0d2664027">bias</a></td></tr>
-<tr class="separator:a9ab257067d287c935a7b39b0d2664027"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f4fa0f26717e587a37f48362741be1b"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector<br class="typebreak"/>
-&lt; std::vector&lt; double &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a0f4fa0f26717e587a37f48362741be1b">weights</a></td></tr>
-<tr class="separator:a0f4fa0f26717e587a37f48362741be1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a129dcb394689dffd449c68bc4160a019"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector<br class="typebreak"/>
+&lt; double &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a129dcb394689dffd449c68bc4160a019">bias</a></td></tr>
+<tr class="separator:a129dcb394689dffd449c68bc4160a019"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0086350b8d60de346808f8a48f251433"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::vector<br class="typebreak"/>
+&lt; std::vector&lt; double &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">weights</a></td></tr>
+<tr class="separator:a0086350b8d60de346808f8a48f251433"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a6032c2b0e0040f5d8b20eecdd3134226"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_d_n_n.html">DNN</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6032c2b0e0040f5d8b20eecdd3134226"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_d_n_n.html">DNN</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6032c2b0e0040f5d8b20eecdd3134226"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_d_n_n.html">DNN</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a6032c2b0e0040f5d8b20eecdd3134226"></a>
 <div class="memitem">
 <div class="memproto">
@@ -186,12 +324,246 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a0d5a39eeed7c14788ee025099db0c2d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0d5a39eeed7c14788ee025099db0c2d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0d5a39eeed7c14788ee025099db0c2d3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ac939ec4152f3a9a99aa3b9a259fe1d16"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void actFun2ndDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac939ec4152f3a9a99aa3b9a259fe1d16"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun2ndDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac939ec4152f3a9a99aa3b9a259fe1d16"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun2ndDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac939ec4152f3a9a99aa3b9a259fe1d16"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFun2ndDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a99047da2a3e15f56ed59fef12edd03c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFunDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a99047da2a3e15f56ed59fef12edd03c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFunDer </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a99047da2a3e15f56ed59fef12edd03c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void actFunDer </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
           <td class="paramname"><em>a</em>, </td>
@@ -276,6 +648,120 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aca71b02ab692a61c497d8bad6c919987"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eval </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; T &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>dy_dx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ddy_dxdx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aca71b02ab692a61c497d8bad6c919987"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eval </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; T &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>dy_dx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ddy_dxdx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aca71b02ab692a61c497d8bad6c919987"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eval </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; T &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>dy_dx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; std::vector&lt; T &gt; &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>ddy_dxdx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="aa00cf9fe7136a99de842ab4d7130b1bc"></a>
 <div class="memitem">
 <div class="memproto">
@@ -297,6 +783,128 @@ Public Attributes</h2></td></tr>
           <td></td>
           <td class="paramtype">const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
           <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa00cf9fe7136a99de842ab4d7130b1bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mult </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa00cf9fe7136a99de842ab4d7130b1bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mult </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa00cf9fe7136a99de842ab4d7130b1bc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mult </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>weights</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae776add3f31902d19c7b13b60adc8398"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readMatrix </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>mat</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -342,6 +950,84 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae776add3f31902d19c7b13b60adc8398"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readMatrix </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>mat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae776add3f31902d19c7b13b60adc8398"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readMatrix </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; std::vector&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramname"><em>mat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1b65e3fd7d586ab16247e85529247455"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readVector </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a1b65e3fd7d586ab16247e85529247455"></a>
 <div class="memitem">
 <div class="memproto">
@@ -376,6 +1062,106 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a1b65e3fd7d586ab16247e85529247455"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readVector </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1b65e3fd7d586ab16247e85529247455"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void readVector </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a59ff681739cffcc0cc566bf0c605ca72"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void reinit </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>nLayers</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a59ff681739cffcc0cc566bf0c605ca72"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void reinit </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>nLayers</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a59ff681739cffcc0cc566bf0c605ca72"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void reinit </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>nLayers</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a59ff681739cffcc0cc566bf0c605ca72"></a>
 <div class="memitem">
 <div class="memproto">
@@ -401,12 +1187,12 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a9ab257067d287c935a7b39b0d2664027"></a>
+<a class="anchor" id="a129dcb394689dffd449c68bc4160a019"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;std::vector&lt;double&gt; &gt; bias</td>
+          <td class="memname">std::vector&lt; std::vector&lt; double &gt; &gt; bias</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -437,20 +1223,23 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a0f4fa0f26717e587a37f48362741be1b"></a>
+<a class="anchor" id="a0086350b8d60de346808f8a48f251433"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;std::vector&lt;std::vector&lt;double&gt; &gt; &gt; weights</td>
+          <td class="memname">std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; weights</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li>initBounValProbs/CahnHilliard_AllenCahn/2D_DNN/<a class="el" href="_d_n_n_8h_source.html">DNN.h</a></li>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>initBounValProbs/CahnHilliard_AllenCahn/2D_bsplines/<a class="el" href="2_d__bsplines_2_d_n_n_8h_source.html">DNN.h</a></li>
+<li>initBounValProbs/CahnHilliard_AllenCahn/2D_DNN/<a class="el" href="2_d___d_n_n_2_d_n_n_8h_source.html">DNN.h</a></li>
+<li>initBounValProbs/CahnHilliard_AllenCahn/2D_DNN2/<a class="el" href="2_d___d_n_n2_2_d_n_n_8h_source.html">DNN.h</a></li>
+<li>initBounValProbs/CahnHilliard_AllenCahn/2D_DNN_AC/<a class="el" href="2_d___d_n_n___a_c_2_d_n_n_8h_source.html">DNN.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

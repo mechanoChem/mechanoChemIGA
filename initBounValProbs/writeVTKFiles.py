@@ -6,6 +6,11 @@ import itertools
 import scipy.io
 import os, sys
 
+if len(sys.argv) > 1:
+    bound = int(sys.argv[1])
+else:
+    bound = 0
+
 scalars = dict()
 vectors = dict()
 
@@ -42,21 +47,24 @@ inc=1;
 if (nPrjtnScalars + nPrjtnVectors > 0):
     for filename1, filename2 in zip(glob.glob('outU*.dat'), glob.glob('outE*.dat')):
 
-        filename2= "outE" + filename1.split(".")[0][4:] + ".dat"
-        outname = "out" + filename1.split(".")[0][4:] + ".vtk"
-        sol2 = PetIGA().read_vec(filename1,geom)
-        sol1 = PetIGA().read_vec(filename2,geom)
-        if (sol1.ndim == dim):
-            sol1 = np.expand_dims(sol1, axis=dim)
-        if (sol2.ndim == dim):
-            sol2 = np.expand_dims(sol2, axis=dim)
-        sol=np.concatenate((sol1,sol2),axis=dim);
-        nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
-        VTK().write(outname,nrb,scalars=scalars,vectors=vectors)
+        if int(filename1.split(".")[0][4:]) >= bound:
+            filename2= "outE" + filename1.split(".")[0][4:] + ".dat"
+            outname = "out" + filename1.split(".")[0][4:] + ".vtk"
+            sol2 = PetIGA().read_vec(filename1,geom)
+            sol1 = PetIGA().read_vec(filename2,geom)
+            if (sol1.ndim == dim):
+                sol1 = np.expand_dims(sol1, axis=dim)
+            if (sol2.ndim == dim):
+                sol2 = np.expand_dims(sol2, axis=dim)
+            sol=np.concatenate((sol1,sol2),axis=dim);
+            nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
+            VTK().write(outname,nrb,scalars=scalars,vectors=vectors)
+
 else:
     for filename in glob.glob('outU*.dat'):
-
-        outname = "out" + filename.split(".")[0][4:] + ".vtk"
-        sol = PetIGA().read_vec(filename,geom)
-        nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
-        VTK().write(outname,nrb,scalars=scalars,vectors=vectors)
+        
+        if int(filename.split(".")[0][4:]) >= bound:
+            outname = "out" + filename.split(".")[0][4:] + ".vtk"
+            sol = PetIGA().read_vec(filename,geom)
+            nrb=NURBS(geom.knots, (geom.points,geom.weights),sol)
+            VTK().write(outname,nrb,scalars=scalars,vectors=vectors)

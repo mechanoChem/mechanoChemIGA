@@ -52,7 +52,9 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   PetscViewerCreate(PETSC_COMM_WORLD, &viewer);
   PetscViewerSetType(viewer, PETSCVIEWERASCII);
   PetscViewerFileSetMode(viewer, FILE_MODE_WRITE);
-  PetscViewerFileSetName(viewer, "fieldInfo.txt");
+  char filename[256];
+  sprintf(filename,"%s/fieldInfo.txt",user.outputDir.c_str(),user.RESTART_IT);
+  PetscViewerFileSetName(viewer, filename);
   PetscViewerASCIIPrintf(viewer, "%d",DIM);
   PetscViewerASCIIPrintf(viewer, "\n%d",nScalars);
   for(unsigned int i=0; i<nScalars; ++i){
@@ -98,13 +100,13 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
     ierr = FormInitialCondition(user.iga, *user.Up, &user);CHKERRQ(ierr);
 
     char meshfilename[256];
-    sprintf(meshfilename, "mesh.dat");
+    sprintf(meshfilename, "%s/mesh.dat",user.outputDir.c_str());
     PetscPrintf(PETSC_COMM_WORLD,"\nWriting mesh file: %s\n", meshfilename);
     ierr = IGAWrite(user.iga, meshfilename);CHKERRQ(ierr);
   }
   else{
     char filename[256];
-    sprintf(filename,"outU%d.dat",user.RESTART_IT);  
+    sprintf(filename,"%s/outU%d.dat",user.outputDir.c_str(),user.RESTART_IT);  
     ierr = IGAReadVec(user.iga,*user.Up,filename);CHKERRQ(ierr); //Read in vector to restart at step RESTART_IT
   }
 
@@ -137,9 +139,15 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   ierr = KSPSetType(ksp,"preonly");
   ierr = PCSetType(pc,"lu");
   ierr = PCFactorSetMatSolverPackage(pc,"superlu_dist");
+  //ierr = PCFactorSetMatSolverType(pc,"superlu_dist"); //Changed name with petsc 3.9
+  //PetscPrintf(PETSC_COMM_WORLD,"\nUsing superlu_dist\n");
 #else
   ierr = KSPSetType(ksp,"gmres");
+  //PetscPrintf(PETSC_COMM_WORLD,"\nUsing gmres\n");
 #endif
+  //MatSolverType stype;
+  //PCFactorGetMatSolverType(pc,&stype);
+  //PetscPrintf(PETSC_COMM_WORLD,"\nUsing %s\n",stype);
 
   ierr = SNESSetFromOptions(snes);CHKERRQ(ierr);
 

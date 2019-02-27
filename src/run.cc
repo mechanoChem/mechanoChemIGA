@@ -35,13 +35,15 @@ PetscErrorCode Run(){
     //Start putting in some infrastructure for adaptive time stepping...
     if(n_iter < 10 && conv_reason > 0){
       //If converged fast enough, move on
-      if(n_iter < 3){
+      if(n_iter < 4){//3){//4){//3){
 	counter++;
 	//If converged fast, keep track of it
-	if(counter >= 5){
+	if(counter >= 5){//3){//5){
 	  //If converged really fast for multiple iterations, scale up time step
-	  PetscPrintf(PETSC_COMM_WORLD,"Doubling time step...\n");
-	  user.dt *= 2.;
+	  //PetscPrintf(PETSC_COMM_WORLD,"Doubling time step...\n");
+	  //user.dt *= 2.;
+	  PetscPrintf(PETSC_COMM_WORLD,"Increasing time step...\n");
+	  user.dt *= std::pow(2.,1./3.);
 	  counter = 0;
 	}
       }
@@ -54,6 +56,9 @@ PetscErrorCode Run(){
       //If it didn't converge fast enough, scale back time step and try again.
       PetscPrintf(PETSC_COMM_WORLD,"Halving time step and trying again...\n");
       user.dt *= 0.5;
+      counter = 0;
+      //PetscPrintf(PETSC_COMM_WORLD,"Decreasing time step and trying again...\n");
+      //user.dt /= std::pow(2.,1./3.);
       //Reset the current to the previous converged U
       ierr = VecCopy(*user.Up, *user.U);CHKERRQ(ierr);
     }

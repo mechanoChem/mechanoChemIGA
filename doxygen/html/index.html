@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -94,10 +94,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </p>
 <h1><b>Overview</b> <br/>
  </h1>
-<p>The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [<a href="https://trilinos.org/packages/sacado/">https://trilinos.org/packages/sacado/</a>]. <br/>
+<p>The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>] and PETSc [<a href="https://www.mcs.anl.gov/petsc/">https://www.mcs.anl.gov/petsc/</a>] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilinos library [<a href="https://trilinos.github.io/">https://trilinos.github.io/</a>]. <br/>
 </p>
 <h1><b>Version information</b> </h1>
-<p>This is version 0.2, the second release of the code. <br/>
+<p>This is version 0.2.2. <br/>
 </p>
 <h1><b>License</b> </h1>
 <p>GNU Lesser General Public License (LGPL). Please see the file LICENSE for details. Note that the functions IGAElementNextFormFunction and IGAComputeProjectionFunction in the file src/output.cc, as well as all functions in the file src/petigasnes_mod.h were derived from the PetIGA/src/petigasnes.c source code in the PetIGA library [<a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a>]. Accordingly, we include the license/copyright notice for the PetIGA library here in the file LICENSE_PetIGA to apply to the above functions.<br/>
@@ -156,43 +156,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   Doi                      = {10.1038/npjcompumats.2016.12}
 }
 </pre><h1><b>Installation</b> </h1>
+<p>A Dockerfile is included that creates a Docker image with all necessary libraries in an Ubuntu environment. Alternative installation instructions are as follows:</p>
 <p>1) Install PETSc: <br/>
 </p>
 <p>-Download and extract PETSc source code. <br/>
  -Quick installation as follows (the symbol $ denotes the command prompt): <br/>
  </p>
-<pre class="fragment">$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich
+<pre class="fragment">$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich  --download-metis --download-parmetis --download-superlu_dist
 $ make all test
 </pre><p>-Set the appropriate PETSC_DIR and PETSC_ARCH environment variables, e.g. <br/>
  </p>
-<pre class="fragment">$ export PETSC_DIR=/path/to/petsc-3.6.4
+<pre class="fragment">$ export PETSC_DIR=/path/to/petsc-3.8.3
 $ export PETSC_ARch=arch-linux2-c-debug
 </pre><p>Note that this also installs mpich. It is possible to use an existing version of mpi by including a flag to its directory. If you will be using the local PETSc installation of mpich, set the following: </p>
 <pre class="fragment">$ alias mpirun=$PETSC_DIR/$PETSC_ARCH/bin/mpirun
-</pre><p>If you would like to use a parallel direct solver, we recommend using superlu_dist. Add the following flags when configuring PETSc: &ndash;download-metis &ndash;download-parmetis &ndash;download-superlu_dist <br/>
-</p>
-<p>Download: <a href="http://www.mcs.anl.gov/petsc/download/index.html">http://www.mcs.anl.gov/petsc/download/index.html</a> <br/>
+</pre><p>Download: <a href="https://bitbucket.org/petsc/petsc/get/v3.8.3.tar.gz">https://bitbucket.org/petsc/petsc/get/v3.8.3.tar.gz</a> <br/>
  Installation instructions: <a href="http://www.mcs.anl.gov/petsc/documentation/installation.html">http://www.mcs.anl.gov/petsc/documentation/installation.html</a> <br/>
 </p>
 <p>2) Install PetIGA: <br/>
 </p>
-<p>-Download and extract or clone the PetIGA source code. <br/>
-</p>
-<p>-Enter the PetIGA top directory and install using make: <br/>
+<p>-Clone the PetIGA source code (confirmed to work with the mechanoChemIGA code at commit 5ecf484). <br/>
+ -Enter the PetIGA top directory and install using make: <br/>
  </p>
-<pre class="fragment">$ make all
+<pre class="fragment">$ git clone https://bitbucket.org/dalcinl/PetIGA.git
+$ cd PetIGA
+$ git reset --hard 5ecf484
+$ make all
 $ make test
 </pre><p>-Export path to PetIGA directory: <br/>
  </p>
 <pre class="fragment">$ export PETIGA_DIR=/path/to/petiga/
-</pre><p>Download: <a href="https://bitbucket.org/dalcinl/petiga/downloads">https://bitbucket.org/dalcinl/petiga/downloads</a> (or clone the bitbucket repository) <br/>
- Installation instructions: <a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a> <br/>
+</pre><p>Installation instructions: <a href="https://bitbucket.org/dalcinl/petiga/">https://bitbucket.org/dalcinl/petiga/</a> <br/>
 </p>
 <p>3) Install CMake: <br/>
 </p>
 <p>Download: <a href="https://cmake.org/download/">https://cmake.org/download/</a> <br/>
 </p>
-<p>4) Install the Sacado package from Trilinos (version 11.10.2 recommended) <br/>
+<p>4) Install the Sacado package from Trilinos (version 11.8.1 recommended) <br/>
 </p>
 <p>-Download and extract or clone the Trilinos source code. <br/>
  -Simple installation of Sacado as follows (from the Trilinos top directory), with the desire /path/to/trilinos/installation/: <br/>
@@ -204,11 +204,11 @@ $ make install
 </pre><p>-Export path to Trilinos: <br/>
  </p>
 <pre class="fragment">$ export TRILINOS_DIR=/path/to/trilinos/installation/
-</pre><p>Download: <a href="http://trilinos.org/oldsite/download/">http://trilinos.org/oldsite/download/</a> <br/>
- Installation instructions: <a href="https://trilinos.org/docs/files/TrilinosBuildReference.html">https://trilinos.org/docs/files/TrilinosBuildReference.html</a> <br/>
+</pre><p>Download: <a href="http://trilinos.csbsju.edu/download/files/trilinos-11.8.1-Source.tar.gz">http://trilinos.csbsju.edu/download/files/trilinos-11.8.1-Source.tar.gz</a> <br/>
 </p>
-<p>5) Install igakit (required to convert binary output files to .vtk files)</p>
-<p>Download and installation instructions: <a href="https://bitbucket.org/dalcinl/igakit">https://bitbucket.org/dalcinl/igakit</a></p>
+<p>5) Install igakit (required to convert binary output files to .vtk files; also requires numpy and scipy) </p>
+<pre class="fragment">$ pip install https://bitbucket.org/dalcinl/igakit/get/default.tar.gz
+</pre><p>Download and installation instructions: <a href="https://bitbucket.org/dalcinl/igakit">https://bitbucket.org/dalcinl/igakit</a></p>
 <h1><b>Usage</b> </h1>
 <p>To run the example initial boundary value problems, navigate to the desired example folder. Create a makefile using cmake: <br/>
  </p>

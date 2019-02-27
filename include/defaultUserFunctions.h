@@ -25,7 +25,7 @@
  */
 
 template<unsigned int dim>
-double scalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, const AppCtx<dim> &user){
+double scalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user){
   return 0;
 }
 
@@ -38,7 +38,7 @@ double scalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scala
  */
 
 template<unsigned int dim>
-Tensor<1,dim,double> vectorInitialConditions(const Tensor<1,dim,double> &x, unsigned int vector_i, const AppCtx<dim> &user){
+Tensor<1,dim,double> vectorInitialConditions(const Tensor<1,dim,double> &x, unsigned int vector_i, AppCtx<dim> &user){
   Tensor<1,dim,double> tmp;
   return tmp;
 };

@@ -10,6 +10,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <random>
+#include <stdio.h>
 
 //Forward declaration of structure
 template<unsigned int DIM>
@@ -25,13 +27,13 @@ using BCFunction = void(*)(AppCtx<dim>&, double);
  * Function pointer definition for user initial conditions for scalar fields
  */
 template<unsigned int dim>
-using scalarICFunction = double(*)(const Tensor<1,dim,double>&, unsigned int, const AppCtx<dim>&);
+using scalarICFunction = double(*)(const Tensor<1,dim,double>&, unsigned int, AppCtx<dim>&);
 
 /**
  * Function pointer definition for user initial conditions for vector fields
  */
 template<unsigned int dim>
-using vectorICFunction = Tensor<1,dim,double>(*)(const Tensor<1,dim,double> &x, unsigned int vector_i, const AppCtx<dim> &user);
+using vectorICFunction = Tensor<1,dim,double>(*)(const Tensor<1,dim,double> &x, unsigned int vector_i, AppCtx<dim> &user);
 
 /**
  * Function pointer definition for user load stepping definition
@@ -205,8 +207,18 @@ struct AppCtx{
    */
   std::map<std::string,PetscReal> matParam;
 
+  /**
+   * Void pointer available for additional user objects.
+   */
+  void *parameters;
+  void *parameters2;
 
   double *par_mat;
+
+  /**
+   * Object for random number generation
+   */
+  std::mt19937 gen;
 
   /**
    * Pointer to function setting Dirichlet boundary conditions.

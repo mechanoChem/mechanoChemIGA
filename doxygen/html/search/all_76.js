@@ -7,8 +7,8 @@ var searchData=
   ['valuep',['valueP',['../classsolution_scalars.html#a282617fc83912347bc9487767cdb571f',1,'solutionScalars::valueP()'],['../classsolution_vectors.html#aaaccd426280c311cea1904b102c4f479',1,'solutionVectors::valueP()']]],
   ['valuepp',['valuePP',['../classsolution_scalars.html#a08ce8fe730933b96b2d227cbbbc631a2',1,'solutionScalars::valuePP()'],['../classsolution_vectors.html#ad2ca2db59e477e5d30dbd9a2de32a89a',1,'solutionVectors::valuePP()']]],
   ['vector',['VECTOR',['../core_functions_8h.html#ae2c3e99c22ce037f68e9b19bfd9c6de2a1a85ef13eaa80e8561743892f9dba958',1,'coreFunctions.h']]],
-  ['vectoricfunction',['vectorICFunction',['../app_ctx_8h.html#a4240844075d3df5883c8a36a0511cd18',1,'appCtx.h']]],
-  ['vectorinitialconditions',['vectorInitialConditions',['../struct_app_ctx.html#a2575f8ef3d910701696ec41b0b6b2aca',1,'AppCtx::vectorInitialConditions()'],['../group__user_functions.html#ga0a141dd91a5f62dd4cd2ad387bc70f1f',1,'vectorInitialConditions():&#160;defaultUserFunctions.h']]],
+  ['vectoricfunction',['vectorICFunction',['../app_ctx_8h.html#a88bfb6273f85a78954de085e7a9cb02c',1,'appCtx.h']]],
+  ['vectorinitialconditions',['vectorInitialConditions',['../struct_app_ctx.html#a2575f8ef3d910701696ec41b0b6b2aca',1,'AppCtx::vectorInitialConditions()'],['../group__user_functions.html#gac3c9dadedbc328dc0a3006f072b08a55',1,'vectorInitialConditions():&#160;defaultUserFunctions.h']]],
   ['vectorprojectnfields',['vectorProjectnFields',['../struct_app_ctx.html#a1aad5b1f120463c83d39e7c8b0bc0523',1,'AppCtx']]],
   ['vectorsolnfields',['vectorSolnFields',['../struct_app_ctx.html#ae171e542b477f3394601555549b7d3a8',1,'AppCtx']]]
 ];

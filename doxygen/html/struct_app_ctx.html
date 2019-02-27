@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -161,13 +161,17 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a36448fa26553468f32e3cab046566bea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6c752a4c1c05c1fbd5623711f467712"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#ae6c752a4c1c05c1fbd5623711f467712">parameters</a></td></tr>
 <tr class="separator:ae6c752a4c1c05c1fbd5623711f467712"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3818d1cb13efe646544e17d750c24bd8"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a3818d1cb13efe646544e17d750c24bd8">parameters2</a></td></tr>
+<tr class="separator:a3818d1cb13efe646544e17d750c24bd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82c1e8d8aca14b5512f031c55284da3e"><td class="memItemLeft" align="right" valign="top">double *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a82c1e8d8aca14b5512f031c55284da3e">par_mat</a></td></tr>
 <tr class="separator:a82c1e8d8aca14b5512f031c55284da3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab577cbc7a7051e1bcf60c2c1797a0feb"><td class="memItemLeft" align="right" valign="top">std::mt19937&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#ab577cbc7a7051e1bcf60c2c1797a0feb">gen</a></td></tr>
+<tr class="separator:ab577cbc7a7051e1bcf60c2c1797a0feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86be433132a33a67de55e6b137326c16"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a5f15093cf5427bfb2fd3033d31df7a88">BCFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a></td></tr>
 <tr class="separator:a86be433132a33a67de55e6b137326c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a4f8fca81419b6f43a612a72ed0a989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a1c10bdd26a018f5f5adf127bb84d68d0">scalarICFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a></td></tr>
+<tr class="memitem:a4a4f8fca81419b6f43a612a72ed0a989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a5d9f27a2031043e19e4fe2dc0b697b70">scalarICFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a></td></tr>
 <tr class="separator:a4a4f8fca81419b6f43a612a72ed0a989"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2575f8ef3d910701696ec41b0b6b2aca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a4240844075d3df5883c8a36a0511cd18">vectorICFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a2575f8ef3d910701696ec41b0b6b2aca">vectorInitialConditions</a></td></tr>
+<tr class="memitem:a2575f8ef3d910701696ec41b0b6b2aca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a88bfb6273f85a78954de085e7a9cb02c">vectorICFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#a2575f8ef3d910701696ec41b0b6b2aca">vectorInitialConditions</a></td></tr>
 <tr class="separator:a2575f8ef3d910701696ec41b0b6b2aca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc53c98a6b7d83305e474238bc3d9f51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="app_ctx_8h.html#a853d9f9a115257472a5fd014902c8863">LSFunction</a>&lt; DIM &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_app_ctx.html#abc53c98a6b7d83305e474238bc3d9f51">loadStep</a></td></tr>
 <tr class="separator:abc53c98a6b7d83305e474238bc3d9f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -281,6 +285,19 @@ struct AppCtx&lt; DIM &gt;</h3>
       </table>
 </div><div class="memdoc">
 <p>Initial time step value. Can be used or modified in the adaptiveTimeStep user function. Defaults to 1. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab577cbc7a7051e1bcf60c2c1797a0feb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::mt19937 gen</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Object for random number generation </p>
 
 </div>
 </div>
@@ -426,6 +443,18 @@ struct AppCtx&lt; DIM &gt;</h3>
 
 </div>
 </div>
+<a class="anchor" id="a3818d1cb13efe646544e17d750c24bd8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* parameters2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ac77e8a2af239ac3f36a49dfc69ad5c69"></a>
 <div class="memitem">
 <div class="memproto">
@@ -496,7 +525,7 @@ struct AppCtx&lt; DIM &gt;</h3>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="app_ctx_8h.html#a1c10bdd26a018f5f5adf127bb84d68d0">scalarICFunction</a>&lt;DIM&gt; scalarInitialConditions</td>
+          <td class="memname"><a class="el" href="app_ctx_8h.html#a5d9f27a2031043e19e4fe2dc0b697b70">scalarICFunction</a>&lt;DIM&gt; scalarInitialConditions</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -639,7 +668,7 @@ struct AppCtx&lt; DIM &gt;</h3>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="app_ctx_8h.html#a4240844075d3df5883c8a36a0511cd18">vectorICFunction</a>&lt;DIM&gt; vectorInitialConditions</td>
+          <td class="memname"><a class="el" href="app_ctx_8h.html#a88bfb6273f85a78954de085e7a9cb02c">vectorICFunction</a>&lt;DIM&gt; vectorInitialConditions</td>
         </tr>
       </table>
 </div><div class="memdoc">

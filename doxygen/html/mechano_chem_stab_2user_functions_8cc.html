@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -101,12 +101,12 @@ Functions</h2></td></tr>
 <tr class="memitem:acaf804e621998c5c9794a46d3212afbb"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
 <tr class="memitem:acaf804e621998c5c9794a46d3212afbb"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#acaf804e621998c5c9794a46d3212afbb">boundaryConditions</a> (<a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user, double scale)</td></tr>
 <tr class="separator:acaf804e621998c5c9794a46d3212afbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0bb1116c7e522e4d1cf7da2ea630f754"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
-<tr class="memitem:a0bb1116c7e522e4d1cf7da2ea630f754"><td class="memTemplItemLeft" align="right" valign="top">double&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#a0bb1116c7e522e4d1cf7da2ea630f754">cmuinit</a> (const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int scalar_i, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
-<tr class="separator:a0bb1116c7e522e4d1cf7da2ea630f754"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abcbefadcb243aba989e58eecc666db51"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
-<tr class="memitem:abcbefadcb243aba989e58eecc666db51"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#abcbefadcb243aba989e58eecc666db51">uinit</a> (const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
-<tr class="separator:abcbefadcb243aba989e58eecc666db51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c482707eb09fb858419dc6abc2f977"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
+<tr class="memitem:a19c482707eb09fb858419dc6abc2f977"><td class="memTemplItemLeft" align="right" valign="top">double&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#a19c482707eb09fb858419dc6abc2f977">cmuinit</a> (const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int scalar_i, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
+<tr class="separator:a19c482707eb09fb858419dc6abc2f977"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ca0a7a3f9c72487ef7525398cbaca2d"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
+<tr class="memitem:a6ca0a7a3f9c72487ef7525398cbaca2d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#a6ca0a7a3f9c72487ef7525398cbaca2d">uinit</a> (const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
+<tr class="separator:a6ca0a7a3f9c72487ef7525398cbaca2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31a2f2e526abaf0b8a00c2623e14f22e"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
 <tr class="memitem:a31a2f2e526abaf0b8a00c2623e14f22e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="mechano_chem_stab_2user_functions_8cc.html#a31a2f2e526abaf0b8a00c2623e14f22e">projectFields</a> (const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;normal, const <a class="el" href="classsolution_scalars.html">solutionScalars</a>&lt; dim, double &gt; &amp;c, const <a class="el" href="classsolution_vectors.html">solutionVectors</a>&lt; dim, double &gt; &amp;u, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user, std::vector&lt; double &gt; &amp;scalarProjections, std::vector&lt; <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &gt; &amp;vectorProjections)</td></tr>
 <tr class="separator:a31a2f2e526abaf0b8a00c2623e14f22e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -141,7 +141,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a0bb1116c7e522e4d1cf7da2ea630f754"></a>
+<a class="anchor" id="a19c482707eb09fb858419dc6abc2f977"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -160,7 +160,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;&#160;</td>
           <td class="paramname"><em>user</em>&#160;</td>
         </tr>
         <tr>
@@ -267,7 +267,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="abcbefadcb243aba989e58eecc666db51"></a>
+<a class="anchor" id="a6ca0a7a3f9c72487ef7525398cbaca2d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -286,7 +286,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;&#160;</td>
           <td class="paramname"><em>user</em>&#160;</td>
         </tr>
         <tr>

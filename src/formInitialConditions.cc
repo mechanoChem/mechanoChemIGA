@@ -10,7 +10,11 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx<DIM> *user)
 {	
   PetscErrorCode ierr;
   PetscFunctionBegin;
-  srand(5);
+
+  int myrank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+  srand(myrank);
+
   DM da;
   unsigned int nSclrs = user->scalarSolnFields.size(), nVctrs = user->vectorSolnFields.size();
   PetscInt dof = nSclrs + DIM*nVctrs;

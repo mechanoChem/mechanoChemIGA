@@ -4,8 +4,8 @@
  *
  * This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling,
  * as described by the following weak form of the PDE. The two scalar fields are composition, \f$c\f$, and an order parameter, \f$\eta\f$).
- * Note the application of the higher-order Dirichlet boundary conditions \f$\nabla c\cdot\boldsymbol{n}=0\f$
- * and \f$\nabla \eta\cdot\boldsymbol{n}=0\f$ using Nitsche's method.
+ * Note the application of the higher-order Dirichlet boundary condition \f$\nabla c\cdot\boldsymbol{n}=0\f$
+ *  using Nitsche's method.
  *
  * Cahn-Hilliard:
  *
@@ -21,9 +21,7 @@
  *
  * \f{eqnarray*}{
  * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
- * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
- * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
+ * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV
  * \f}
  *
  * Free energy density:
@@ -205,9 +203,7 @@
  *
  * \f{eqnarray*}{
  * 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + 
- * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\
- * &\phantom{=}& - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n})
- * - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS
+ * L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV
  * \f}
  * \skip r +=
  * \until //end

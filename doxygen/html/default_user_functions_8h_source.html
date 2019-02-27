@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -119,7 +119,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"> */</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="group__user_functions.html#ga7102baed4fa989fbcea6e495ee890d7e">   28</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="group__user_functions.html#ga7102baed4fa989fbcea6e495ee890d7e">scalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user){</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="group__user_functions.html#ga4bb6b6363788ea6d3af2c543955ee029">   28</a></span>&#160;<span class="keywordtype">double</span> <a class="code" href="group__user_functions.html#ga4bb6b6363788ea6d3af2c543955ee029">scalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user){</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;}</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment"></span></div>
@@ -132,7 +132,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"> */</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="group__user_functions.html#ga0a141dd91a5f62dd4cd2ad387bc70f1f">   41</a></span>&#160;<a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> <a class="code" href="group__user_functions.html#ga0a141dd91a5f62dd4cd2ad387bc70f1f">vectorInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> vector_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user){</div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="group__user_functions.html#gac3c9dadedbc328dc0a3006f072b08a55">   41</a></span>&#160;<a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> <a class="code" href="group__user_functions.html#gac3c9dadedbc328dc0a3006f072b08a55">vectorInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> vector_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user){</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> tmp;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordflow">return</span> tmp;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
@@ -206,9 +206,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor">#endif //defaultUserFunctions_h</span></div>
-<div class="ttc" id="group__user_functions_html_ga0a141dd91a5f62dd4cd2ad387bc70f1f"><div class="ttname"><a href="group__user_functions.html#ga0a141dd91a5f62dd4cd2ad387bc70f1f">vectorInitialConditions</a></div><div class="ttdeci">Tensor&lt; 1, dim, double &gt; vectorInitialConditions(const Tensor&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, const AppCtx&lt; dim &gt; &amp;user)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:41</div></div>
+<div class="ttc" id="group__user_functions_html_gac3c9dadedbc328dc0a3006f072b08a55"><div class="ttname"><a href="group__user_functions.html#gac3c9dadedbc328dc0a3006f072b08a55">vectorInitialConditions</a></div><div class="ttdeci">Tensor&lt; 1, dim, double &gt; vectorInitialConditions(const Tensor&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, AppCtx&lt; dim &gt; &amp;user)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:41</div></div>
 <div class="ttc" id="solution_class_8h_html"><div class="ttname"><a href="solution_class_8h.html">solutionClass.h</a></div></div>
-<div class="ttc" id="struct_app_ctx_html"><div class="ttname"><a href="struct_app_ctx.html">AppCtx</a></div><div class="ttdef"><b>Definition:</b> appCtx.h:16</div></div>
+<div class="ttc" id="struct_app_ctx_html"><div class="ttname"><a href="struct_app_ctx.html">AppCtx</a></div><div class="ttdef"><b>Definition:</b> appCtx.h:18</div></div>
+<div class="ttc" id="group__user_functions_html_ga4bb6b6363788ea6d3af2c543955ee029"><div class="ttname"><a href="group__user_functions.html#ga4bb6b6363788ea6d3af2c543955ee029">scalarInitialConditions</a></div><div class="ttdeci">double scalarInitialConditions(const Tensor&lt; 1, dim, double &gt; &amp;x, unsigned int scalar_i, AppCtx&lt; dim &gt; &amp;user)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:28</div></div>
 <div class="ttc" id="classsolution_scalars_html"><div class="ttname"><a href="classsolution_scalars.html">solutionScalars</a></div><div class="ttdef"><b>Definition:</b> solutionClass.h:11</div></div>
 <div class="ttc" id="group__user_functions_html_ga31a2f2e526abaf0b8a00c2623e14f22e"><div class="ttname"><a href="group__user_functions.html#ga31a2f2e526abaf0b8a00c2623e14f22e">projectFields</a></div><div class="ttdeci">void projectFields(const Tensor&lt; 1, dim, double &gt; &amp;x, const Tensor&lt; 1, dim, double &gt; &amp;normal, const solutionScalars&lt; dim, double &gt; &amp;c, const solutionVectors&lt; dim, double &gt; &amp;u, AppCtx&lt; dim &gt; &amp;user, std::vector&lt; double &gt; &amp;scalarProjections, std::vector&lt; Tensor&lt; 1, dim, double &gt; &gt; &amp;vectorProjections)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:105</div></div>
 <div class="ttc" id="tensor_8h_html"><div class="ttname"><a href="tensor_8h.html">tensor.h</a></div></div>
@@ -218,7 +219,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="ttc" id="class_tensor_html"><div class="ttname"><a href="class_tensor.html">Tensor</a></div><div class="ttdef"><b>Definition:</b> tensor.h:10</div></div>
 <div class="ttc" id="classsolution_vectors_html"><div class="ttname"><a href="classsolution_vectors.html">solutionVectors</a></div><div class="ttdef"><b>Definition:</b> solutionClass.h:221</div></div>
 <div class="ttc" id="app_ctx_8h_html"><div class="ttname"><a href="app_ctx_8h.html">appCtx.h</a></div></div>
-<div class="ttc" id="group__user_functions_html_ga7102baed4fa989fbcea6e495ee890d7e"><div class="ttname"><a href="group__user_functions.html#ga7102baed4fa989fbcea6e495ee890d7e">scalarInitialConditions</a></div><div class="ttdeci">double scalarInitialConditions(const Tensor&lt; 1, dim, double &gt; &amp;x, unsigned int scalar_i, const AppCtx&lt; dim &gt; &amp;user)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:28</div></div>
 <div class="ttc" id="group__user_functions_html_gacaf804e621998c5c9794a46d3212afbb"><div class="ttname"><a href="group__user_functions.html#gacaf804e621998c5c9794a46d3212afbb">boundaryConditions</a></div><div class="ttdeci">void boundaryConditions(AppCtx&lt; dim &gt; &amp;user, double scale)</div><div class="ttdef"><b>Definition:</b> defaultUserFunctions.h:60</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

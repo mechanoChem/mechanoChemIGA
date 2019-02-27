@@ -1,7 +1,7 @@
 #include "userFunctions.h"
 
 template<unsigned int dim>
-double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, const AppCtx<dim> &user)
+double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
 {
 
   switch(scalar_i) {
@@ -72,7 +72,7 @@ void residual(bool dV,
   double jn = 0;
   double M = .1, L = 2.; //Mobility
   double kappa1 = .0005, kappa2 = .0005;
-  double tau = 10./user.N[1];
+  double tau = 0.1*user.N[0]/user.L[0];
   
   //Get chemical potential and derivatives
   T f_cc, f_ceta, f_eta;
@@ -89,12 +89,9 @@ void residual(bool dV,
   r += -M*kappa1*( c.laplacian(0)*(w1.grad(0)*normal) + w1.laplacian(0)*(c.grad(0)*normal) )*dS;
   r += tau*(w1.grad(0)*normal)*(c.grad(0)*normal)*dS;
   
-  //Allen-Cahn with Nitche's method
+  //Allen-Cahn
   r += ( w1.val(1)*(c.val(1) - c.valP(1))/dt )*dV;
   r += L*( w1.val(1)*f_eta + kappa2*(w1.grad(1)*c.grad(1)) )*dV;
-
-  r += -L*kappa2*( w1.val(1)*(c.grad(1)*normal) + c.val(1)*(w1.grad(1)*normal) )*dS;
-  r += tau*(w1.grad(1)*normal)*(c.grad(1)*normal)*dS;
   
 } //end residual
 

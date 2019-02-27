@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -143,7 +143,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><b> The <code>projectFields</code> function </b></p>
 <p>If there are field values derived from the solution fields that are of interest, we can compute these values at each quadrature point and project the value to the nodes. Here, we compute the value <code>eta2</code>, which is a function of the configurational displacement that reflects the local rectangular variant of the crystal structure.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,double&gt;</a> &amp;c,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,double&gt;</a> &amp;u,</div>
@@ -282,7 +282,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>boundaryConditions</code>, <code>projectFields</code>, and <code>loadStep</code> functions that we defined above. This completes the <code>defineParameters</code> function.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#abc53c98a6b7d83305e474238bc3d9f51">loadStep</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#a8c6455f643420f5e3fe10b14cf625e42">userLoadStep</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
@@ -358,7 +358,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">} <span class="comment">//end loadStep</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,double&gt;</a> &amp;c,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,double&gt;</a> &amp;u,</div>
@@ -482,7 +482,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a6d5465cb515bc053db8785edd2e1b21b">RESTART_TIME</a> = 0.;</div>
 <div class="line">  </div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#abc53c98a6b7d83305e474238bc3d9f51">loadStep</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d___d_n_n_2user_functions_8cc.html#a8c6455f643420f5e3fe10b14cf625e42">userLoadStep</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>

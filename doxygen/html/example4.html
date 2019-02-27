@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -82,14 +82,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Example 4 : Coupled Cahn-Hilliard/Allen-Cahn </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling, as described by the following weak form of the PDE. The two scalar fields are composition, <img class="formulaInl" alt="$c$" src="form_5.png"/>, and an order parameter, <img class="formulaInl" alt="$\eta$" src="form_6.png"/>). Note the application of the higher-order Dirichlet boundary conditions <img class="formulaInl" alt="$\nabla c\cdot\boldsymbol{n}=0$" src="form_7.png"/> and <img class="formulaInl" alt="$\nabla \eta\cdot\boldsymbol{n}=0$" src="form_8.png"/> using Nitsche's method.</p>
+<div class="textblock"><p>This example implements the coupled Cahn-Hilliard and Allen-Cahn equations for phase-field modeling, as described by the following weak form of the PDE. The two scalar fields are composition, <img class="formulaInl" alt="$c$" src="form_5.png"/>, and an order parameter, <img class="formulaInl" alt="$\eta$" src="form_6.png"/>). Note the application of the higher-order Dirichlet boundary condition <img class="formulaInl" alt="$\nabla c\cdot\boldsymbol{n}=0$" src="form_7.png"/> using Nitsche's method.</p>
 <p>Cahn-Hilliard:</p>
 <p class="formulaDsp">
 <img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_1\frac{c - c_{prev}}{\mathrm{d}t} + M\left(\nabla w_1\cdot(f_{,cc}\nabla c + f_{,c\eta}\nabla\eta) + \kappa_1\nabla^2 w_1\nabla^2 c\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(w_1j_n + M\kappa_1\left(\nabla^2c(\nabla w_1\cdot\boldsymbol{n}) + \nabla^2w_1(\nabla c\cdot\boldsymbol{n})\right) - \tau(\nabla w_1\cdot\boldsymbol{n})(\nabla c\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_9.png"/>
 </p>
 <p>Allen-Cahn:</p>
 <p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n}) - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_10.png"/>
+<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV \end{eqnarray*}" src="form_42.png"/>
 </p>
 <p>Free energy density:</p>
 <p class="formulaDsp">
@@ -114,7 +114,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><b> The <code>scalarInitialConditions</code> function </b></p>
 <p>We initialized the composition and order parameters fields to be random about 0.5.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
+<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
 <div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
@@ -175,7 +175,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 </div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>scalarInitialConditions</code> function that we defined above. This completes the <code>defineParameters</code> function.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>;</div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
 </div><!-- fragment --></p>
@@ -234,7 +234,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  <span class="keywordtype">double</span> jn = 0;</div>
 <div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
 <div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
-<div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
+<div class="line">  <span class="keywordtype">double</span> tau = 0.1*user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0]/user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0];</div>
 </div><!-- fragment --></p>
 <p>Next, we get the values for the free energy derivatives <img class="formulaInl" alt="$f_{,cc}$" src="form_16.png"/>, <img class="formulaInl" alt="$f_{,c\eta}$" src="form_17.png"/>, and <img class="formulaInl" alt="$f_{,\eta}$" src="form_18.png"/> based on the current quadrature point.</p>
 <p><div class="fragment"><div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>, f_ceta, f_eta;</div>
@@ -256,13 +256,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></p>
 <p>And finally, the Allen-Cahn equation, which completes the residual function.</p>
 <p class="formulaDsp">
-<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV\\ &amp;\phantom{=}&amp; - \int_{\partial\Omega} \left(L\kappa_2(w_2\nabla \eta\cdot\boldsymbol{n} + \eta\nabla w_2\cdot\boldsymbol{n}) - \tau(\nabla w_2\cdot\boldsymbol{n})(\nabla \eta\cdot\boldsymbol{n})\right) dS \end{eqnarray*}" src="form_10.png"/>
+<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV \end{eqnarray*}" src="form_42.png"/>
 </p>
 <p> <div class="fragment"><div class="line">  r += ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(1))/dt )*dV;</div>
 <div class="line">  r += L*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*f_eta + kappa2*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)) )*dV;</div>
-<div class="line"></div>
-<div class="line">  r += -L*kappa2*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal) + c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal) )*dS;</div>
-<div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal)*dS;</div>
 <div class="line">  </div>
 <div class="line">} <span class="comment">//end residual</span></div>
 </div><!-- fragment --></p>
@@ -273,7 +270,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
+<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
 <div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
@@ -323,7 +320,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 2;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 <div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
 <div class="line"></div>
@@ -344,7 +341,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  <span class="keywordtype">double</span> jn = 0;</div>
 <div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
 <div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
-<div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
+<div class="line">  <span class="keywordtype">double</span> tau = 0.1*user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0]/user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0];</div>
 <div class="line">  </div>
 <div class="line">  <span class="comment">//Get chemical potential and derivatives</span></div>
 <div class="line">  T <a class="code" href="_cahn_hilliard__three_species_22_d_2user_functions_8cc.html#a48e1cebb1cd842b281918561f3d74e71">f_cc</a>, f_ceta, f_eta;</div>
@@ -361,12 +358,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  r += -M*kappa1*( c.<a class="code" href="classsolution_scalars.html#aaede18812f64934bc57ba259320d1240">laplacian</a>(0)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal) + w1.<a class="code" href="classtest_function_scalars.html#a97d1e6abaec05fc0971181ad38af50fd">laplacian</a>(0)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal) )*dS;</div>
 <div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(0)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(0)*normal)*dS;</div>
 <div class="line">  </div>
-<div class="line">  <span class="comment">//Allen-Cahn with Nitche&#39;s method</span></div>
+<div class="line">  <span class="comment">//Allen-Cahn</span></div>
 <div class="line">  r += ( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1) - c.<a class="code" href="classsolution_scalars.html#aa4c4b85dc344e177b1cbeca4bd59f0e8">valP</a>(1))/dt )*dV;</div>
 <div class="line">  r += L*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*f_eta + kappa2*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)) )*dV;</div>
-<div class="line"></div>
-<div class="line">  r += -L*kappa2*( w1.<a class="code" href="classtest_function_scalars.html#ad76f9644680c80e6602ccf460600b3a3">val</a>(1)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal) + c.<a class="code" href="classsolution_scalars.html#aad0d4f18ccffe03f32a1ac985eb3b3d8">val</a>(1)*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal) )*dS;</div>
-<div class="line">  r += tau*(w1.<a class="code" href="classtest_function_scalars.html#a40dbbf7383a6a9471d897f455405315d">grad</a>(1)*normal)*(c.<a class="code" href="classsolution_scalars.html#a94a7f34ce00b9f6c3584756b185b320b">grad</a>(1)*normal)*dS;</div>
 <div class="line">  </div>
 <div class="line">} <span class="comment">//end residual</span></div>
 <div class="line"></div>

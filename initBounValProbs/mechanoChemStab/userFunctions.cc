@@ -13,12 +13,12 @@ void boundaryConditions(AppCtx<dim>& user, double scale){
 } //end boundaryConditions
 
 template<unsigned int dim>
-double cmuinit(const Tensor<1,dim,double> &x, unsigned int scalar_i, const AppCtx<dim> &user){
+double cmuinit(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user){
   if (scalar_i==0) { return 0.48; } else { return 0.0; }
 }; //end cmuinit
 
 template<unsigned int dim>
-Tensor<1,dim,double> uinit(const Tensor<1,dim,double> &x, unsigned int vector_i, const AppCtx<dim> &user){
+Tensor<1,dim,double> uinit(const Tensor<1,dim,double> &x, unsigned int vector_i, AppCtx<dim> &user){
   Tensor<1,dim,double> tmp; 
   for (int i=0; i<dim; i++) tmp[i]=0.0;
   return tmp;

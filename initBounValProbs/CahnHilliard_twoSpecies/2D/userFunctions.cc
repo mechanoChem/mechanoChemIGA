@@ -1,7 +1,7 @@
 #include "userFunctions.h"
 
 template<unsigned int dim>
-double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, const AppCtx<dim> &user)
+double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
 {
 
   switch(scalar_i) {
@@ -69,7 +69,7 @@ void residual(bool dV,
   double jn1 = 0, jn2 = 0;
   double M = .1, L = 2.; //Mobility
   double kappa1 = .0005, kappa2 = .0005;
-  double tau = 10./user.N[1];
+  double tau = 0.1*(user.N[0]/user.L[0]);
   
   //Get chemical potential and derivatives
   T f_c1c1, f_c1c2, f_c2c2;

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -110,7 +110,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><b> The <code>scalarInitialConditions</code> function </b></p>
 <p>We initialized the two composition fields to be random about 0.5.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
+<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
 <div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
@@ -168,7 +168,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 </div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>scalarInitialConditions</code> function that we defined above. This completes the <code>defineParameters</code> function.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>;</div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
 </div><!-- fragment --></p>
@@ -227,7 +227,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  <span class="keywordtype">double</span> jn1 = 0, jn2 = 0;</div>
 <div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
 <div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
-<div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
+<div class="line">  <span class="keywordtype">double</span> tau = 0.1*(user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0]/user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0]);</div>
 </div><!-- fragment --></p>
 <p>Next, we get the values for the free energy derivatives based on the current quadrature point.</p>
 <p><div class="fragment"><div class="line">  T f_c1c1, f_c1c2, f_c2c2;</div>
@@ -313,7 +313,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <span class="keyword">const</span> <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
+<div class="line"><span class="keywordtype">double</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> scalar_i, <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user)</div>
 <div class="line">{</div>
 <div class="line"></div>
 <div class="line">  <span class="keywordflow">switch</span>(scalar_i) {</div>
@@ -360,7 +360,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 2;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 <div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a6a9af0112a47a492b0c5c6381c4a675c">userScalarInitialConditions</a>;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989">scalarInitialConditions</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d_2user_functions_8cc.html#a360bfcfddf6eb0952d9904c883f3f741">userScalarInitialConditions</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
 <div class="line"></div>
@@ -381,7 +381,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  <span class="keywordtype">double</span> jn1 = 0, jn2 = 0;</div>
 <div class="line">  <span class="keywordtype">double</span> M = .1, L = 2.; <span class="comment">//Mobility</span></div>
 <div class="line">  <span class="keywordtype">double</span> kappa1 = .0005, kappa2 = .0005;</div>
-<div class="line">  <span class="keywordtype">double</span> tau = 10./user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1];</div>
+<div class="line">  <span class="keywordtype">double</span> tau = 0.1*(user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0]/user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0]);</div>
 <div class="line">  </div>
 <div class="line">  <span class="comment">//Get chemical potential and derivatives</span></div>
 <div class="line">  T f_c1c1, f_c1c2, f_c2c2;</div>

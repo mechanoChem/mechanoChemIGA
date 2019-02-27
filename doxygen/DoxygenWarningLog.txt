@@ -3,7 +3,10 @@ void defineParameters(AppCtx< dim > &user)
 Possible candidates:
  'void defineParameters(AppCtx< dim > &user)' at line 35 of file/home/greght/Research/mechanoChemistry/include/userFunctions.h
  'void defineParameters(AppCtx< dim > &user)' at line 31 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 76 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 94 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_bsplines/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 109 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 106 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN2/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 52 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN_AC/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 20 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 34 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_oneSpecies/2D_TiO/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 190 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D/userFunctions.cc
@@ -12,6 +15,8 @@ Possible candidates:
  'void defineParameters(AppCtx< dim > &user)' at line 86 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_varFlux/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 163 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_variableM/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 31 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 233 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D_TiO/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 219 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D_TiSiO/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 139 of file/home/greght/Research/mechanoChemistry/initBounValProbs/configurationalForces/bending2D/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 25 of file/home/greght/Research/mechanoChemistry/initBounValProbs/gradElast/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 25 of file/home/greght/Research/mechanoChemistry/initBounValProbs/gradElastTime/userFunctions.cc

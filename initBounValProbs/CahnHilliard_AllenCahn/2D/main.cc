@@ -11,8 +11,8 @@
 
 int main(int argc, char *argv[]) {
  
-  struct timespec start, finish;
-  clock_gettime(CLOCK_MONOTONIC, &start);
+  //struct timespec start, finish;
+  //clock_gettime(CLOCK_MONOTONIC, &start);
 
   PetscErrorCode  ierr;
   ierr = PetscInitialize(&argc,&argv,0,0);CHKERRQ(ierr);
@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
   const unsigned int dim = 2;
   ierr = Run<dim>();CHKERRQ(ierr);
 
-  clock_gettime(CLOCK_MONOTONIC, &finish);
-  double elapsed = finish.tv_sec + 1.e-9*finish.tv_nsec - start.tv_sec - 1.e-9*start.tv_nsec;
+  //clock_gettime(CLOCK_MONOTONIC, &finish);
+  //double elapsed = finish.tv_sec + 1.e-9*finish.tv_nsec - start.tv_sec - 1.e-9*start.tv_nsec;
 
-  PetscPrintf(PETSC_COMM_WORLD,"Time elapsed: %f s\n",elapsed);
+  //PetscPrintf(PETSC_COMM_WORLD,"Time elapsed: %f s\n",elapsed);
 
   ierr = PetscFinalize();CHKERRQ(ierr);
 

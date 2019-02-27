@@ -1,7 +1,7 @@
 #include "userFunctions.h"
 
 template<unsigned int dim>
-Tensor<1,dim,double> uinit(const Tensor<1,dim,double> &x, unsigned int vector_i, const AppCtx<dim> &user){
+Tensor<1,dim,double> uinit(const Tensor<1,dim,double> &x, unsigned int vector_i, AppCtx<dim> &user){
   Tensor<1,dim,double> tmp; 
   for (int i=0; i<dim; i++) 
   {

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -101,6 +101,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;map&gt;</code><br/>
 <code>#include &lt;string&gt;</code><br/>
 <code>#include &lt;vector&gt;</code><br/>
+<code>#include &lt;random&gt;</code><br/>
+<code>#include &lt;stdio.h&gt;</code><br/>
 </div>
 <p><a href="app_ctx_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -116,12 +118,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a5f15093cf5427bfb2fd3033d31df7a88"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
 <tr class="memitem:a5f15093cf5427bfb2fd3033d31df7a88"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a5f15093cf5427bfb2fd3033d31df7a88">BCFunction</a> = void(*)(<a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;, double)</td></tr>
 <tr class="separator:a5f15093cf5427bfb2fd3033d31df7a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c10bdd26a018f5f5adf127bb84d68d0"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
-<tr class="memitem:a1c10bdd26a018f5f5adf127bb84d68d0"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a1c10bdd26a018f5f5adf127bb84d68d0">scalarICFunction</a> = double(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;, unsigned int, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;)</td></tr>
-<tr class="separator:a1c10bdd26a018f5f5adf127bb84d68d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4240844075d3df5883c8a36a0511cd18"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
-<tr class="memitem:a4240844075d3df5883c8a36a0511cd18"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a4240844075d3df5883c8a36a0511cd18">vectorICFunction</a> = <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt;(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
-<tr class="separator:a4240844075d3df5883c8a36a0511cd18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d9f27a2031043e19e4fe2dc0b697b70"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
+<tr class="memitem:a5d9f27a2031043e19e4fe2dc0b697b70"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a5d9f27a2031043e19e4fe2dc0b697b70">scalarICFunction</a> = double(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;, unsigned int, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;)</td></tr>
+<tr class="separator:a5d9f27a2031043e19e4fe2dc0b697b70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88bfb6273f85a78954de085e7a9cb02c"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
+<tr class="memitem:a88bfb6273f85a78954de085e7a9cb02c"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a88bfb6273f85a78954de085e7a9cb02c">vectorICFunction</a> = <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt;(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt; 1, dim, double &gt; &amp;x, unsigned int vector_i, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
+<tr class="separator:a88bfb6273f85a78954de085e7a9cb02c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a853d9f9a115257472a5fd014902c8863"><td class="memTemplParams" colspan="2">template&lt;unsigned int dim&gt; </td></tr>
 <tr class="memitem:a853d9f9a115257472a5fd014902c8863"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="app_ctx_8h.html#a853d9f9a115257472a5fd014902c8863">LSFunction</a> = void(*)(unsigned int step, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt; dim &gt; &amp;user)</td></tr>
 <tr class="separator:a853d9f9a115257472a5fd014902c8863"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,12 +187,12 @@ Typedefs</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1c10bdd26a018f5f5adf127bb84d68d0"></a>
+<a class="anchor" id="a5d9f27a2031043e19e4fe2dc0b697b70"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="app_ctx_8h.html#a1c10bdd26a018f5f5adf127bb84d68d0">scalarICFunction</a> =  double(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt;&amp;, unsigned int, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt;dim&gt;&amp;)</td>
+          <td class="memname">using <a class="el" href="app_ctx_8h.html#a5d9f27a2031043e19e4fe2dc0b697b70">scalarICFunction</a> =  double(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt;&amp;, unsigned int, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt;dim&gt;&amp;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -198,12 +200,12 @@ Typedefs</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4240844075d3df5883c8a36a0511cd18"></a>
+<a class="anchor" id="a88bfb6273f85a78954de085e7a9cb02c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="app_ctx_8h.html#a4240844075d3df5883c8a36a0511cd18">vectorICFunction</a> =  <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt;(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt; &amp;x, unsigned int vector_i, const <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt;dim&gt; &amp;user)</td>
+          <td class="memname">using <a class="el" href="app_ctx_8h.html#a88bfb6273f85a78954de085e7a9cb02c">vectorICFunction</a> =  <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt;(*)(const <a class="el" href="class_tensor.html">Tensor</a>&lt;1,dim,double&gt; &amp;x, unsigned int vector_i, <a class="el" href="struct_app_ctx.html">AppCtx</a>&lt;dim&gt; &amp;user)</td>
         </tr>
       </table>
 </div><div class="memdoc">

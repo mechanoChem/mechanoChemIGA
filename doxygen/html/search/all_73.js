@@ -1,8 +1,8 @@
 var searchData=
 [
   ['scalar',['SCALAR',['../core_functions_8h.html#ae2c3e99c22ce037f68e9b19bfd9c6de2a7efbb6cac96595e63e8fa171bde1eb68',1,'coreFunctions.h']]],
-  ['scalaricfunction',['scalarICFunction',['../app_ctx_8h.html#a1c10bdd26a018f5f5adf127bb84d68d0',1,'appCtx.h']]],
-  ['scalarinitialconditions',['scalarInitialConditions',['../struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989',1,'AppCtx::scalarInitialConditions()'],['../group__user_functions.html#ga7102baed4fa989fbcea6e495ee890d7e',1,'scalarInitialConditions():&#160;defaultUserFunctions.h']]],
+  ['scalaricfunction',['scalarICFunction',['../app_ctx_8h.html#a5d9f27a2031043e19e4fe2dc0b697b70',1,'appCtx.h']]],
+  ['scalarinitialconditions',['scalarInitialConditions',['../struct_app_ctx.html#a4a4f8fca81419b6f43a612a72ed0a989',1,'AppCtx::scalarInitialConditions()'],['../group__user_functions.html#ga4bb6b6363788ea6d3af2c543955ee029',1,'scalarInitialConditions():&#160;defaultUserFunctions.h']]],
   ['scalarprojectnfields',['scalarProjectnFields',['../struct_app_ctx.html#a9bc7b320034d23a4cb30b978ae0396c7',1,'AppCtx']]],
   ['scalarsolnfields',['scalarSolnFields',['../struct_app_ctx.html#a6794fa3a8512e9239c9f2e4c7bf18ec3',1,'AppCtx']]],
   ['setup',['Setup',['../group__core_functions.html#ga2a8d849923eaa1fd00d8c8d7ea96c121',1,'Setup(AppCtx&lt; DIM &gt; &amp;user, Vec *U, Vec *Up, Vec *Upp, SNES &amp;snes):&#160;setup.cc'],['../group__core_functions.html#ga2a8d849923eaa1fd00d8c8d7ea96c121',1,'Setup(AppCtx&lt; DIM &gt; &amp;user, Vec *U, Vec *Up, Vec *Upp, SNES &amp;snes):&#160;setup.cc']]],

@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">mechanoChemIGA
-   &#160;<span id="projectnumber">0.2</span>
+   &#160;<span id="projectnumber">0.2.2</span>
    </div>
   </td>
  </tr>
@@ -96,6 +96,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="#index_u"><span>u</span></a></li>
       <li><a href="#index_v"><span>v</span></a></li>
       <li><a href="#index_w"><span>w</span></a></li>
+      <li><a href="#index_x"><span>x</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -128,7 +129,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_b"></a>- b -</h3><ul>
 <li>bias
-: <a class="el" href="class_d_n_n.html#a9ab257067d287c935a7b39b0d2664027">DNN</a>
+: <a class="el" href="class_d_n_n.html#a129dcb394689dffd449c68bc4160a019">DNN</a>
 </li>
 <li>boundaryConditions
 : <a class="el" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">AppCtx&lt; DIM &gt;</a>
@@ -139,6 +140,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h3><a class="anchor" id="index_c"></a>- c -</h3><ul>
 <li>C_e
 : <a class="el" href="struct_app_ctx.html#afcb47a79a853cee1ae23ac5194ba05a5">AppCtx&lt; DIM &gt;</a>
+</li>
+<li>CPts
+: <a class="el" href="classbsplines.html#a4f52ee262089428974c98a746b2418ad">bsplines</a>
 </li>
 </ul>
 
@@ -154,18 +158,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
+<li>gen
+: <a class="el" href="struct_app_ctx.html#ab577cbc7a7051e1bcf60c2c1797a0feb">AppCtx&lt; DIM &gt;</a>
+</li>
 <li>globalContinuity
 : <a class="el" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">AppCtx&lt; DIM &gt;</a>
 </li>
 <li>gradient
-: <a class="el" href="classsolution_scalars.html#a8e5c2e8b62c075bb8447f8ebde616e61">solutionScalars&lt; dim, T &gt;</a>
+: <a class="el" href="classsolution_vectors.html#a33d88d77ee063d5971eb7c5a747d9f5d">solutionVectors&lt; dim, T &gt;</a>
 , <a class="el" href="classtest_function_scalars.html#a5a15edacb23f8260eb689fd4ad19e5cb">testFunctionScalars&lt; dim, T &gt;</a>
+, <a class="el" href="classsolution_scalars.html#a8e5c2e8b62c075bb8447f8ebde616e61">solutionScalars&lt; dim, T &gt;</a>
 , <a class="el" href="classtest_function_vectors.html#a4f802a853b895b2edec7c3cc37747147">testFunctionVectors&lt; dim, T &gt;</a>
-, <a class="el" href="classsolution_vectors.html#a33d88d77ee063d5971eb7c5a747d9f5d">solutionVectors&lt; dim, T &gt;</a>
 </li>
 <li>gradientP
-: <a class="el" href="classsolution_scalars.html#ac2515b50e0d0e0fa2fe1866942af31e9">solutionScalars&lt; dim, T &gt;</a>
-, <a class="el" href="classsolution_vectors.html#a35d59972509732674070d353b62f285a">solutionVectors&lt; dim, T &gt;</a>
+: <a class="el" href="classsolution_vectors.html#a35d59972509732674070d353b62f285a">solutionVectors&lt; dim, T &gt;</a>
+, <a class="el" href="classsolution_scalars.html#ac2515b50e0d0e0fa2fe1866942af31e9">solutionScalars&lt; dim, T &gt;</a>
 </li>
 <li>gradientPP
 : <a class="el" href="classsolution_scalars.html#aae888620eeb49cb26a00ca5d9713fdc0">solutionScalars&lt; dim, T &gt;</a>
@@ -243,11 +250,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_p"></a>- p -</h3><ul>
+<li>p
+: <a class="el" href="classbsplines.html#a792fef4919ad545581902926c8d43b60">bsplines</a>
+</li>
 <li>par_mat
 : <a class="el" href="struct_app_ctx.html#a82c1e8d8aca14b5512f031c55284da3e">AppCtx&lt; DIM &gt;</a>
 </li>
 <li>parameters
 : <a class="el" href="struct_app_ctx.html#ae6c752a4c1c05c1fbd5623711f467712">AppCtx&lt; DIM &gt;</a>
+</li>
+<li>parameters2
+: <a class="el" href="struct_app_ctx.html#a3818d1cb13efe646544e17d750c24bd8">AppCtx&lt; DIM &gt;</a>
 </li>
 <li>periodic
 : <a class="el" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">AppCtx&lt; DIM &gt;</a>
@@ -353,7 +366,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_w"></a>- w -</h3><ul>
 <li>weights
-: <a class="el" href="class_d_n_n.html#a0f4fa0f26717e587a37f48362741be1b">DNN</a>
+: <a class="el" href="class_d_n_n.html#a0086350b8d60de346808f8a48f251433">DNN</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_x"></a>- x -</h3><ul>
+<li>X
+: <a class="el" href="classbsplines.html#a4180c283b106ed5356a6f22b0f867451">bsplines</a>
 </li>
 </ul>
 </div><!-- contents -->

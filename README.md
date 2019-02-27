@@ -14,12 +14,12 @@ Krishna Garikipati <br>
 
 <B>Overview</B> <br>
 =======================================================================
-The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilino library [https://trilinos.org/packages/sacado/]. <br>
+The mechanoChemIGA code is an isogeometric analysis based code used to solve the partial differential equations describing solid mechanics (including gradient elasticity) and chemistry (including the Cahn-Hilliard phase field model). It is built on the PetIGA [https://bitbucket.org/dalcinl/petiga/] and PETSc [https://www.mcs.anl.gov/petsc/] libraries, and it uses the automatic differentiation capabilities of the Sacado package from the Trilinos library [https://trilinos.github.io/]. <br>
 
 
 <B>Version information</B>
 =======================================================================
-This is version 0.2.1. <br>
+This is version 0.2.2. <br>
 
 
 <B>License</B>
@@ -96,35 +96,38 @@ S. Rudraraju, A. Van der Ven, K. Garikipati  <br>
 
 <B>Installation</B>
 =======================================================================
+A Dockerfile is included that creates a Docker image with all necessary libraries in an Ubuntu environment. 
+Alternative installation instructions are as follows:
+
 1) Install PETSc: <br>
 
 -Download and extract PETSc source code. <br>
 -Quick installation as follows (the symbol $ denotes the command prompt): <br>
 
-	$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich
+	$ ./configure --with-cc=gcc --with-cxx=g++ --with-fc=gfortran --download-fblaslapack --download-mpich  --download-metis --download-parmetis --download-superlu_dist
 	$ make all test
 
 -Set the appropriate PETSC_DIR and PETSC_ARCH environment variables, e.g. <br>
 
-	$ export PETSC_DIR=/path/to/petsc-3.6.4
+	$ export PETSC_DIR=/path/to/petsc-3.8.3
 	$ export PETSC_ARch=arch-linux2-c-debug
 
 Note that this also installs mpich. It is possible to use an existing version of mpi by including a flag to its directory. If you will be using the local PETSc installation of mpich, set the following:
 
 	$ alias mpirun=$PETSC_DIR/$PETSC_ARCH/bin/mpirun
 
-If you would like to use a parallel direct solver, we recommend using superlu_dist. Add the following flags when configuring PETSc: --download-metis --download-parmetis --download-superlu_dist <br>
-
-Download: http://www.mcs.anl.gov/petsc/download/index.html <br>
+Download: https://bitbucket.org/petsc/petsc/get/v3.8.3.tar.gz <br>
 Installation instructions: http://www.mcs.anl.gov/petsc/documentation/installation.html <br>
 
 
 2) Install PetIGA: <br>
 
--Download and extract or clone the PetIGA source code. <br>
-
+-Clone the PetIGA source code (confirmed to work with the mechanoChemIGA code at commit 5ecf484). <br>
 -Enter the PetIGA top directory and install using make: <br>
 
+	$ git clone https://bitbucket.org/dalcinl/PetIGA.git
+	$ cd PetIGA
+	$ git reset --hard 5ecf484
 	$ make all
 	$ make test
 
@@ -132,7 +135,6 @@ Installation instructions: http://www.mcs.anl.gov/petsc/documentation/installati
 
 	$ export PETIGA_DIR=/path/to/petiga/
 
-Download: https://bitbucket.org/dalcinl/petiga/downloads (or clone the bitbucket repository) <br>
 Installation instructions: https://bitbucket.org/dalcinl/petiga/ <br>
 
 
@@ -141,7 +143,7 @@ Installation instructions: https://bitbucket.org/dalcinl/petiga/ <br>
 Download: https://cmake.org/download/ <br>
 
 
-4) Install the Sacado package from Trilinos (version 11.10.2 recommended) <br>
+4) Install the Sacado package from Trilinos (version 11.8.1 recommended) <br>
 
 -Download and extract or clone the Trilinos source code. <br>
 -Simple installation of Sacado as follows (from the Trilinos top directory), with the desire /path/to/trilinos/installation/: <br>
@@ -155,10 +157,11 @@ Download: https://cmake.org/download/ <br>
 
 	$ export TRILINOS_DIR=/path/to/trilinos/installation/
 
-Download: http://trilinos.org/oldsite/download/ <br>
-Installation instructions: https://trilinos.org/docs/files/TrilinosBuildReference.html <br>
+Download: http://trilinos.csbsju.edu/download/files/trilinos-11.8.1-Source.tar.gz <br>
 
-5) Install igakit (required to convert binary output files to .vtk files)
+5) Install igakit (required to convert binary output files to .vtk files; also requires numpy and scipy)
+
+	$ pip install https://bitbucket.org/dalcinl/igakit/get/default.tar.gz
 
 Download and installation instructions: https://bitbucket.org/dalcinl/igakit
 

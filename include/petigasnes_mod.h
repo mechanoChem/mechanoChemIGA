@@ -54,6 +54,8 @@ PetscErrorCode IGAComputeFunction_mod(IGA iga,Vec vecU,Vec vecF)
   PetscValidHeaderSpecific(iga,IGA_CLASSID,1);
   PetscValidHeaderSpecific(vecU,VEC_CLASSID,2);
   PetscValidHeaderSpecific(vecF,VEC_CLASSID,3);
+  //IGACheckSetUp(iga,1);
+  //IGACheckFormOp(iga,1,Residual<DIM>);
 
   /* Get previous solution vectors */
   ctx = iga->form->ops->FunCtx;
@@ -129,6 +131,8 @@ PetscErrorCode IGAComputeJacobian_mod(IGA iga,Vec vecU,Mat matJ)
   PetscValidHeaderSpecific(iga,IGA_CLASSID,1);
   PetscValidHeaderSpecific(vecU,VEC_CLASSID,2);
   PetscValidHeaderSpecific(matJ,MAT_CLASSID,3);
+  //IGACheckSetUp(iga,1);
+  //IGACheckFormOp(iga,1,Jacobian<DIM>);
 
   /* Get previous solution vectors */
   ctx = iga->form->ops->JacCtx;

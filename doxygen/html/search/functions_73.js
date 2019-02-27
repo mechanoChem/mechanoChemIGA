@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['scalarinitialconditions',['scalarInitialConditions',['../group__user_functions.html#ga7102baed4fa989fbcea6e495ee890d7e',1,'defaultUserFunctions.h']]],
+  ['scalarinitialconditions',['scalarInitialConditions',['../group__user_functions.html#ga4bb6b6363788ea6d3af2c543955ee029',1,'defaultUserFunctions.h']]],
   ['setup',['Setup',['../group__core_functions.html#ga2a8d849923eaa1fd00d8c8d7ea96c121',1,'Setup(AppCtx&lt; DIM &gt; &amp;user, Vec *U, Vec *Up, Vec *Upp, SNES &amp;snes):&#160;setup.cc'],['../group__core_functions.html#ga2a8d849923eaa1fd00d8c8d7ea96c121',1,'Setup(AppCtx&lt; DIM &gt; &amp;user, Vec *U, Vec *Up, Vec *Upp, SNES &amp;snes):&#160;setup.cc']]],
   ['setup_3c_202_20_3e',['Setup&lt; 2 &gt;',['../setup_8cc.html#ae7c88ff1386b6aba6a2ebd311d0c6e9d',1,'setup.cc']]],
   ['setup_3c_203_20_3e',['Setup&lt; 3 &gt;',['../setup_8cc.html#a3e5f7c2ee712b7bf8e7cbd0d6837e11b',1,'setup.cc']]],

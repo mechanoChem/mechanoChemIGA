@@ -1,8 +1,10 @@
 var searchData=
 [
+  ['p',['p',['../classbsplines.html#a792fef4919ad545581902926c8d43b60',1,'bsplines']]],
   ['par_5fmat',['par_mat',['../struct_app_ctx.html#a82c1e8d8aca14b5512f031c55284da3e',1,'AppCtx']]],
   ['parameters',['parameters',['../struct_app_ctx.html#ae6c752a4c1c05c1fbd5623711f467712',1,'AppCtx']]],
   ['parameters_2ecc',['parameters.cc',['../parameters_8cc.html',1,'']]],
+  ['parameters2',['parameters2',['../struct_app_ctx.html#a3818d1cb13efe646544e17d750c24bd8',1,'AppCtx']]],
   ['periodic',['periodic',['../struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69',1,'AppCtx']]],
   ['petigasnes_5fmod_2eh',['petigasnes_mod.h',['../petigasnes__mod_8h.html',1,'']]],
   ['pffunction',['PFFunction',['../app_ctx_8h.html#aa90344a3c2eb0a5f3f8e3210bd8184e0',1,'appCtx.h']]],

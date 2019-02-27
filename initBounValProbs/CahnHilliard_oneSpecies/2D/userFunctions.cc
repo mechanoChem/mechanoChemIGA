@@ -1,7 +1,7 @@
 #include "userFunctions.h"
 
 template<unsigned int dim>
-double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, const AppCtx<dim> &user)
+double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
 {
 
   return 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
@@ -68,7 +68,7 @@ void residual(bool dV,
   double jn = user.matParam["inFlux"]*(x[1]==user.L[1]); //Influx through the top
   double M = user.matParam["mobility"]; //Mobility
   double kappa = user.matParam["kappa"];
-  double tau = 10./user.N[1];
+  double tau = 0.1*(user.N[0]/user.L[0]);
   
   //Get the second derivative of the free energy
   T f_cc;
