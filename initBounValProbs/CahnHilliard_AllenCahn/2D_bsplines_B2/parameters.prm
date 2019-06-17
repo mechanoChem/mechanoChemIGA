@@ -1,0 +1,28 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 2  # spatial dimension
+set L = 2 x 2  # dimensions of geometry
+set N = 200 x 200 # mesh discretization
+
+# Material parameters
+set mobility = 10.
+set kinetic = 10. # kinetic coefficient
+set sqrtkappa1 = 0.004  # sqrt of gradient energy parameter (CH)
+set sqrtkappa2 = 0.004  # sqrt of gradient energy parameter (AC)
+
+# Time stepping
+set dtVal = 1. # initial time step size
+set totalTime = 10000000.
+
+# Restart
+set RESTART_TIME = 0
+set RESTART_IT = 0
+
+# Output
+set skipOutput = 1
+set outputDir = /oasis/scratch/comet/greght/temp_project/2D_bsplines_dgenM_IRK_ni/build1
+
+# Splines
+set polyOrder = 2
+set globalContinuity = 1
