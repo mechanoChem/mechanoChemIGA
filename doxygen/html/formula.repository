@@ -41,3 +41,6 @@
 \form#40:\begin{eqnarray*} f(c_1,c_2) = c_2(c_1-0.1)^2(c_1-0.9)^2 + (c_2-0.2)^2(c_2-0.8)^2 \end{eqnarray*}
 \form#41:$f(c_1,c_2) = c_2(c_1-0.1)^2(c_1-0.9)^2 + (c_2-0.2)^2(c_2-0.8)^2$
 \form#42:\begin{eqnarray*} 0 &=& \int_\Omega \left(w_2\frac{\eta - \eta_{prev}}{\mathrm{d}t} + L\left(w_2 f_{,\eta} + \kappa_2\nabla w_2\cdot\nabla \eta\right)\right) dV \end{eqnarray*}
+\form#43:$\partial^2 f/\partial c^2$
+\form#44:\begin{eqnarray*} \int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0 \end{eqnarray*}
+\form#45:$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle$

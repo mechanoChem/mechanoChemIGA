@@ -1,0 +1,141 @@
+ As in previous examples, we include the header file declaring the required user functions.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Then, we define initial/boundary conditions.
+
+{\bfseries  The {\ttfamily boundary\-Conditions} function }
+
+We apply boundary conditions so that the material is free to move in tangential directions except on z=1, where we have the free-\/surface condition.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+{\bfseries  The {\ttfamily cmuinit} function and the {\ttfamily uinit} function }
+
+The initial conditions for the scalar and the vector fields are defined for this example problem as following.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+{\bfseries  The {\ttfamily define\-Parameters} function }
+
+Here, we define the mesh by setting the number of elements in each direction, e.\-g. a 64x64x64 element mesh.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We also define the dimensions of the domain, e.\-g. a unit cube.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We specify the number of vector and scalar solution and projection fields by adding the name of each field to their respective vector. Here, we have one vector solution field (the displacement) and two scalar projection field (the chemical composition and the chemical potential).
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We also specify the polynomial order of the basis splines and the global continuity.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We redirect the desired user function pointers to the {\ttfamily boundary\-Conditions}, {\ttfamily cmuinit}, and {\ttfamily uinit} functions that we defined above.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We then define the timestep size.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Finally, we define various (25) material parameters that describe the mechano-\/chemistry.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+{\bfseries  The {\ttfamily residual} function }
+
+The residual function for an unconditionally stable second-\/order scheme for mechano-\/chemistry is used in this example.
+
+We first declare {\ttfamily \char`\"{}eval\-\_\-residual\char`\"{}} non-\/member function to be used in the member function, {\ttfamily \char`\"{}residual\char`\"{}}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+The definition of the {\ttfamily eval\-\_\-residual} function is postponed until the end of the file as it is lengthy.
+
+For a complex problem like this example, where it is convenient to unfold \char`\"{}c.\-val\char`\"{} and \char`\"{}u.\-val\char`\"{}, \char`\"{}c.\-grad\char`\"{} and \char`\"{}u.\-grad\char`\"{}, and \char`\"{}c.\-hess\char`\"{} and \char`\"{}u.\-hess\char`\"{} and put them into a single array, ui\mbox{[}\mbox{]}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We do the same for previous solutions represented by \char`\"{}.\-val\-P\char`\"{}, \char`\"{}.\-grad\-P\char`\"{}, and \char`\"{}.\-hess\-P\char`\"{} as well as for the test functions \char`\"{}w1\char`\"{} and \char`\"{}w2\char`\"{} and produce arrays, u0\mbox{[}\mbox{]} and w\mbox{[}\mbox{]}, respectively.
+
+We then evaluate the residual vector at a given quadrature point (residual\mbox{[}\mbox{]}) using the declared function \char`\"{}eval\-\_\-residual\char`\"{}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Finally, we multiply residual\mbox{[}\mbox{]} by test functions and form the integrand of the weak form at the given quadrature point.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+\section*{A snippet of the code }
+
+ 
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+ 

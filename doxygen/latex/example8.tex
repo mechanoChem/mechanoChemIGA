@@ -1,0 +1,125 @@
+ As in previous examples, we include the header file declaring the required user functions.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We define the initial conditions.
+
+{\bfseries  The {\ttfamily uinit} function }
+
+The initial conditions for the vector field are defined for this example problem as following.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+{\bfseries  The {\ttfamily define\-Parameters} function }
+
+We are going to use periodic boundary conditions, which can be set as\-:
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Here, we define the mesh by setting the number of elements in each direction, e.\-g. a 4x4x4 element mesh.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We also define the dimensions of the domain, e.\-g. a unit cube.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We specify the number of vector and scalar solution by adding the name of each field to their respective vector. Here, we only have one vector solution field (the displacement).
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We also specify the polynomial order of the basis splines and the global continuity.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We redirect the desired user function pointer to the {\ttfamily uinit} functions that we defined above.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Finally, we define various (9) material parameters that describe our gradient elasticity.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+{\bfseries  The {\ttfamily residual} function }
+
+The residual function for an unconditionally stable second-\/order scheme for gradient-\/elasticity is used in this example.
+
+We first declare {\ttfamily \char`\"{}eval\-\_\-residual\char`\"{}} non-\/member function to be used in the member function, {\ttfamily \char`\"{}residual\char`\"{}}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+The definition of the {\ttfamily eval\-\_\-residual} function is postponed until the end of the file as it is lengthy.
+
+For a complex problem like this example, where it is convenient to unfold \char`\"{}u.\-val\char`\"{}, \char`\"{}u.\-grad\char`\"{}, and \char`\"{}u.\-hess\char`\"{} and put them into a single array, ui\mbox{[}\mbox{]}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We do the same for previous solutions represented by \char`\"{}.\-val\-P\char`\"{}, \char`\"{}.\-grad\-P\char`\"{}, and \char`\"{}.\-hess\-P\char`\"{}, and \char`\"{}.\-val\-P\-P\char`\"{}, \char`\"{}.\-grad\-P\-P\char`\"{}, and \char`\"{}.\-hess\-P\-P\char`\"{} as well as for the test functions \char`\"{}w1\char`\"{} and \char`\"{}w2\char`\"{} and produce arrays, up\mbox{[}\mbox{]}, upp\mbox{[}\mbox{]}, and w\mbox{[}\mbox{]}, respectively.
+
+We then evaluate the residual vector at a given quadrature point (residual\mbox{[}\mbox{]}) using the declared function \char`\"{}eval\-\_\-residual\char`\"{}.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Finally, we multiply residual\mbox{[}\mbox{]} by test functions and form the integrand of the weak form at the given quadrature point.
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+\section*{A snippet of the code }
+
+ 
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+ 

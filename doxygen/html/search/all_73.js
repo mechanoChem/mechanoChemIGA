@@ -9,7 +9,6 @@ var searchData=
   ['setup_2ecc',['setup.cc',['../setup_8cc.html',1,'']]],
   ['setup_3c_202_20_3e',['Setup&lt; 2 &gt;',['../setup_8cc.html#ae7c88ff1386b6aba6a2ebd311d0c6e9d',1,'setup.cc']]],
   ['setup_3c_203_20_3e',['Setup&lt; 3 &gt;',['../setup_8cc.html#a3e5f7c2ee712b7bf8e7cbd0d6837e11b',1,'setup.cc']]],
-  ['sigder',['sigDer',['../_cahn_hilliard__one_species_22_d___ti_o_2user_functions_8cc.html#a8ad0aeb4741068d9dd4915e249c6e0a8',1,'userFunctions.cc']]],
   ['size',['size',['../classsolution_scalars.html#aac913b3a1f6ef005d66bf7a84428773e',1,'solutionScalars::size()'],['../classsolution_vectors.html#aac913b3a1f6ef005d66bf7a84428773e',1,'solutionVectors::size()'],['../classtest_function_scalars.html#aac913b3a1f6ef005d66bf7a84428773e',1,'testFunctionScalars::size()'],['../classtest_function_vectors.html#aac913b3a1f6ef005d66bf7a84428773e',1,'testFunctionVectors::size()']]],
   ['skipoutput',['skipOutput',['../struct_app_ctx.html#a7c81203929d679b6ee72dec416c9bea9',1,'AppCtx']]],
   ['snes',['snes',['../struct_app_ctx.html#a4b921eff5b19d4030a817d2a60d58750',1,'AppCtx']]],

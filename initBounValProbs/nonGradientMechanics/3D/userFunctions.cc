@@ -60,7 +60,9 @@ void defineParameters(AppCtx<dim>& user){
   user.globalContinuity = 0;
 
   //Define elasticity tensor
-  double E = 2.0e11, nu = 0.3;
+  user.matParam["E"] = 2.0e11;
+  user.matParam["nu"] = 0.3;
+  double E = user.matParam["E"], nu = user.matParam["nu"];
   double lambda = (E*nu)/((1.+nu)*(1.-2.*nu));
   double mu = E/(2.*(1.+nu));
   for (unsigned int i=0; i<dim; ++i){
@@ -73,6 +75,9 @@ void defineParameters(AppCtx<dim>& user){
     }
   } //end C_e
   
+  // Neumann condition scalar
+  user.matParam["h"] = 1.e11;
+
   user.boundaryConditions = userBoundaryConditions;
   user.projectFields = userProjectFields;
 
@@ -93,7 +98,7 @@ void residual(bool dV,
   //Elasticity
   Tensor<2,dim,T> P = get1stPiolaKirchhoff(x,c,u,user,0);
   Tensor<1,dim,T> h;
-  h[2] = 1.e9*x[0]*(x[2] == 1);
+  h[2] = user.matParam["h"]*x[0]*(x[2] == user.L[2]);
 
   // \int_\Omega (grad{w}:P) dV - \int_{\partial\Omega} (w\cdot h) dS
   r = double_contract(w2.grad(0),P)*dV;

@@ -82,7 +82,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Example 1 : Nongradient, finite strain elasticity </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>To model nongradient, finite strain elasticity, we will specify the following through defining user functions: <br/>
+<div class="textblock"><p>This example implements static finite strain elasticity in 3D, with a combination of Dirichlet and Neumann boundary conditions. We solve for the displacement vector field, with the following weak form:</p>
+<p class="formulaDsp">
+<img class="formulaDsp" alt="\begin{eqnarray*} \int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0 \end{eqnarray*}" src="form_44.png"/>
+</p>
+<p>With the loading specified in the below code, the following deformation occurs:</p>
+ <style>div.image img[src="example1.png"]{width:20cm;}</style>  <div class="image">
+<img src="example1.png" alt="example1.png"/>
+</div>
+<h1>Implementation: Level 1 users </h1>
+<p>To model nongradient, finite strain elasticity, we will specify the following through defining user functions: <br/>
 </p>
 <ul>
 <li>Boundary conditions <br/>
@@ -103,7 +112,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><b> The <code>boundaryConditions</code> function </b></p>
 <p>This function defines Dirichlet boundary conditions using PetIGA's <code>IGASetBoundaryValue</code> function. The arguments to this function are as follows: the iga object (user.iga), the "axis" (0, 1, or 2, corresponding to the x, y, or z-axis), the "side" (0 or 1), the "dof", and the "value" that is to be imposed. Note that this can only set a uniform value for a degree-of-freedom on any side. Here, we fix all three degrees-of-freedom on the surface at z=0.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user, <span class="keywordtype">double</span> scale){</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user, <span class="keywordtype">double</span> scale){</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">//IGASetBoundaryValue(user.iga,&quot;axis&quot;,&quot;side&quot;,&quot;dof&quot;,&quot;val&quot;)</span></div>
 <div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,2,0,0,0.0); </div>
@@ -115,7 +124,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><b> The <code>projectFields</code> function </b></p>
 <p>If there are field values derived from the solution fields that are of interest, we can compute these values at each quadrature point and project the value to the nodes. Here, we compute the equivalent stress using the 1st Piola-Kirchhoff stress. Scalar values are stored in the <code>scalarProjections</code> vector and vector values are stored in the <code>vectorProjections</code> vector.</p>
 <p><div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
+<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,double&gt;</a> &amp;c,</div>
 <div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,double&gt;</a> &amp;u,</div>
@@ -172,8 +181,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 1;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 0;</div>
 </div><!-- fragment --></p>
-<p>We now define the 4th order elasticity tensor.</p>
-<p><div class="fragment"><div class="line">  <span class="keywordtype">double</span> E = 2.0e11, nu = 0.3;</div>
+<p>We now define the 4th order elasticity tensor. Note that we use the C++ map <code>user.matParam</code> whenever we'd like to be able to define the parameter value in the parameters file (see the end of this page).</p>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;E&quot;</span>] = 2.0e11;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;nu&quot;</span>] = 0.3;</div>
+<div class="line">  <span class="keywordtype">double</span> E = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;E&quot;</span>], nu = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;nu&quot;</span>];</div>
 <div class="line">  <span class="keywordtype">double</span> lambda = (E*nu)/((1.+nu)*(1.-2.*nu));</div>
 <div class="line">  <span class="keywordtype">double</span> mu = E/(2.*(1.+nu));</div>
 <div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i=0; i&lt;dim; ++i){</div>
@@ -186,9 +197,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">    }</div>
 <div class="line">  } <span class="comment">//end C_e</span></div>
 </div><!-- fragment --></p>
+<p>We specify a scalar coefficient to the Neumann boundary condition.</p>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h&quot;</span>] = 1.e11;</div>
+</div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>boundaryConditions</code> and <code>projectFields</code> functions that we defined above. This completes the <code>defineParameters</code> function.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
 <div class="line"></div>
 <div class="line">} <span class="comment">//end defineParameters</span></div>
 </div><!-- fragment --></p>
@@ -241,11 +255,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>trace( )</code> - trace of 2nd order tensor <br/>
 <code>det( )</code> - determinant of 2nd order tensor <br/>
 <code>inv( )</code> - inverse of 2nd order tensor <br/>
- The example code here implements the weak form for finite strain elasticity, <img class="formulaInl" alt="$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$" src="form_0.png"/> with the Neumann boundary condtion <img class="formulaInl" alt="$\boldsymbol{h} = \langle 0,0,1.e9x_1\rangle$" src="form_1.png"/> on <img class="formulaInl" alt="$x_3=1$" src="form_2.png"/>. First, we get the values for <img class="formulaInl" alt="$\boldsymbol{P}$" src="form_3.png"/> and <img class="formulaInl" alt="$\boldsymbol{h}$" src="form_4.png"/>, based on the current quadrature point.</p>
+</p>
+<p>The example code here implements the weak form for finite strain elasticity, <img class="formulaInl" alt="$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$" src="form_0.png"/> with the Neumann boundary condtion <img class="formulaInl" alt="$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle$" src="form_45.png"/> on <img class="formulaInl" alt="$x_3=1$" src="form_2.png"/>. First, we get the values for <img class="formulaInl" alt="$\boldsymbol{P}$" src="form_3.png"/> and <img class="formulaInl" alt="$\boldsymbol{h}$" src="form_4.png"/>, based on the current quadrature point.</p>
 <p><div class="fragment"><div class="line">  <span class="comment">//Elasticity</span></div>
 <div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> P = <a class="code" href="non_gradient_mechanics_23_d_2user_functions_8cc.html#a7db7c311d4557eda3537454f2642d8af">get1stPiolaKirchhoff</a>(x,c,u,user,0);</div>
 <div class="line">  <a class="code" href="class_tensor_3_011_00_01dim_00_01_t_01_4.html">Tensor&lt;1,dim,T&gt;</a> h;</div>
-<div class="line">  h[2] = 1.e9*x[0]*(x[2] == 1);</div>
+<div class="line">  h[2] = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h&quot;</span>]*x[0]*(x[2] == user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[2]);</div>
 </div><!-- fragment --></p>
 <p>Now, we compute the residual in a manner very similar to the analytical form</p>
 <p><div class="fragment"><div class="line">  <span class="comment">// \int_\Omega (grad{w}:P) dV - \int_{\partial\Omega} (w\cdot h) dS</span></div>
@@ -257,112 +272,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Finally, we include a file that instatiates the template functions <code>defineParameters</code> and <code>residual</code>. This bit of code will generally be the same for any problem (unless you decide to use a different automatic differentation library), the user does not need to modify it.</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_instantiation_8h.html">userFunctionsInstantiation.h</a>&quot;</span></div>
 </div><!-- fragment --></p>
-<h1>The complete code </h1>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
+<p>The complete implementation can be found at <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/userFunctions.cc">Github</a>.</p>
+<h1>Parameters file: Interface for level 2 users </h1>
+<p>Now let's look at the parameters file, <code>parameters.prm</code>. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. <p>The parameters defined in the parameters file overwrite any previous values defined in the <code>defineParameters</code> function. Anything following the pound sign (#) is a comment. A parameter is defined using the syntax:</p>
+<p><code>set</code> <code>parameterName</code> <code>=</code> <code>parameterValue</code> </p>
+<p>There is a set list of variables that can be read from the parameters file. Anything else will be added to the <code>matParam</code> structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), where the number of components must equal the spatial dimension of the problem.</p>
+<p>In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:</p>
+<p><div class="fragment"><div class="line">set dim = 3  # spatial dimension</div>
+<div class="line">set L = 1 x 1 x 1 # dimensions of geometry</div>
+<div class="line">set N = 10 x 10 x 10 # mesh discretization</div>
+</div><!-- fragment --></p>
+<p>Next, we define some parameters that are specific to this problem, so they become elements of <code>matParam</code> (see the <code>residual</code> and  functions above).</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Young&#39;s modulus and Poisson&#39;s ratio</span></div>
+<div class="line"><span class="preprocessor"></span>set E = 2.0e11  # Young<span class="stringliteral">&#39;s modulus</span></div>
+<div class="line"><span class="stringliteral">set nu = 0.3  # Poisson&#39;</span>s ratio</div>
 <div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user, <span class="keywordtype">double</span> scale){</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//IGASetBoundaryValue(user.iga,&quot;axis&quot;,&quot;side&quot;,&quot;dof&quot;,&quot;val&quot;)</span></div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,2,0,0,0.0); </div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,2,0,1,0.0);</div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,2,0,2,0.0);</div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end boundaryConditions</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,double&gt;</a> &amp;c,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,double&gt;</a> &amp;u,</div>
-<div class="line">           <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user,</div>
-<div class="line">           std::vector&lt;double&gt; &amp;scalarProjections,</div>
-<div class="line">           std::vector&lt;<a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &gt; &amp;vectorProjections){</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Project 1 scalar field and 1 vector fields</span></div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,double&gt;</a> P = <a class="code" href="non_gradient_mechanics_23_d_2user_functions_8cc.html#a7db7c311d4557eda3537454f2642d8af">get1stPiolaKirchhoff</a>(x,c,u,user,0);</div>
-<div class="line">  scalarProjections[0] = std::pow(P[0][0]-P[1][1],2) + std::pow(P[1][1]-P[2][2],2) + std::pow(P[2][2]-P[0][0],2);</div>
-<div class="line">  scalarProjections[0] += 6.*(P[0][1]*P[0][1] + P[1][2]*P[1][2] + P[2][0]*P[2][0]);</div>
-<div class="line">  scalarProjections[0] = std::sqrt(0.5*scalarProjections[0]);</div>
-<div class="line">  </div>
-<div class="line">} <span class="comment">//end projectFields</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim,<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> <a class="code" href="non_gradient_mechanics_23_d_2user_functions_8cc.html#a7db7c311d4557eda3537454f2642d8af">get1stPiolaKirchhoff</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
-<div class="line">                     <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,T&gt;</a> &amp;c,</div>
-<div class="line">                     <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,T&gt;</a> &amp;u,</div>
-<div class="line">                     <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user,</div>
-<div class="line">                     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> index){</div>
-<div class="line">  </div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> F, E, S, eye;</div>
-<div class="line">  <a class="code" href="class_tensor.html#ad82bf064ac85d03cde37854363afe9de">identity</a>(eye);</div>
-<div class="line">  F = u.<a class="code" href="classsolution_vectors.html#a17d562590b91ada496cca3e111777e57">grad</a>(index) + eye;</div>
-<div class="line">  E = 0.5*(<a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(F)*F - eye);</div>
-<div class="line">  S = <a class="code" href="class_tensor.html#a5a8bda2f027340305afc45b49388bcc8">double_contract</a>(user.<a class="code" href="struct_app_ctx.html#afcb47a79a853cee1ae23ac5194ba05a5">C_e</a>,E); <span class="comment">//S = C_e:E</span></div>
-<div class="line">    </div>
-<div class="line">  <span class="keywordflow">return</span> F*S;</div>
-<div class="line">} <span class="comment">//end get1stPiolaKirchhoff</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gadbccf6631ad847d5a681a548f921ef29">defineParameters</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user){</div>
-<div class="line"> </div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 10;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 10;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[2] = 10;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0] = 1.;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1] = 1.;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[2] = 1.;</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ae171e542b477f3394601555549b7d3a8">vectorSolnFields</a>.push_back(<span class="stringliteral">&quot;displacement&quot;</span>);</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a9bc7b320034d23a4cb30b978ae0396c7">scalarProjectnFields</a>.push_back(<span class="stringliteral">&quot;vonMises&quot;</span>);</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 1;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 0;</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Define elasticity tensor</span></div>
-<div class="line">  <span class="keywordtype">double</span> E = 2.0e11, nu = 0.3;</div>
-<div class="line">  <span class="keywordtype">double</span> lambda = (E*nu)/((1.+nu)*(1.-2.*nu));</div>
-<div class="line">  <span class="keywordtype">double</span> mu = E/(2.*(1.+nu));</div>
-<div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i=0; i&lt;dim; ++i){</div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> j=0; j&lt;dim; ++j){</div>
-<div class="line">      <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> k=0; k&lt;dim; ++k){</div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> l=0; l&lt;dim; ++l){</div>
-<div class="line">      user.<a class="code" href="struct_app_ctx.html#afcb47a79a853cee1ae23ac5194ba05a5">C_e</a>[i][j][k][l] = lambda*(i==j)*(k==l) + 2.*0.5*mu*((i==k)*(j==l) + (i==l)*(j==k));</div>
-<div class="line">    }</div>
-<div class="line">      }</div>
-<div class="line">    }</div>
-<div class="line">  } <span class="comment">//end C_e</span></div>
-<div class="line">  </div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="_cahn_hilliard__three_species_22_d___dirichlet_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="_cahn_hilliard___allen_cahn_22_d__bsplines_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end defineParameters</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gab9195b3f02c923dafb2c742df293db7d">residual</a>(<span class="keywordtype">bool</span> dV,</div>
-<div class="line">          <span class="keywordtype">bool</span> dS,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,T&gt;</a> &amp;c,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,T&gt;</a> &amp;u,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classtest_function_scalars.html">testFunctionScalars&lt;dim,T&gt;</a> &amp;w1,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classtest_function_vectors.html">testFunctionVectors&lt;dim,T&gt;</a> &amp;w2,</div>
-<div class="line">          <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user,</div>
-<div class="line">          Sacado::Fad::SimpleFad&lt;T&gt; &amp;r){</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Elasticity</span></div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> P = <a class="code" href="non_gradient_mechanics_23_d_2user_functions_8cc.html#a7db7c311d4557eda3537454f2642d8af">get1stPiolaKirchhoff</a>(x,c,u,user,0);</div>
-<div class="line">  <a class="code" href="class_tensor_3_011_00_01dim_00_01_t_01_4.html">Tensor&lt;1,dim,T&gt;</a> h;</div>
-<div class="line">  h[2] = 1.e9*x[0]*(x[2] == 1);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// \int_\Omega (grad{w}:P) dV - \int_{\partial\Omega} (w\cdot h) dS</span></div>
-<div class="line">  r = <a class="code" href="class_tensor.html#a5a8bda2f027340305afc45b49388bcc8">double_contract</a>(w2.<a class="code" href="classtest_function_vectors.html#ac178383f83c18393f2d61f02793fce93">grad</a>(0),P)*dV;</div>
-<div class="line">  r += -(w2.<a class="code" href="classtest_function_vectors.html#a2c3f7998bd59d6cc139d4e23dc711079">val</a>(0)*h)*dS; <span class="comment">//Traction</span></div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end residual</span></div>
-<div class="line"></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_instantiation_8h.html">userFunctionsInstantiation.h</a>&quot;</span></div>
-</div><!-- fragment --> </div></div><!-- contents -->
+<div class="line"><span class="preprocessor"># Loading scalar - Neumann condition: h*x in z-direction at z_max</span></div>
+<div class="line"><span class="preprocessor">set h = 1.e11</span></div>
+</div><!-- fragment --></p>
+<p>We then define spline parameters (linear is fine for this problem).</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Splines</span></div>
+<div class="line"><span class="preprocessor"></span>set polyOrder = 1</div>
+<div class="line">set globalContinuity = 0</div>
+</div><!-- fragment --></p>
+<p>Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.</p>
+<p>The complete parameters file can be found at <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/parameters.prm">Github</a>. </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

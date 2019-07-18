@@ -27,8 +27,11 @@
  * boundary conditions. With these settings, the following evolution 
  * of the concentration is obtained:
  *
- * \htmlonly <style>div.image img[src="plots.png"]{width:20cm;}</style> \endhtmlonly
- * @image html plots.png 
+ * \htmlonly <style>div.image img[src="example2.png"]{width:20cm;}</style> \endhtmlonly
+ * @image html example2.png 
+ *
+ * Implementation: Level 1 users
+ * ==============================
  *
  * To implement this model, we will specify the following through defining user functions: <br>
  * - Initial conditions <br>
@@ -57,7 +60,7 @@
  *
  * This phase-field implementation requires the second derivative of the chemical free energy density function
  * \f$f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2\f$. We define the function computing
- * \f$\partial^2 f/\partial c \partial c\f$ here.
+ * \f$\partial^2 f/\partial c^2\f$ here.
  * Note that this free energy derivative function is used only in this file. It is not a member of any class,
  * nor will we use it to set any function pointers.
  *
@@ -87,9 +90,10 @@
  * \until user.L[1]
  *
  * We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions.
- * Here, we override the default and define periodicity in both the x directions.
+ * Here, we override the default and define periodicity in the x direction.
  *
- * \line user.periodic[0]
+ * \skip user.periodic[0]
+ * \until user.periodic[0]
  *
  * We can define additional material parameters that are not explicity listed in the \c user structure by
  * defining elements of the \c matParam C++ map, which maps \c std::string to \c double. These values can also be overwritten
@@ -181,6 +185,7 @@
  * \c det( ) - determinant of 2nd order tensor \n
  * \c inv( ) - inverse of 2nd order tensor \n
  *
+ *
  * The example code here implements the weak form for the Cahn-Hilliard equation, as shown above.
  *
  * First, we set the values for necessary parameters, using some predefined material parameters.
@@ -212,6 +217,11 @@
  *
  * \line "userFunctionsInstantiation.h"
  *
+ * The complete implementation can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc">Github</a>.
+ *
+ * Parameters file: Interface for level 2 users
+ * ==============================
+ *
  * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
  * these values can be changed without recompiling the code and it can provide a clean interface to the code.
  * \dontinclude CahnHilliard_oneSpecies/2D/parameters.prm
@@ -241,14 +251,8 @@
  * \skip Time stepping
  * \until globalContinuity
  *
- * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
+ * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously. 
  *
- * The complete code
- * ==============================
+ * The complete parameters file can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_oneSpecies/2D/parameters.prm">Github</a>.
  *
- * The \c parameters.prm file:
- * \include CahnHilliard_oneSpecies/2D/parameters.prm
- *
- * The \c userFunctions.cc source code:
- * \include CahnHilliard_oneSpecies/2D/userFunctions.cc
  */

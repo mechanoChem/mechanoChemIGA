@@ -2,6 +2,21 @@
  * @page example1 Example 1 : Nongradient, finite strain elasticity
  * \dontinclude nonGradientMechanics/3D/userFunctions.cc
  *
+ * This example implements static finite strain elasticity in 3D, with a combination of Dirichlet and Neumann boundary conditions.
+ * We solve for the displacement vector field, with the following weak form:
+ *
+ * \f{eqnarray*}{
+ * \int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0
+ * \f}
+ *
+ * With the loading specified in the below code, the following deformation occurs:
+ *
+ * \htmlonly <style>div.image img[src="example1.png"]{width:20cm;}</style> \endhtmlonly
+ * @image html example1.png 
+ *
+ * Implementation: Level 1 users
+ * ==============================
+ *
  * To model nongradient, finite strain elasticity, we will specify the following through defining user functions: <br>
  * - Boundary conditions <br>
  * - Derived fields for output (e.g. eqivalent stress) <br>
@@ -84,10 +99,16 @@
  * \skip polyOrder
  * \until globalContinuity
  *
- * We now define the 4th order elasticity tensor.
+ * We now define the 4th order elasticity tensor. Note that we use the C++ map \c user.matParam whenever we'd like to
+ * be able to define the parameter value in the parameters file (see the end of this page).
  *
- * \skip double E
+ * \skip user.matParam["E"]
  * \until //end
+ *
+ * We specify a scalar coefficient to the Neumann boundary condition.
+ *
+ * \skip user.matParam["h"]
+ * \until user.matParam["h"]
  *
  * Finally, we redirect the desired user function pointers to the \c boundaryConditions and \c projectFields functions that we
  * defined above. This completes the \c defineParameters function.
@@ -152,9 +173,10 @@
  * \c det( ) - determinant of 2nd order tensor \n
  * \c inv( ) - inverse of 2nd order tensor \n
  *
+ *
  * The example code here implements the weak form for finite strain elasticity,
  * \f$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0\f$
- * with the Neumann boundary condtion \f$\boldsymbol{h} = \langle 0,0,1.e9x_1\rangle\f$ on \f$x_3=1\f$.
+ * with the Neumann boundary condtion \f$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle\f$ on \f$x_3=1\f$.
  * First, we get the values for \f$\boldsymbol{P}\f$ and \f$\boldsymbol{h}\f$, based on the current quadrature point.
  *
  * \skip //Elasticity
@@ -171,8 +193,41 @@
  *
  * \line "userFunctionsInstantiation.h"
  *
- * The complete code
+ * The complete implementation can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/userFunctions.cc">Github</a>.
+ *
+ * Parameters file: Interface for level 2 users
  * ==============================
  *
- * \include nonGradientMechanics/3D/userFunctions.cc
+ * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
+ * these values can be changed without recompiling the code and it can provide a clean interface to the code.
+ * \dontinclude nonGradientMechanics/3D/parameters.prm
+ *
+ * The parameters defined in the parameters file overwrite any previous values defined in the \c defineParameters function.
+ * Anything following the pound sign (#) is a comment. A parameter is defined using the syntax: 
+ *
+ * \c set \c parameterName \c = \c parameterValue
+ *
+ * There is a set list of variables that can be read from the parameters file. Anything else will be added to 
+ * the \c matParam structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), 
+ * where the number of components must equal the spatial dimension of the problem.
+ *
+ * In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:
+ *
+ * \skip dim
+ * \until set N
+ *
+ * Next, we define some parameters that are specific to this problem,
+ * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
+ *
+ * \skip Young's
+ * \until set h
+ *
+ * We then define spline parameters (linear is fine for this problem).
+ *
+ * \skip Splines
+ * \until globalContinuity
+ *
+ * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously. 
+ *
+ * The complete parameters file can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/parameters.prm">Github</a>.
  */

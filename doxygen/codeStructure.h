@@ -19,7 +19,7 @@
         color="black", fillcolor="white", style="filled"];
    fontname="FreeSans";
    fontsize=15;
-   label=<<U>  User level 1  </U><BR/> <BR/>Parameters file>;
+   label=<<U>  Level 2 users </U><BR/> <BR/>Parameters file>;
    color="transparent";
    space1 [color="transparent",label=""];
    space2 [color="transparent",label=""];
@@ -38,7 +38,7 @@
         color="black", fillcolor="white", style="filled"];
    fontname="FreeSans";
    fontsize=15;
-   label=<<U>  User level 0  </U><BR/> <BR/>User defined functions>;
+   label=<<U>  Level 1 users </U><BR/> <BR/>User defined functions>;
    color="transparent";
    scalarIC [label="scalarInitialConditions",URL="\ref scalarInitialConditions"];
    vectorIC [label="vectorInitialConditions",URL="\ref vectorInitialConditions"];

@@ -1,28 +1,19 @@
-/home/greght/Research/mechanoChemistry/initBounValProbs/mechanoChemStab/userFunctions.cc:38: warning: no matching file member found for 
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/mechanoChemStab/userFunctions.cc:38: warning: no matching file member found for 
 void defineParameters(AppCtx< dim > &user)
 Possible candidates:
- 'void defineParameters(AppCtx< dim > &user)' at line 35 of file/home/greght/Research/mechanoChemistry/include/userFunctions.h
- 'void defineParameters(AppCtx< dim > &user)' at line 31 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 94 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_bsplines/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 109 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 106 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN2/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 52 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN_AC/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 20 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 34 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_oneSpecies/2D_TiO/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 190 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 147 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_cpflux/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 139 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_Dirichlet/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 86 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_varFlux/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 163 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_threeSpecies/2D_variableM/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 31 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 233 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D_TiO/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 219 of file/home/greght/Research/mechanoChemistry/initBounValProbs/CahnHilliard_twoSpecies/2D_TiSiO/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 139 of file/home/greght/Research/mechanoChemistry/initBounValProbs/configurationalForces/bending2D/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 25 of file/home/greght/Research/mechanoChemistry/initBounValProbs/gradElast/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 25 of file/home/greght/Research/mechanoChemistry/initBounValProbs/gradElastTime/userFunctions.cc
- 'void defineParameters(AppCtx< dim > &user)' at line 47 of file/home/greght/Research/mechanoChemistry/initBounValProbs/nonGradientMechanics/3D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 35 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/userFunctions.h
+ 'void defineParameters(AppCtx< dim > &user)' at line 31 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 49 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D_bsplines_B2/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 48 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN_B2/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 20 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 31 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_twoSpecies/2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 139 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/configurationalForces/bending2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 25 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/gradElast/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 25 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/gradElastTime/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 47 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/nonGradientMechanics/3D/userFunctions.cc
 
-/home/greght/Research/mechanoChemistry/doxygen/example2.h:264: warning: Found unknown command `\defineParameters'
-/home/greght/Research/mechanoChemistry/include/defaultUserFunctions.h:85: warning: argument 'vectorProjectionsvector' of command @param is not found in the argument list of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections)
-/home/greght/Research/mechanoChemistry/include/defaultUserFunctions.h:85: warning: The following parameters of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections) are not documented:
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example1.h:250: warning: Found unknown command `\defineParameters'
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example2.h:274: warning: Found unknown command `\defineParameters'
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/defaultUserFunctions.h:85: warning: argument 'vectorProjectionsvector' of command @param is not found in the argument list of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections)
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/defaultUserFunctions.h:85: warning: The following parameters of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections) are not documented:
   parameter 'vectorProjections'

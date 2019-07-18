@@ -1,0 +1,17 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 3  # spatial dimension
+set L = 1 x 1 x 1 # dimensions of geometry
+set N = 10 x 10 x 10 # mesh discretization
+
+# Young's modulus and Poisson's ratio
+set E = 2.0e11  # Young's modulus
+set nu = 0.3  # Poisson's ratio
+
+# Loading scalar - Neumann condition: h*x in z-direction at z_max
+set h = 1.e11
+
+# Splines
+set polyOrder = 1
+set globalContinuity = 0
