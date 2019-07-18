@@ -44,3 +44,8 @@
 \form#43:$\partial^2 f/\partial c^2$
 \form#44:\begin{eqnarray*} \int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0 \end{eqnarray*}
 \form#45:$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle$
+\form#46:$\partial^2 f/\partial c^2 $
+\form#47:\begin{eqnarray*} f(c,\eta) = ((c - 0.1)^2+(\eta - 0.5)^2)((c - 0.9)^2+(\eta - 0.2)^2)((c - 0.9)^2+(\eta - 0.8)^2) \end{eqnarray*}
+\form#48:\begin{eqnarray*} f(c,\eta) = ((c - 0.1)^2+(\eta - 0.2)^2)((c - 0.9)^2+(\eta - 0.8)^2) \end{eqnarray*}
+\form#49:\begin{eqnarray*} f(c,\eta) = ((c - 0.1)^2+10(\eta - 0.2)^2)((c - 0.9)^2+10(\eta - 0.8)^2) \end{eqnarray*}
+\form#50:\begin{eqnarray*} f(c,\eta) = ((c - 0.1)^2+5(\eta - 0.2)^2)((c - 0.9)^2+5(\eta - 0.8)^2) \end{eqnarray*}

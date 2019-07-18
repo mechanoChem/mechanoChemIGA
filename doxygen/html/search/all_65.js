@@ -10,7 +10,7 @@ var searchData=
   ['example3_2eh',['example3.h',['../example3_8h.html',1,'']]],
   ['example_204_20_3a_20coupled_20cahn_2dhilliard_2fallen_2dcahn',['Example 4 : Coupled Cahn-Hilliard/Allen-Cahn',['../example4.html',1,'']]],
   ['example4_2eh',['example4.h',['../example4_8h.html',1,'']]],
-  ['example_205_20_3a_20nongradient_2c_20finite_20strain_20mechanics',['Example 5 : Nongradient, finite strain mechanics',['../example5.html',1,'']]],
+  ['example_205_20_3a_20configurational_20forces',['Example 5 : Configurational forces',['../example5.html',1,'']]],
   ['example5_2eh',['example5.h',['../example5_8h.html',1,'']]],
   ['example_206_20_3a_20gradient_20elasticity_20with_20periodic_20boundary_20conditions_2e',['Example 6 : Gradient elasticity with periodic boundary conditions.',['../example6.html',1,'']]],
   ['example6_2eh',['example6.h',['../example6_8h.html',1,'']]],

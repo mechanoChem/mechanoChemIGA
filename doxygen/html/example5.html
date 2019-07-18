@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>mechanoChemIGA: Example 5 : Nongradient, finite strain mechanics</title>
+<title>mechanoChemIGA: Example 5 : Configurational forces</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -79,10 +79,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">Example 5 : Nongradient, finite strain mechanics </div>  </div>
+<div class="title">Example 5 : Configurational forces </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>To model evolving material configurations with two displacment fields, we will specify the following through defining user functions: <br/>
+<div class="textblock"> <style>div.image img[src="configForces2.png"]{width:15cm;}</style>  <div class="image">
+<img src="configForces2.png" alt="configForces2.png"/>
+</div>
+<p>In this code, we model the evolving configuration of a material as it undergoes bending. We solve for two displacement fields. The configurational displacement field represents the displacement due to evolving material configuration, and is modeled using a nonconvex strain energy density function.</p>
+<p class="formulaDsp">
+<img class="formulaDsp" alt="\begin{eqnarray*} \boldsymbol{\Theta} &amp;=&amp; \half(\boldsymbol{\chi}^T\boldsymbol{\chi} - \mathbbm{1})\\ \eta_1 &amp;=&amp; \Theta_{11} + \Theta_{22},\, \eta_2 = \Theta_{11} - \Theta_{22},\, \eta_6 = \Theta_{12}\\ \psi^\mathrm{M} &amp;=&amp; \frac{d}{s^2}\left(\eta_1^2 + \eta_6^2\right) -\frac{2d}{s^2}\eta_2^2 + \frac{d}{s^4}\eta_2^4 + \frac{l^2d}{s^2}|\nabla^0 \eta_2|^2\\ \boldsymbol{D} &amp;=&amp; \frac{\partial \psi^\mathrm{M}}{\partial \boldsymbol{\chi}},\, \boldsymbol{B} = \frac{\partial \psi^\mathrm{M}}{\partial \nabla^0\boldsymbol{\chi}}\\ \end{eqnarray*}" src="form_22.png"/>
+</p>
+<p>The standard displacement is governed by an anisotropic St. Venant-Kirchhoff model, where the anisotropy is dependant on the configurational strain.</p>
+<p class="formulaDsp">
+<img class="formulaDsp" alt="\begin{eqnarray*} \boldsymbol{E} &amp;=&amp; \frac{1}{2}(\boldsymbol{F}^T\boldsymbol{F} - \mathbbm{1})\\ \alpha_I(\boldsymbol{\chi}) &amp;=&amp; \alpha\Lambda_I(\boldsymbol{\chi}), \, \Lambda_I^2 = \sum_{i=1}^3\chi_{iI}^2\\ \mathbb{C}(\boldsymbol{\chi}) &amp;=&amp; \beta(\mathbbm{1}\otimes\mathbbm{1}) + 2\mu\mathbb{I} + \sum_{I=1}^3 \left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right) \boldsymbol{e}_I\otimes \boldsymbol{e}_I\otimes\boldsymbol{e}_I\otimes \boldsymbol{e}_I\\ \psi^\mathrm{S} &amp;=&amp; \frac{1}{2} \boldsymbol{E}:\mathbb{C}(\boldsymbol{\chi}):\boldsymbol{E} \\ &amp;=&amp; \frac{1}{2}\left[\beta\mathrm{tr}(\boldsymbol{E})^2 + 2\mu(\boldsymbol{E}:\boldsymbol{E}) + \sum_{I=1}^3 E_{II}^2\left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right) \right]\\ \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} &amp;=&amp; \frac{1}{2} \sum_{I=1}^3 \frac{\alpha}{\Lambda_I}\boldsymbol{\chi}(\boldsymbol{e}_I\otimes \boldsymbol{e}_I) E_{II}^2 \end{eqnarray*}" src="form_20.png"/>
+</p>
+<p>The total displacement is the sum of the configurational and standard displacements, and is used to define boundary conditions. We solve the following weak form:</p>
+<p class="formulaDsp">
+<img class="formulaDsp" alt="\begin{eqnarray*} 0 &amp;=&amp; \int \limits_{{\Omega}_0} \nabla^0\nabla^0\boldsymbol{W}\,\vdots\,\boldsymbol{B} \,\mathrm{d}V_0+\\ &amp;\phantom{=}&amp; +\int \limits_{{\Omega}_0} \nabla^0\boldsymbol{W}:\left[\boldsymbol{D}+J_\chi\left(\mathcal{E} \boldsymbol{\chi}^{-T} + \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} \right) \right] \, \mathrm{d}V_0\\ &amp;\phantom{=}&amp; + \int \limits_{{\Omega}_0} \nabla^0\bar{\boldsybmol{w}}:\left(J_\chi\boldsymbol{P} \boldsymbol{\chi}^{-T} \right) \, \mathrm{d}V_0 \end{eqnarray*}" src="form_23.png"/>
+</p>
+<p>With the current settings, the following structure is obtained (deformation has been scaled 10x):</p>
+ <style>div.image img[src="example5.png"]{width:15cm;}</style>  <div class="image">
+<img src="example5.png" alt="example5.png"/>
+</div>
+<p>See the paper "A variational treatment of material configurations with application to interface motion and microstructural evolution", G. Teichert, et al. (Journal of the Mechanics and Physics of Solids, 2017).</p>
+<h1>Implementation: Level 1 users </h1>
+<p>To model evolving material configurations with two displacment fields, we will specify the following through defining user functions: <br/>
 </p>
 <ul>
 <li>Boundary conditions <br/>
@@ -98,7 +119,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Weak form of the PDE <br/>
 </li>
 </ul>
-<p>See the paper "A variational treatment of material configurations with application to interface motion and microstructural evolution", G. Teichert, et al. (Journal of the Mechanics and Physics of Solids, 2017).</p>
 <p>First, we include the header file declaring the required user functions. These functions will be defined in this file.</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
 </div><!-- fragment --></p>
@@ -258,12 +278,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gadbccf6631ad847d5a681a548f921ef29">defineParameters</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user){</div>
 </div><!-- fragment --></p>
 <p>We define the mesh, domain, and total applied displacement.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 160;<span class="comment">//800;</span></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 16;<span class="comment">//80;</span></div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 160;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 16;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0] = 10.;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1] = 1.;</div>
 <div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#aaeea040de4e556032e940b94bf137b16">uDirichlet</a> = 0.1;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;u_applied&quot;</span>] = 0.196;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#aaeea040de4e556032e940b94bf137b16">uDirichlet</a> = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;u_applied&quot;</span>];</div>
 </div><!-- fragment --></p>
 <p>We specify the number of vector and scalar solution and projection fields by adding the name of each field to their respective vector. Here, we have two vector solution fields (the configurational displacement and total displacement) and one scalar projection field (eta2). We do not use any scalar solution or vector projection fields in this example.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#ae171e542b477f3394601555549b7d3a8">vectorSolnFields</a>.push_back(<span class="stringliteral">&quot;configDisplacement&quot;</span>);</div>
@@ -275,10 +296,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
 </div><!-- fragment --></p>
 <p>We specify the value <code>dtVal</code>, which is a load step in this problem, as well as the <code>totalTime</code>, or total loading. We can also specify a location (iteration number and time) to restart.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = 0.01;<span class="comment">//0.0005;</span></div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = 0.005;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a17b4070be131d7cee7880bbc695f9169">totalTime</a> = 1.;</div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a28a6be93b52da95fb5e891f10a9a5d87">RESTART_IT</a> = 0;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a6d5465cb515bc053db8785edd2e1b21b">RESTART_TIME</a> = 0.;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a6d5465cb515bc053db8785edd2e1b21b">RESTART_TIME</a> = 0;</div>
 </div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>boundaryConditions</code>, <code>projectFields</code>, and <code>loadStep</code> functions that we defined above. This completes the <code>defineParameters</code> function.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
@@ -321,198 +342,36 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Finally, we include a file that instatiates the template functions <code>defineParameters</code> and <code>residual</code>. This bit of code will generally be the same for any problem (unless you decide to use a different automatic differentation library), the user does not need to modify it.</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_instantiation_8h.html">userFunctionsInstantiation.h</a>&quot;</span></div>
 </div><!-- fragment --></p>
-<h1>The complete code </h1>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_8h.html">userFunctions.h</a>&quot;</span></div>
+<p>The complete implementation can be found at <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/configurationalForces/bending2D/userFunctions.cc">Github</a>.</p>
+<h1>Parameters file: Interface for level 2 users </h1>
+<p>Now let's look at the parameters file, <code>parameters.prm</code>. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. <p>The parameters defined in the parameters file overwrite any previous values defined in the <code>defineParameters</code> function. Anything following the pound sign (#) is a comment. A parameter is defined using the syntax:</p>
+<p><code>set</code> <code>parameterName</code> <code>=</code> <code>parameterValue</code> </p>
+<p>There is a set list of variables that can be read from the parameters file. Anything else will be added to the <code>matParam</code> structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), where the number of components must equal the spatial dimension of the problem.</p>
+<p>In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:</p>
+<p><div class="fragment"><div class="line">set dim = 2</div>
+<div class="line">set L = 10 x 1</div>
+<div class="line">set N = 160 x 16</div>
+</div><!-- fragment --></p>
+<p>Next, we define some parameters related to loading:</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Load</span></div>
+<div class="line"><span class="preprocessor"></span>set u_applied = 0.196 # Total applied downward displacement</div>
+<div class="line">set dtVal = 0.1 # Load stepping</div>
+</div><!-- fragment --></p>
+<p>We then define restart information, output frequency, and spline parameters.</p>
+<p><div class="fragment"><div class="line"><span class="preprocessor"># Restart</span></div>
+<div class="line"><span class="preprocessor"></span>set RESTART_TIME = 0</div>
+<div class="line">set RESTART_IT = 0</div>
 <div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user, <span class="keywordtype">double</span> scale){</div>
+<div class="line"><span class="preprocessor"># Output</span></div>
+<div class="line"><span class="preprocessor"></span>set skipOutput = 1</div>
 <div class="line"></div>
-<div class="line">  <span class="comment">//IGASetBoundaryValue(user.iga,&quot;axis&quot;,&quot;side&quot;,&quot;dof&quot;,&quot;val&quot;)</span></div>
-<div class="line"></div>
-<div class="line">  <span class="keywordtype">double</span> dVal = scale*user.<a class="code" href="struct_app_ctx.html#aaeea040de4e556032e940b94bf137b16">uDirichlet</a>;</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Plane strain bending </span></div>
-<div class="line">  <span class="comment">//Configurational displacements</span></div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,0,0,0.0);</div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,0,1,0.0);</div>
-<div class="line"></div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,1,0,0.0);</div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,1,1,-0.5*dVal);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Total displacements</span></div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,0,2,0.0);</div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,0,3,0.0);</div>
-<div class="line"></div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,1,2,0.0);</div>
-<div class="line">  IGASetBoundaryValue(user.<a class="code" href="struct_app_ctx.html#adfcef5b251f90ce037459e347d8f8b63">iga</a>,0,1,3,-dVal);</div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end boundaryConditions</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a8c6455f643420f5e3fe10b14cf625e42">userLoadStep</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> step,<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user){</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Set scale to be the current time</span></div>
-<div class="line">  <span class="keywordtype">double</span> scale = user.<a class="code" href="struct_app_ctx.html#af585181ec35de11d46ea249aee869f07">time</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a>(user,scale+user.<a class="code" href="struct_app_ctx.html#a102ae36ef6e9df9f12c7e988659b5ff0">dt</a>);</div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end loadStep</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>(<span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,double&gt;</a> &amp;c,</div>
-<div class="line">           <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,double&gt;</a> &amp;u,</div>
-<div class="line">           <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user,</div>
-<div class="line">           std::vector&lt;double&gt; &amp;scalarProjections,</div>
-<div class="line">           std::vector&lt;<a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &gt; &amp;vectorProjections){</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Project 1 scalar field</span></div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,double&gt;</a> chi, Theta, eye;</div>
-<div class="line">  <a class="code" href="class_tensor.html#ad82bf064ac85d03cde37854363afe9de">identity</a>(eye);</div>
-<div class="line">  chi = u.<a class="code" href="classsolution_vectors.html#a17d562590b91ada496cca3e111777e57">grad</a>(0) + eye;</div>
-<div class="line">  Theta = 0.5*(<a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(chi)*chi - eye);</div>
-<div class="line">  scalarProjections[0] = Theta[0][0] - Theta[1][1]; <span class="comment">//eta2</span></div>
-<div class="line">  </div>
-<div class="line">} <span class="comment">//end projectFields</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim,<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6dd2ba7b879bcd2e0f1bf377d55a6bf">constitutiveModel</a>(<a class="code" href="class_tensor.html">Tensor&lt;3,dim,T&gt;</a> &amp;B,</div>
-<div class="line">               <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> &amp;D,</div>
-<div class="line">               <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> &amp;P,</div>
-<div class="line">               <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> &amp;dpsiS_dchi,</div>
-<div class="line">               <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> &amp;Eshelby,</div>
-<div class="line">               <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> &amp;chi,</div>
-<div class="line">               T &amp;Jchi,</div>
-<div class="line">               <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,T&gt;</a> &amp;u){</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">//Define constitutive model parameters</span></div>
-<div class="line">  <span class="keywordtype">double</span> mu = 0.1,</div>
-<div class="line">    alphaC = 0.2,</div>
-<div class="line">    betaC = 0.1;</div>
-<div class="line"></div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;3,dim,T&gt;</a> dchi;</div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> Phi, Theta, eye;</div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> F, E, S;</div>
-<div class="line">  <a class="code" href="class_tensor_3_011_00_01dim_00_01_t_01_4.html">Tensor&lt;1,dim,T&gt;</a> Lambda;</div>
-<div class="line">  T psiS;</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Kinematics</span></div>
-<div class="line">  <a class="code" href="class_tensor.html#ad82bf064ac85d03cde37854363afe9de">identity</a>(eye);</div>
-<div class="line">  chi = u.<a class="code" href="classsolution_vectors.html#a17d562590b91ada496cca3e111777e57">grad</a>(0) + eye;</div>
-<div class="line">  dchi = u.<a class="code" href="classsolution_vectors.html#a3f9a115243164dbb8eb6e42d3791dd37">hess</a>(0);</div>
-<div class="line">  Jchi = <a class="code" href="class_tensor.html#a4d1f4671cbc87300dbbb987b6db28d96">det</a>(chi);</div>
-<div class="line">  Phi = <a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(chi)*chi;</div>
-<div class="line">  Theta = 0.5*(Phi - eye);</div>
-<div class="line">  F = (u.<a class="code" href="classsolution_vectors.html#a17d562590b91ada496cca3e111777e57">grad</a>(1) + eye)*<a class="code" href="class_tensor.html#a8ed527cd06f7c6169e944b6332e81a44">inv</a>(chi);</div>
-<div class="line">  E = 0.5*(<a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(F)*F - eye);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Stress</span></div>
-<div class="line">  S = betaC*<a class="code" href="class_tensor.html#aa49dbdc74bfc6fba3f707032e4918b7c">trace</a>(E)*eye + 2*mu*E;</div>
-<div class="line">  psiS = 0.5*betaC*<a class="code" href="class_tensor.html#aa49dbdc74bfc6fba3f707032e4918b7c">trace</a>(E)*<a class="code" href="class_tensor.html#aa49dbdc74bfc6fba3f707032e4918b7c">trace</a>(E) + mu*<a class="code" href="class_tensor.html#a5a8bda2f027340305afc45b49388bcc8">double_contract</a>(E,E);</div>
-<div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i=0; i&lt;dim; ++i){</div>
-<div class="line">    Lambda[i] = std::sqrt(Phi[i][i]);</div>
-<div class="line">    S[i][i] += (alphaC*Lambda[i] - betaC - 2*mu)*E[i][i];</div>
-<div class="line">    psiS += 0.5*(alphaC*Lambda[i] - betaC - 2*mu)*E[i][i]*E[i][i];</div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> j=0; j&lt;dim; ++j){</div>
-<div class="line">      dpsiS_dchi[j][i] = 0.5*alphaC/Lambda[i]*chi[j][i]*E[i][i]*E[i][i];</div>
-<div class="line">    }</div>
-<div class="line">  }</div>
-<div class="line">  P = F*S;</div>
-<div class="line">  Eshelby = psiS*eye - <a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(F)*P;</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//The definitions below are only for 2D...</span></div>
-<div class="line">  <span class="keywordtype">double</span> Es = 0.1,</div>
-<div class="line">    Ed = 1.0,</div>
-<div class="line">    El = 0.1;</div>
-<div class="line">  T eta1 = Theta[0][0] + Theta[1][1];</div>
-<div class="line">  T eta2 = Theta[0][0] - Theta[1][1];</div>
-<div class="line">  T eta6 = Theta[0][1];</div>
-<div class="line"></div>
-<div class="line">  T eta2_1=0.0, eta2_2=0.0; </div>
-<div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i=0; i&lt;dim; ++i){</div>
-<div class="line">    eta2_1+=(chi[i][0]*dchi[i][0][0]-chi[i][1]*dchi[i][1][0]);</div>
-<div class="line">    eta2_2+=(chi[i][0]*dchi[i][0][1]-chi[i][1]*dchi[i][1][1]);</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> deta1_dchi, deta2_dchi, deta6_dchi;</div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> deta2_1_dchi, deta2_2_dchi;</div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;3,dim,T&gt;</a> deta2_1_ddchi, deta2_2_ddchi;</div>
-<div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i=0; i&lt;dim; ++i){</div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> J=0; J&lt;dim; ++J){</div>
-<div class="line">      deta1_dchi[i][J] = (chi[i][0]*(0==J)+chi[i][1]*(1==J));</div>
-<div class="line">      deta2_dchi[i][J] = (chi[i][0]*(0==J)-chi[i][1]*(1==J));</div>
-<div class="line">      deta6_dchi[i][J] = (chi[i][1]*(0==J)+chi[i][0]*(1==J))/2.0;</div>
-<div class="line">      deta2_1_dchi[i][J] = ((0==J)*dchi[i][0][0]-(1==J)*dchi[i][1][0]);</div>
-<div class="line">      deta2_2_dchi[i][J] = ((0==J)*dchi[i][0][1]-(1==J)*dchi[i][1][1]);</div>
-<div class="line"></div>
-<div class="line">      <span class="comment">//gradient terms</span></div>
-<div class="line">      <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> K=0; K&lt;dim; ++K){</div>
-<div class="line">    deta2_1_ddchi[i][J][K] = (chi[i][0]*(0==J)-chi[i][1]*(1==J))*(0==K);</div>
-<div class="line">    deta2_2_ddchi[i][J][K] = (chi[i][0]*(0==J)-chi[i][1]*(1==J))*(1==K);</div>
-<div class="line">      }</div>
-<div class="line">    }</div>
-<div class="line">  } </div>
-<div class="line">  </div>
-<div class="line">  D = 2.*Ed/(Es*Es)*(eta1*deta1_dchi + 2.*(eta2*eta2/(Es*Es) - 1.)*eta2*deta2_dchi + eta6*deta6_dchi);</div>
-<div class="line">  D = D + 2*El*El*Ed/(Es*Es)*(eta2_1*deta2_1_dchi + eta2_2*deta2_2_dchi);</div>
-<div class="line">  B = 2*El*El*Ed/(Es*Es)*(eta2_1*deta2_1_ddchi + eta2_2*deta2_2_ddchi);</div>
-<div class="line">    </div>
-<div class="line">} <span class="comment">//end constitutiveModel</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gadbccf6631ad847d5a681a548f921ef29">defineParameters</a>(<a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a>&amp; user){</div>
-<div class="line"> </div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[0] = 160;<span class="comment">//800;</span></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a55ccabd543df9a0223cd34dbd64c987d">N</a>[1] = 16;<span class="comment">//80;</span></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[0] = 10.;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[1] = 1.;</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#aaeea040de4e556032e940b94bf137b16">uDirichlet</a> = 0.1;</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ae171e542b477f3394601555549b7d3a8">vectorSolnFields</a>.push_back(<span class="stringliteral">&quot;configDisplacement&quot;</span>);</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ae171e542b477f3394601555549b7d3a8">vectorSolnFields</a>.push_back(<span class="stringliteral">&quot;totalDisplacement&quot;</span>);</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a9bc7b320034d23a4cb30b978ae0396c7">scalarProjectnFields</a>.push_back(<span class="stringliteral">&quot;eta2&quot;</span>);</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a23cded74ca3d8ec2f99d69e41d8539ca">polyOrder</a> = 2;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#ae091f872a8ec5d2a5492586ae8fcbcbb">globalContinuity</a> = 1;</div>
-<div class="line"></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = 0.01;<span class="comment">//0.0005;</span></div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a17b4070be131d7cee7880bbc695f9169">totalTime</a> = 1.;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a28a6be93b52da95fb5e891f10a9a5d87">RESTART_IT</a> = 0;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a6d5465cb515bc053db8785edd2e1b21b">RESTART_TIME</a> = 0.;</div>
-<div class="line">  </div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#af442fd9179e95d228ca6c551c97720d0">projectFields</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6b8965debeac8f398e9ad5d26586357">userProjectFields</a>;</div>
-<div class="line">  user.<a class="code" href="struct_app_ctx.html#abc53c98a6b7d83305e474238bc3d9f51">loadStep</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a8c6455f643420f5e3fe10b14cf625e42">userLoadStep</a>;</div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end defineParameters</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">template</span>&lt;<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> dim, <span class="keyword">typename</span> T&gt;</div>
-<div class="line"><span class="keywordtype">void</span> <a class="code" href="group__user_functions.html#gab9195b3f02c923dafb2c742df293db7d">residual</a>(<span class="keywordtype">bool</span> dV,</div>
-<div class="line">          <span class="keywordtype">bool</span> dS,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;x,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="class_tensor.html">Tensor&lt;1,dim,double&gt;</a> &amp;normal,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classsolution_scalars.html">solutionScalars&lt;dim,T&gt;</a> &amp;c,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classsolution_vectors.html">solutionVectors&lt;dim,T&gt;</a> &amp;u,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classtest_function_scalars.html">testFunctionScalars&lt;dim,T&gt;</a> &amp;w1,</div>
-<div class="line">          <span class="keyword">const</span> <a class="code" href="classtest_function_vectors.html">testFunctionVectors&lt;dim,T&gt;</a> &amp;w2,</div>
-<div class="line">          <a class="code" href="struct_app_ctx.html">AppCtx&lt;dim&gt;</a> &amp;user,</div>
-<div class="line">          Sacado::Fad::SimpleFad&lt;T&gt; &amp;r){</div>
-<div class="line">  </div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;3,dim,T&gt;</a> B;</div>
-<div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> D,P,dpsiS_dchi,Eshelby,chi;</div>
-<div class="line">  T Jchi;</div>
-<div class="line">  <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#aa6dd2ba7b879bcd2e0f1bf377d55a6bf">constitutiveModel</a>(B,D,P,dpsiS_dchi,Eshelby,chi,Jchi,u);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">//Weak form</span></div>
-<div class="line">  r = <a class="code" href="class_tensor.html#a0d8d7cd689342c88f61442873c060b89">triple_contract</a>(w2.<a class="code" href="classtest_function_vectors.html#a11dc66c53603643153b6c1bc14f716b5">hess</a>(0),B)*dV; <span class="comment">//Material</span></div>
-<div class="line">  r += <a class="code" href="class_tensor.html#a5a8bda2f027340305afc45b49388bcc8">double_contract</a>(w2.<a class="code" href="classtest_function_vectors.html#ac178383f83c18393f2d61f02793fce93">grad</a>(0),D+Jchi*(Eshelby*<a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(<a class="code" href="class_tensor.html#a8ed527cd06f7c6169e944b6332e81a44">inv</a>(chi)) + dpsiS_dchi))*dV; <span class="comment">//Material</span></div>
-<div class="line">  r += <a class="code" href="class_tensor.html#a5a8bda2f027340305afc45b49388bcc8">double_contract</a>(w2.<a class="code" href="classtest_function_vectors.html#ac178383f83c18393f2d61f02793fce93">grad</a>(1),Jchi*P*<a class="code" href="class_tensor.html#ae47b0b29069a6f95a8ea98c64b6d91e8">trans</a>(<a class="code" href="class_tensor.html#a8ed527cd06f7c6169e944b6332e81a44">inv</a>(chi)))*dV; <span class="comment">//Standard</span></div>
-<div class="line"></div>
-<div class="line">} <span class="comment">//end residual</span></div>
-<div class="line"></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="user_functions_instantiation_8h.html">userFunctionsInstantiation.h</a>&quot;</span></div>
-</div><!-- fragment --> </div></div><!-- contents -->
+<div class="line"><span class="preprocessor"># Splines</span></div>
+<div class="line"><span class="preprocessor"></span>set polyOrder = 2</div>
+<div class="line">set globalContinuity = 1</div>
+</div><!-- fragment --></p>
+<p>Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.</p>
+<p>The complete parameters file can be found at <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/configurationalForces/bending2D/parameters.prm">Github</a>. </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

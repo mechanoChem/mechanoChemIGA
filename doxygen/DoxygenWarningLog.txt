@@ -2,7 +2,7 @@
 void defineParameters(AppCtx< dim > &user)
 Possible candidates:
  'void defineParameters(AppCtx< dim > &user)' at line 35 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/userFunctions.h
- 'void defineParameters(AppCtx< dim > &user)' at line 31 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D/userFunctions.cc
+ 'void defineParameters(AppCtx< dim > &user)' at line 35 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 49 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D_bsplines_B2/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 48 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_AllenCahn/2D_DNN_B2/userFunctions.cc
  'void defineParameters(AppCtx< dim > &user)' at line 20 of file/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc
@@ -14,6 +14,8 @@ Possible candidates:
 
 /afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example1.h:250: warning: Found unknown command `\defineParameters'
 /afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example2.h:274: warning: Found unknown command `\defineParameters'
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example3.h:280: warning: Found unknown command `\defineParameters'
+/afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/doxygen/example4.h:287: warning: Found unknown command `\defineParameters'
 /afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/defaultUserFunctions.h:85: warning: argument 'vectorProjectionsvector' of command @param is not found in the argument list of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections)
 /afs/umich.edu/user/g/r/greght/Research/mechanoChemistryGithub/include/defaultUserFunctions.h:85: warning: The following parameters of projectFields(const Tensor< 1, dim, double > &x, const Tensor< 1, dim, double > &normal, const solutionScalars< dim, double > &c, const solutionVectors< dim, double > &u, AppCtx< dim > &user, std::vector< double > &scalarProjections, std::vector< Tensor< 1, dim, double > > &vectorProjections) are not documented:
   parameter 'vectorProjections'

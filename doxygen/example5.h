@@ -1,6 +1,64 @@
 /**
- * @page example5 Example 5 : Nongradient, finite strain mechanics
+ * @page example5 Example 5 : Configurational forces
  * \dontinclude configurationalForces/bending2D/userFunctions.cc
+ *
+ * \htmlonly <style>div.image img[src="configForces2.png"]{width:15cm;}</style> \endhtmlonly
+ * @image html configForces2.png
+ *
+ * In this code, we model the evolving configuration of a material as it undergoes bending.
+ * We solve for two displacement fields. The configurational displacement field represents
+ * the displacement due to evolving material configuration, and is modeled using
+ * a nonconvex strain energy density function.
+ *
+ * \f{eqnarray*}{
+ * \boldsymbol{\Theta} &=& \half(\boldsymbol{\chi}^T\boldsymbol{\chi} - \mathbbm{1})\\
+ * \eta_1 &=& \Theta_{11} + \Theta_{22},\,
+ * \eta_2 = \Theta_{11} - \Theta_{22},\,
+ * \eta_6 = \Theta_{12}\\
+ * \psi^\mathrm{M} &=& \frac{d}{s^2}\left(\eta_1^2 + \eta_6^2\right)
+ * -\frac{2d}{s^2}\eta_2^2 + \frac{d}{s^4}\eta_2^4
+ * + \frac{l^2d}{s^2}|\nabla^0 \eta_2|^2\\
+ * \boldsymbol{D} &=& \frac{\partial \psi^\mathrm{M}}{\partial \boldsymbol{\chi}},\,
+ * \boldsymbol{B} = \frac{\partial \psi^\mathrm{M}}{\partial \nabla^0\boldsymbol{\chi}}\\
+ * \f}
+ *
+ * The standard displacement is governed by an anisotropic St. Venant-Kirchhoff model, where
+ * the anisotropy is dependant on the configurational strain.
+ *
+ * \f{eqnarray*}{
+ * \boldsymbol{E} &=& \frac{1}{2}(\boldsymbol{F}^T\boldsymbol{F} - \mathbbm{1})\\
+ * \alpha_I(\boldsymbol{\chi}) &=& \alpha\Lambda_I(\boldsymbol{\chi}), \, \Lambda_I^2 = \sum_{i=1}^3\chi_{iI}^2\\
+ * \mathbb{C}(\boldsymbol{\chi}) &=& \beta(\mathbbm{1}\otimes\mathbbm{1}) + 2\mu\mathbb{I} +
+ * \sum_{I=1}^3 \left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right)
+ * \boldsymbol{e}_I\otimes \boldsymbol{e}_I\otimes\boldsymbol{e}_I\otimes \boldsymbol{e}_I\\
+ * \psi^\mathrm{S} &=& \frac{1}{2} \boldsymbol{E}:\mathbb{C}(\boldsymbol{\chi}):\boldsymbol{E} \\
+ * &=& \frac{1}{2}\left[\beta\mathrm{tr}(\boldsymbol{E})^2 + 2\mu(\boldsymbol{E}:\boldsymbol{E}) + 
+ * \sum_{I=1}^3 E_{II}^2\left(\alpha_I(\boldsymbol{\chi}) -\beta - 2\mu \right) \right]\\
+ * \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} &=& 
+ * \frac{1}{2} \sum_{I=1}^3 \frac{\alpha}{\Lambda_I}\boldsymbol{\chi}(\boldsymbol{e}_I\otimes \boldsymbol{e}_I) E_{II}^2
+ * \f}
+ *
+ * The total displacement is the sum of the configurational and standard displacements, and
+ * is used to define boundary conditions. We solve the following weak form:
+ *
+ * \f{eqnarray*}{
+ * 0 &=& \int \limits_{{\Omega}_0} \nabla^0\nabla^0\boldsymbol{W}\,\vdots\,\boldsymbol{B} \,\mathrm{d}V_0+\\
+ * &\phantom{=}& +\int \limits_{{\Omega}_0} \nabla^0\boldsymbol{W}:\left[\boldsymbol{D}+J_\chi\left(\mathcal{E} \boldsymbol{\chi}^{-T}
+ *  + \frac{\partial \psi^\mathrm{S}}{\partial \boldsymbol{\chi}} \right) \right] \, \mathrm{d}V_0\\
+ * &\phantom{=}& + \int \limits_{{\Omega}_0} \nabla^0\bar{\boldsybmol{w}}:\left(J_\chi\boldsymbol{P} \boldsymbol{\chi}^{-T} \right)
+ *  \, \mathrm{d}V_0
+ * \f}
+ *
+ * With the current settings, the following structure is obtained (deformation has been scaled 10x):
+ *
+ * \htmlonly <style>div.image img[src="example5.png"]{width:15cm;}</style> \endhtmlonly
+ * @image html example5.png 
+ *
+ * See the paper "A variational treatment of material configurations with application to interface motion and microstructural evolution",
+ * G. Teichert, et al. (Journal of the Mechanics and Physics of Solids, 2017).
+ *
+ * Implementation: Level 1 users
+ * ==============================
  *
  * To model evolving material configurations with two displacment fields, we will specify the following through defining user functions: <br>
  * - Boundary conditions <br>
@@ -10,8 +68,6 @@
  * - Parameter values <br>
  * - Weak form of the PDE <br>
  *
- * See the paper "A variational treatment of material configurations with application to interface motion and microstructural evolution",
- * G. Teichert, et al. (Journal of the Mechanics and Physics of Solids, 2017).
  *
  * First, we include the header file declaring the required user functions. These functions will be defined in this file.
  *
@@ -170,8 +226,41 @@
  *
  * \line "userFunctionsInstantiation.h"
  *
- * The complete code
+ * The complete implementation can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/configurationalForces/bending2D/userFunctions.cc">Github</a>.
+ *
+ * Parameters file: Interface for level 2 users
  * ==============================
  *
- * \include configurationalForces/bending2D/userFunctions.cc
+ * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
+ * these values can be changed without recompiling the code and it can provide a clean interface to the code.
+ * \dontinclude configurationalForces/bending2D/parameters.prm
+ *
+ * The parameters defined in the parameters file overwrite any previous values defined in the \c defineParameters function.
+ * Anything following the pound sign (#) is a comment. A parameter is defined using the syntax: 
+ *
+ * \c set \c parameterName \c = \c parameterValue
+ *
+ * There is a set list of variables that can be read from the parameters file. Anything else will be added to 
+ * the \c matParam structure with a double number type. Tensor objects can follow the format: 1 x 1 or [1,1] or (1,1), 
+ * where the number of components must equal the spatial dimension of the problem.
+ *
+ * In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size:
+ *
+ * \skip dim
+ * \until set N
+ *
+ * Next, we define some parameters related to loading:
+ *
+ * \skip Load
+ * \until dtVal
+ *
+ * We then define restart information, output frequency, and spline parameters.
+ *
+ * \skip Restart
+ * \until globalContinuity
+ *
+ * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
+ *
+ * The complete parameters file can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/configurationalForces/bending2D/parameters.prm">Github</a>.
+ *
  */

@@ -10,6 +10,8 @@ Free energy density\-:
 
 \begin{eqnarray*} f(c_1,c_2) = c_2(c_1-0.1)^2(c_1-0.9)^2 + (c_2-0.2)^2(c_2-0.8)^2 \end{eqnarray*}
 
+\section*{Implementation\-: Level 1 users }
+
 To implement this model, we will specify the following through defining user functions\-: \par
 
 \begin{DoxyItemize}
@@ -163,7 +165,9 @@ Tensor operations\-: \par
 {\ttfamily trace( )} -\/ trace of 2nd order tensor \par
 {\ttfamily det( )} -\/ determinant of 2nd order tensor \par
 {\ttfamily inv( )} -\/ inverse of 2nd order tensor \par
- The example code here implements the weak form for the Cahn-\/\-Hilliard equations, as shown above.
+
+
+The example code here implements the weak form for the Cahn-\/\-Hilliard equations, as shown above.
 
 First, we set the values for necessary parameters, using some predefined material parameters.
 
@@ -199,6 +203,10 @@ Finally, we include a file that instatiates the template functions {\ttfamily de
 \end{DoxyCodeInclude}
 
 
+The complete implementation can be found at \href{https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_twoSpecies/2D/userFunctions.cc}{\tt Github}.
+
+\section*{Parameters file\-: Interface for level 2 users }
+
 Now let's look at the parameters file, {\ttfamily parameters.\-prm}. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. 
 
 The parameters defined in the parameters file overwrite any previous values defined in the {\ttfamily define\-Parameters} function. Anything following the pound sign (\#) is a comment. A parameter is defined using the syntax\-:
@@ -225,14 +233,4 @@ We then define time stepping, restart information, output frequency, and spline 
 
 Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
 
-\section*{The complete code }
-
-The {\ttfamily parameters.\-prm} file\-: 
-\begin{DoxyCodeInclude}
-\end{DoxyCodeInclude}
-
-
-The {\ttfamily user\-Functions.\-cc} source code\-: 
-\begin{DoxyCodeInclude}
-\end{DoxyCodeInclude}
- 
+The complete parameters file can be found at \href{https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_twoSpecies/2D/parameters.prm}{\tt Github}. 

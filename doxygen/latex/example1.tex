@@ -1,5 +1,15 @@
 
 
+This example implements static finite strain elasticity in 3\-D, with a combination of Dirichlet and Neumann boundary conditions. We solve for the displacement vector field, with the following weak form\-:
+
+\begin{eqnarray*} \int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0 \end{eqnarray*}
+
+With the loading specified in the below code, the following deformation occurs\-:
+
+ 
+
+\section*{Implementation\-: Level 1 users }
+
 To model nongradient, finite strain elasticity, we will specify the following through defining user functions\-: \par
 
 \begin{DoxyItemize}
@@ -97,7 +107,15 @@ We can specify the polynomial order of the basis splines, as well as the global 
 \end{DoxyCodeInclude}
 
 
-We now define the 4th order elasticity tensor.
+We now define the 4th order elasticity tensor. Note that we use the C++ map {\ttfamily user.\-mat\-Param} whenever we'd like to be able to define the parameter value in the parameters file (see the end of this page).
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We specify a scalar coefficient to the Neumann boundary condition.
 
 
 \begin{DoxyCodeInclude}
@@ -163,7 +181,9 @@ Tensor operations\-: \par
 {\ttfamily trace( )} -\/ trace of 2nd order tensor \par
 {\ttfamily det( )} -\/ determinant of 2nd order tensor \par
 {\ttfamily inv( )} -\/ inverse of 2nd order tensor \par
- The example code here implements the weak form for finite strain elasticity, $\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$ with the Neumann boundary condtion $\boldsymbol{h} = \langle 0,0,1.e9x_1\rangle$ on $x_3=1$. First, we get the values for $\boldsymbol{P}$ and $\boldsymbol{h}$, based on the current quadrature point.
+
+
+The example code here implements the weak form for finite strain elasticity, $\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$ with the Neumann boundary condtion $\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle$ on $x_3=1$. First, we get the values for $\boldsymbol{P}$ and $\boldsymbol{h}$, based on the current quadrature point.
 
 
 \begin{DoxyCodeInclude}
@@ -187,9 +207,42 @@ Finally, we include a file that instatiates the template functions {\ttfamily de
 \end{DoxyCodeInclude}
 
 
-\section*{The complete code }
+The complete implementation can be found at \href{https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/userFunctions.cc}{\tt Github}.
+
+\section*{Parameters file\-: Interface for level 2 users }
+
+Now let's look at the parameters file, {\ttfamily parameters.\-prm}. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. 
+
+The parameters defined in the parameters file overwrite any previous values defined in the {\ttfamily define\-Parameters} function. Anything following the pound sign (\#) is a comment. A parameter is defined using the syntax\-:
+
+{\ttfamily set} {\ttfamily parameter\-Name} {\ttfamily =} {\ttfamily parameter\-Value} 
+
+There is a set list of variables that can be read from the parameters file. Anything else will be added to the {\ttfamily mat\-Param} structure with a double number type. Tensor objects can follow the format\-: 1 x 1 or \mbox{[}1,1\mbox{]} or (1,1), where the number of components must equal the spatial dimension of the problem.
+
+In this example file, we begin by specifying the spatial dimension, the geometry dimensions, and the mesh size\-:
 
 
 \begin{DoxyCodeInclude}
+
 \end{DoxyCodeInclude}
- 
+
+
+Next, we define some parameters that are specific to this problem, so they become elements of {\ttfamily mat\-Param} (see the {\ttfamily residual} and  functions above).
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+We then define spline parameters (linear is fine for this problem).
+
+
+\begin{DoxyCodeInclude}
+
+\end{DoxyCodeInclude}
+
+
+Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
+
+The complete parameters file can be found at \href{https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/nonGradientMechanics/3D/parameters.prm}{\tt Github}. 

@@ -29,6 +29,16 @@
  * f(c_1,c_2) = c_2(c_1-0.1)^2(c_1-0.9)^2 + (c_2-0.2)^2(c_2-0.8)^2
  * \f}
  *
+ * The current settings prescribe random initial conditions and zero-flux
+ * boundary conditions. With these settings, the following evolution 
+ * of the concentration of the two species is obtained:
+ *
+ * \htmlonly <style>div.image img[src="example3.png"]{width:20cm;}</style> \endhtmlonly
+ * @image html example3.png 
+ *
+ * Implementation: Level 1 users
+ * ==============================
+ *
  * To implement this model, we will specify the following through defining user functions: <br>
  * - Initial conditions <br>
  * - Constitutive model (via free energy density functions) <br>
@@ -84,6 +94,13 @@
  *
  * \skip user.L[0]
  * \until user.L[1]
+ *
+ * We can define additional material parameters that are not explicity listed in the \c user structure by
+ * defining elements of the \c matParam C++ map, which maps \c std::string to \c double. These values can also be overwritten
+ * in the parameters file.
+ *
+ * \skip "mobility"
+ * \until "kappa"
  *
  * We define the initial time step and total simulation time. We also have the options to use restart files, in which case
  * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
@@ -169,6 +186,7 @@
  * \c det( ) - determinant of 2nd order tensor \n
  * \c inv( ) - inverse of 2nd order tensor \n
  *
+ *
  * The example code here implements the weak form for the Cahn-Hilliard equations, as shown above.
  *
  * First, we set the values for necessary parameters, using some predefined material parameters.
@@ -205,6 +223,11 @@
  *
  * \line userFunctionsInstantiation
  *
+ * The complete implementation can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_twoSpecies/2D/userFunctions.cc">Github</a>.
+ *
+ * Parameters file: Interface for level 2 users
+ * ==============================
+ *
  * Now let's look at the parameters file, \c parameters.prm. The advantages of the parameters file are that
  * these values can be changed without recompiling the code and it can provide a clean interface to the code.
  * \dontinclude CahnHilliard_twoSpecies/2D/parameters.prm
@@ -223,6 +246,12 @@
  * \skip dim
  * \until set N
  *
+ * Next, we define some parameters that are specific to this problem,
+ * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
+ *
+ * \skip mobility
+ * \until kappa
+ *
  * We then define time stepping, restart information, output frequency, and spline parameters.
  *
  * \skip Time stepping
@@ -230,12 +259,6 @@
  *
  * Note that we don't need to include all (or even any) of these parameters in this file. We defined default values previously.
  *
- * The complete code
- * ==============================
+ * The complete parameters file can be found at  <a href="https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_twoSpecies/2D/parameters.prm">Github</a>.
  *
- * The \c parameters.prm file:
- * \include CahnHilliard_twoSpecies/2D/parameters.prm
- *
- * The \c userFunctions.cc source code:
- * \include CahnHilliard_twoSpecies/2D/userFunctions.cc
  */

@@ -5,8 +5,8 @@ double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int s
 {
 
   switch(scalar_i) {
-  case 0: return 0.5 + 0.1*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
-  case 1: return 0.5 + 0.3*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
+  case 0: return 0.5 + 0.01*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
+  case 1: return 0.5 + 0.03*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
   default: return 0.;
   }
 
@@ -14,17 +14,21 @@ double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int s
 
 template<typename T>
 T F_eta(T c, T eta){
-  return std::pow(c-0.1,2)*std::pow(c-0.9,2) + 2.*(eta-0.2)*(eta-0.8)*(2.*eta-1.);
+  //return std::pow(c-0.1,2)*std::pow(c-0.9,2) + 2.*(eta-0.2)*(eta-0.8)*(2.*eta-1.);
+  return 10.*(eta - 0.8)*(std::pow(c-0.9,2) + 5.*std::pow(eta-0.2,2)) + 
+    10.*(eta - 0.2)*(std::pow(c-0.1,2) + 5.*std::pow(eta-0.8,2));
 }
 
 template<typename T>
 T F_cc(T c, T eta){
-  return 2*eta*(std::pow(2.*c-1.,2) + 2.*(c-0.1)*(c-.9));
+  //return 2*eta*(std::pow(2.*c-1.,2) + 2.*(c-0.1)*(c-.9));
+  return 2.*c*(std::pow(c-0.1,2) + std::pow(c-0.9,2) + 5.*std::pow(eta-0.2,2) + 5.*std::pow(eta-0.8,2)) + 8.*(c-0.1)*(c-0.9);
 }
 
 template<typename T>
 T F_ceta(T c, T eta){
-  return 2.*(c-0.1)*(c-0.9)*(2.*c-1.);
+  //return 2.*(c-0.1)*(c-0.9)*(2.*c-1.);
+  return 20.*(std::pow(c-0.1,2)*std::pow(eta-0.2,2) + std::pow(c-0.9,2)*std::pow(eta-0.8,2));
 } //end free energy derivative functions
 
 template<unsigned int dim>
@@ -38,6 +42,11 @@ void defineParameters(AppCtx<dim>& user){
   //Set the domain to be periodic in the x and y directions
   user.periodic[0] = PETSC_TRUE;
   user.periodic[1] = PETSC_TRUE;
+
+  //Define some material parameters (can be overwritten by parameters file)
+  user.matParam["mobility"] = .1; //Mobility
+  user.matParam["kinetic_coeff"] = 2.; //Kinetic coefficient
+  user.matParam["kappa"] = .0005; //Gradient energy parameter
 
   user.dtVal = .1;
   user.totalTime = 20;
@@ -70,8 +79,10 @@ void residual(bool dV,
   //Chemistry
   double dt = user.dt;
   double jn = 0;
-  double M = .1, L = 2.; //Mobility
-  double kappa1 = .0005, kappa2 = .0005;
+  double M = user.matParam["mobility"],
+    L = user.matParam["kinetic_coeff"]; //Mobility, kinetic coefficient
+  double kappa1 = user.matParam["kappa"],
+    kappa2 = user.matParam["kappa"];
   double tau = 0.1*user.N[0]/user.L[0];
   
   //Get chemical potential and derivatives

@@ -2,16 +2,12 @@
 
 # Geometry and mesh
 set dim = 2
-set L = 1 x 1
-set N = 100 x 100
+set L = 10 x 1
+set N = 160 x 16
 
-# Material parameters
-set mobility = 0.1
-set kappa = 0.0005  # gradient energy parameter
-
-# Time stepping
-set dtVal = 0.1
-set totalTime = 20
+# Load
+set u_applied = 0.196 # Total applied downward displacement
+set dtVal = 0.1 # Load stepping
 
 # Restart
 set RESTART_TIME = 0

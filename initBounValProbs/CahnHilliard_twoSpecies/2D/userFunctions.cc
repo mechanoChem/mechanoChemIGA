@@ -36,6 +36,10 @@ void defineParameters(AppCtx<dim>& user){
   user.L[0] = 1.;
   user.L[1] = 1.;
 
+  //Define some material parameters (can be overwritten by parameters file)
+  user.matParam["mobility"] = .1; //Mobility
+  user.matParam["kappa"] = .0005; //Gradient energy parameter
+
   user.dtVal = .1;
   user.totalTime = 20;
   user.RESTART_IT = 0;
@@ -67,8 +71,9 @@ void residual(bool dV,
   //Chemistry
   double dt = user.dt;
   double jn1 = 0, jn2 = 0;
-  double M = .1, L = 2.; //Mobility
-  double kappa1 = .0005, kappa2 = .0005;
+  double M = user.matParam["mobility"]; //Mobility
+  double kappa1 = user.matParam["kappa"],
+    kappa2 = user.matParam["kappa"];
   double tau = 0.1*(user.N[0]/user.L[0]);
   
   //Get chemical potential and derivatives

@@ -7,6 +7,7 @@ set N = 100 x 100
 
 # Material parameters
 set mobility = 0.1
+set kinetic_coeff = 2.
 set kappa = 0.0005  # gradient energy parameter
 
 # Time stepping

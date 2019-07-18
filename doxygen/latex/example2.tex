@@ -14,7 +14,7 @@ The current settings prescribe random initial conditions and zero-\/flux boundar
 
  
 
-\section*{Implementation\-: User level 1 }
+\section*{Implementation\-: Level 1 users }
 
 To implement this model, we will specify the following through defining user functions\-: \par
 
@@ -51,7 +51,7 @@ We initialized the composition field to be random about 0.\-5.
 
 {\bfseries  Free energy density derivative functions }
 
-This phase-\/field implementation requires the second derivative of the chemical free energy density function $f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2$. We define the function computing $\partial^2 f/\partial c \partial c$ here. Note that this free energy derivative function is used only in this file. It is not a member of any class, nor will we use it to set any function pointers.
+This phase-\/field implementation requires the second derivative of the chemical free energy density function $f(c,\eta) = \alpha(c - c_a)^2(c - c_b)^2$. We define the function computing $\partial^2 f/\partial c^2$ here. Note that this free energy derivative function is used only in this file. It is not a member of any class, nor will we use it to set any function pointers.
 
 
 \begin{DoxyCodeInclude}
@@ -87,7 +87,7 @@ We also define the dimensions of the domain, e.\-g. a unit square.
 \end{DoxyCodeInclude}
 
 
-We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions. Here, we override the default and define periodicity in both the x directions.
+We can define a periodic (or partially periodic) domain. The default is no periodicity in all directions. Here, we override the default and define periodicity in the x direction.
 
 
 \begin{DoxyCodeInclude}
@@ -185,7 +185,9 @@ Tensor operations\-: \par
 {\ttfamily trace( )} -\/ trace of 2nd order tensor \par
 {\ttfamily det( )} -\/ determinant of 2nd order tensor \par
 {\ttfamily inv( )} -\/ inverse of 2nd order tensor \par
- The example code here implements the weak form for the Cahn-\/\-Hilliard equation, as shown above.
+
+
+The example code here implements the weak form for the Cahn-\/\-Hilliard equation, as shown above.
 
 First, we set the values for necessary parameters, using some predefined material parameters.
 
@@ -223,7 +225,7 @@ Finally, we include a file that instatiates the template functions {\ttfamily de
 
 The complete implementation can be found at \href{https://github.com/mechanoChem/mechanoChemIGA/blob/master/initBounValProbs/CahnHilliard_oneSpecies/2D/userFunctions.cc}{\tt Github}.
 
-\section*{User interface level 2\-: parameters file }
+\section*{Parameters file\-: Interface for level 2 users }
 
 Now let's look at the parameters file, {\ttfamily parameters.\-prm}. The advantages of the parameters file are that these values can be changed without recompiling the code and it can provide a clean interface to the code. 
 

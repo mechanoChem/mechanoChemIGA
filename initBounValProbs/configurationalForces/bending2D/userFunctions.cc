@@ -138,12 +138,13 @@ void constitutiveModel(Tensor<3,dim,T> &B,
 template<unsigned int dim>
 void defineParameters(AppCtx<dim>& user){
  
-  user.N[0] = 160;//800;
-  user.N[1] = 16;//80;
+  user.N[0] = 160;
+  user.N[1] = 16;
   user.L[0] = 10.;
   user.L[1] = 1.;
 
-  user.uDirichlet = 0.1;
+  user.matParam["u_applied"] = 0.196;
+  user.uDirichlet = user.matParam["u_applied"];
 
   user.vectorSolnFields.push_back("configDisplacement");
   user.vectorSolnFields.push_back("totalDisplacement");
@@ -152,10 +153,10 @@ void defineParameters(AppCtx<dim>& user){
   user.polyOrder = 2;
   user.globalContinuity = 1;
 
-  user.dtVal = 0.01;//0.0005;
+  user.dtVal = 0.005;
   user.totalTime = 1.;
   user.RESTART_IT = 0;
-  user.RESTART_TIME = 0.;
+  user.RESTART_TIME = 0;
   
   user.boundaryConditions = userBoundaryConditions;
   user.projectFields = userProjectFields;
