@@ -135,5 +135,6 @@ int ReadParameters(AppCtx<dim> &user){
   return 0;
 }
 
+template int ReadParameters<1>(AppCtx<1> &user);
 template int ReadParameters<2>(AppCtx<2> &user);
 template int ReadParameters<3>(AppCtx<3> &user);

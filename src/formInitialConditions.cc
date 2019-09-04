@@ -21,7 +21,30 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx<DIM> *user)
   ierr = IGACreateNodeDM(iga,dof,&da);CHKERRQ(ierr);
 
   Tensor<1,DIM,double> x;
-  if (DIM == 2){
+  if (DIM == 1){
+    PetscScalar **u;
+    ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
+    DMDALocalInfo info;
+    ierr = DMDAGetLocalInfo(da,&info);CHKERRQ(ierr);
+    PetscInt i;
+    PetscReal imax = (info.mx-1), Lx = user->L[0]*user->GridScale;
+    for(i=info.xs;i<info.xs+info.xm;i++){
+      x[0] = (i/imax)*Lx;
+      for(unsigned int l=0; l<nSclrs; ++l){
+	u[i][l] = user->scalarInitialConditions(x,l,*user);
+      }
+      for(unsigned int l1=0; l1<nVctrs; ++l1){
+	Tensor<1,DIM,double> vecIC = user->vectorInitialConditions(x,l1,*user);
+	for(unsigned int l2=0; l2<DIM; ++l2){
+	  u[i][nSclrs+DIM*l1+l2] = vecIC[l2];
+	}
+      }
+    }  
+    ierr = DMDAVecRestoreArrayDOF(da,U,&u);CHKERRQ(ierr);
+
+    ierr = DMDestroy(&da);CHKERRQ(ierr);
+  }
+  else if (DIM == 2){
     PetscScalar ***u;
     ierr = DMDAVecGetArrayDOF(da,U,&u);CHKERRQ(ierr);
     DMDALocalInfo info;
@@ -83,5 +106,6 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx<DIM> *user)
   PetscFunctionReturn(0); 
 }
 
+template PetscErrorCode FormInitialCondition<1>(IGA iga, Vec U, AppCtx<1> *user);
 template PetscErrorCode FormInitialCondition<2>(IGA iga, Vec U, AppCtx<2> *user);
 template PetscErrorCode FormInitialCondition<3>(IGA iga, Vec U, AppCtx<3> *user);

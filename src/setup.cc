@@ -154,5 +154,6 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   return 0;
 }
 
+template int Setup<1>(AppCtx<1>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes);
 template int Setup<2>(AppCtx<2>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes);
 template int Setup<3>(AppCtx<3>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes);

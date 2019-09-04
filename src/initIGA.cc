@@ -28,18 +28,20 @@ int InitIGA(AppCtx<DIM>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF){
   ierr = IGAAxisSetDegree(axis0,p);CHKERRQ(ierr);
   ierr = IGAAxisInitUniform(axis0,user.N[0],0.0,user.L[0]*user.GridScale,C);CHKERRQ(ierr); //x direction
 
-  IGAAxis axis1;
-  ierr = IGAGetAxis(iga,1,&axis1);CHKERRQ(ierr);
-  ierr = IGAAxisSetPeriodic(axis1,user.periodic[1]);CHKERRQ(ierr);
-  ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
-  ierr = IGAAxisInitUniform(axis1,user.N[1],0.0,user.L[1]*user.GridScale,C);CHKERRQ(ierr); //y direction
+  if(DIM>=2){
+    IGAAxis axis1;
+    ierr = IGAGetAxis(iga,1,&axis1);CHKERRQ(ierr);
+    ierr = IGAAxisSetPeriodic(axis1,user.periodic[1]);CHKERRQ(ierr);
+    ierr = IGAAxisSetDegree(axis1,p);CHKERRQ(ierr);
+    ierr = IGAAxisInitUniform(axis1,user.N[1],0.0,user.L[1]*user.GridScale,C);CHKERRQ(ierr); //y direction
 
-  if(DIM==3){
-    IGAAxis axis2;
-    ierr = IGAGetAxis(iga,2,&axis2);CHKERRQ(ierr);
-    ierr = IGAAxisSetPeriodic(axis2,user.periodic[2]);CHKERRQ(ierr);
-    ierr = IGAAxisSetDegree(axis2,p);CHKERRQ(ierr);
-    ierr = IGAAxisInitUniform(axis2,user.N[2],0.0,user.L[2]*user.GridScale,C);CHKERRQ(ierr); //z direction
+    if(DIM==3){
+      IGAAxis axis2;
+      ierr = IGAGetAxis(iga,2,&axis2);CHKERRQ(ierr);
+      ierr = IGAAxisSetPeriodic(axis2,user.periodic[2]);CHKERRQ(ierr);
+      ierr = IGAAxisSetDegree(axis2,p);CHKERRQ(ierr);
+      ierr = IGAAxisInitUniform(axis2,user.N[2],0.0,user.L[2]*user.GridScale,C);CHKERRQ(ierr); //z direction
+    }
   }
   ierr = IGASetFromOptions(iga);CHKERRQ(ierr);
   ierr = IGASetUp(iga);CHKERRQ(ierr);
@@ -48,11 +50,13 @@ int InitIGA(AppCtx<DIM>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF){
   ierr = IGAGetForm(iga,&form);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,0,0,PETSC_TRUE);CHKERRQ(ierr);
   ierr = IGAFormSetBoundaryForm (form,0,1,PETSC_TRUE);CHKERRQ(ierr);
-  ierr = IGAFormSetBoundaryForm (form,1,0,PETSC_TRUE);CHKERRQ(ierr);
-  ierr = IGAFormSetBoundaryForm (form,1,1,PETSC_TRUE);CHKERRQ(ierr);
-  if(DIM==3){
-    ierr = IGAFormSetBoundaryForm (form,2,0,PETSC_TRUE);CHKERRQ(ierr);
-    ierr = IGAFormSetBoundaryForm (form,2,1,PETSC_TRUE);CHKERRQ(ierr);
+  if(DIM>=2){
+    ierr = IGAFormSetBoundaryForm (form,1,0,PETSC_TRUE);CHKERRQ(ierr);
+    ierr = IGAFormSetBoundaryForm (form,1,1,PETSC_TRUE);CHKERRQ(ierr);
+    if(DIM==3){
+      ierr = IGAFormSetBoundaryForm (form,2,0,PETSC_TRUE);CHKERRQ(ierr);
+      ierr = IGAFormSetBoundaryForm (form,2,1,PETSC_TRUE);CHKERRQ(ierr);
+    }
   }
 
   //Set mat type
@@ -61,5 +65,6 @@ int InitIGA(AppCtx<DIM>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF){
   return 0;
 }
 
+template int InitIGA<1>(AppCtx<1>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF);
 template int InitIGA<2>(AppCtx<2>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF);
 template int InitIGA<3>(AppCtx<3>& user, IGA &iga, PetscInt p, PetscInt C, PetscInt DOF);

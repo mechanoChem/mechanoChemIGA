@@ -87,6 +87,12 @@ PetscErrorCode Jacobian(IGAPoint p,
 }
 
 
+template PetscErrorCode Residual<1>(IGAPoint p,
+				    const PetscScalar *U,
+				    const PetscScalar *Up, 
+				    const PetscScalar *Upp, 
+				    PetscScalar *R,
+				    void *ctx);
 template PetscErrorCode Residual<2>(IGAPoint p,
 				    const PetscScalar *U,
 				    const PetscScalar *Up, 
@@ -100,6 +106,12 @@ template PetscErrorCode Residual<3>(IGAPoint p,
 				    PetscScalar *R,
 				    void *ctx);
 
+template PetscErrorCode Jacobian<1>(IGAPoint p,
+				    const PetscScalar *U,
+				    const PetscScalar *Up, 
+				    const PetscScalar *Upp,
+				    PetscScalar *K,
+				    void *ctx);
 template PetscErrorCode Jacobian<2>(IGAPoint p,
 				    const PetscScalar *U,
 				    const PetscScalar *Up, 

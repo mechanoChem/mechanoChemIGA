@@ -155,6 +155,7 @@ PetscErrorCode ProjectionResidual(IGAPoint p, const PetscScalar *U, PetscScalar 
 
   return 0;
 }
+template PetscErrorCode ProjectionResidual<1>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
 template PetscErrorCode ProjectionResidual<2>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
 template PetscErrorCode ProjectionResidual<3>(IGAPoint p, const PetscScalar *U, PetscScalar *R, void *ctx);
 
@@ -217,6 +218,7 @@ PetscErrorCode ProjectSolution(IGA iga, PetscInt step, Vec U, AppCtx<dim> *user)
   // */
   PetscFunctionReturn(0); 
 }
+template PetscErrorCode ProjectSolution<1>(IGA iga, PetscInt step, Vec U, AppCtx<1> *user);
 template PetscErrorCode ProjectSolution<2>(IGA iga, PetscInt step, Vec U, AppCtx<2> *user);
 template PetscErrorCode ProjectSolution<3>(IGA iga, PetscInt step, Vec U, AppCtx<3> *user);
 
@@ -246,6 +248,7 @@ PetscErrorCode StepUpdate(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<dim> 
 
   PetscFunctionReturn(0);
 }
+template PetscErrorCode StepUpdate<1>(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<1> &user);
 template PetscErrorCode StepUpdate<2>(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<2> &user);
 template PetscErrorCode StepUpdate<3>(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<3> &user);
 

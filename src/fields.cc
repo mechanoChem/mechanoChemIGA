@@ -50,6 +50,11 @@ void ComputeField(fieldType type, unsigned int index, IGAPoint p, const T* U, un
   }
 }
 
+template void ComputeField<Sacado::Fad::SimpleFad<double>, 1>(fieldType type, unsigned int index, IGAPoint p, 
+							 const Sacado::Fad::SimpleFad<double>* U, unsigned int Udof, 
+							 Sacado::Fad::SimpleFad<double>* _value=0, 
+							 Sacado::Fad::SimpleFad<double>* _grad=0, 
+							 Sacado::Fad::SimpleFad<double>* _hess=0);
 template void ComputeField<Sacado::Fad::SimpleFad<double>, 2>(fieldType type, unsigned int index, IGAPoint p, 
 							 const Sacado::Fad::SimpleFad<double>* U, unsigned int Udof, 
 							 Sacado::Fad::SimpleFad<double>* _value=0, 
@@ -60,6 +65,11 @@ template void ComputeField<Sacado::Fad::SimpleFad<double>, 3>(fieldType type, un
 							 Sacado::Fad::SimpleFad<double>* _value=0, 
 							 Sacado::Fad::SimpleFad<double>* _grad=0, 
 							 Sacado::Fad::SimpleFad<double>* _hess=0);
+template void ComputeField<Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >, 1>(fieldType type, unsigned int index, IGAPoint p, 
+									     const Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* U, unsigned int Udof, 
+									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _value=0, 
+									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _grad=0, 
+									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _hess=0);
 template void ComputeField<Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >, 2>(fieldType type, unsigned int index, IGAPoint p, 
 									     const Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* U, unsigned int Udof, 
 									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _value=0, 
@@ -71,5 +81,6 @@ template void ComputeField<Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double>
 									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _grad=0, 
 									     Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> >* _hess=0);
 
+template void ComputeField<PetscReal, 1>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, unsigned int Udof, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
 template void ComputeField<PetscReal, 2>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, unsigned int Udof, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);
 template void ComputeField<PetscReal, 3>(fieldType type, unsigned int index, IGAPoint p, const PetscReal* U, unsigned int Udof, PetscReal* _value=0, PetscReal* _grad=0, PetscReal* _hess=0);

@@ -119,6 +119,12 @@ PetscErrorCode QuadPtResidual(IGAPoint p,
   return 0;
 }
 
+template PetscErrorCode QuadPtResidual<PetscReal,1>(IGAPoint p,
+						    const PetscReal * U,
+						    const PetscScalar * Up,
+						    const PetscScalar * Upp,
+						    PetscReal *R,
+						    void *ctx);
 template PetscErrorCode QuadPtResidual<PetscReal,2>(IGAPoint p,
 						    const PetscReal * U,
 						    const PetscScalar * Up,
@@ -131,6 +137,12 @@ template PetscErrorCode QuadPtResidual<PetscReal,3>(IGAPoint p,
 						    const PetscScalar * Upp,
 						    PetscReal *R,
 						    void *ctx);
+template PetscErrorCode QuadPtResidual<Sacado::Fad::SimpleFad<double>, 1 >(IGAPoint p,
+									   const Sacado::Fad::SimpleFad<double> * U,
+									   const PetscScalar * Up,
+									   const PetscScalar * Upp,
+									   Sacado::Fad::SimpleFad<double> *R,
+									   void *ctx);
 template PetscErrorCode QuadPtResidual<Sacado::Fad::SimpleFad<double>, 2 >(IGAPoint p,
 									   const Sacado::Fad::SimpleFad<double> * U,
 									   const PetscScalar * Up,

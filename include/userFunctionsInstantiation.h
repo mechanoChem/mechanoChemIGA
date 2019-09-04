@@ -10,9 +10,30 @@
 #include <Sacado.hpp>
 #include <Sacado_Fad_SimpleFad.hpp>
 
+template void defineParameters<1>(AppCtx<1>& user);
 template void defineParameters<2>(AppCtx<2>& user);
 template void defineParameters<3>(AppCtx<3>& user);
 
+template void residual<1,double>(bool dV,
+				 bool dS,
+				 const Tensor<1,1,double> &x,
+				 const Tensor<1,1,double> &normal,
+				 const solutionScalars<1,double> &c,
+				 const solutionVectors<1,double> &u,
+				 const testFunctionScalars<1,double> &w1,
+				 const testFunctionVectors<1,double> &w2,
+				 AppCtx<1> &user,
+				 Sacado::Fad::SimpleFad<double> &r);
+template void residual<1,Sacado::Fad::SimpleFad<double> >(bool dV,
+				 bool dS,
+				 const Tensor<1,1,double> &x,
+				 const Tensor<1,1,double> &normal,
+				 const solutionScalars<1,Sacado::Fad::SimpleFad<double> > &c,
+				 const solutionVectors<1,Sacado::Fad::SimpleFad<double> > &u,
+				 const testFunctionScalars<1,Sacado::Fad::SimpleFad<double> > &w1,
+				 const testFunctionVectors<1,Sacado::Fad::SimpleFad<double> > &w2,
+				 AppCtx<1> &user,
+				 Sacado::Fad::SimpleFad<Sacado::Fad::SimpleFad<double> > &r);
 template void residual<2,double>(bool dV,
 				 bool dS,
 				 const Tensor<1,2,double> &x,

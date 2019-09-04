@@ -75,5 +75,6 @@ PetscErrorCode Run(){
   return 0;
 }
 
+template PetscErrorCode Run<1>();
 template PetscErrorCode Run<2>();
 template PetscErrorCode Run<3>();
