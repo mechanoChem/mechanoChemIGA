@@ -197,7 +197,7 @@ void mechanoChemIGA<dim>::output_results()
   if(user.scalarProjectnFields.size()+user.vectorProjectnFields.size() > 0){
     ProjectSolution<dim>(user.igaProject, step, *user.U, &user); 
   } 
-
+  /*
   VecView(U,PETSC_VIEWER_STDOUT_WORLD);
 
   double *array;
@@ -208,7 +208,7 @@ void mechanoChemIGA<dim>::output_results()
   for (int i=0; i<size; ++i){
     std::cout << array[i] << std::endl;
   }
-
+  */
 }
 
 #endif //MECHANOCHEMIGA_H

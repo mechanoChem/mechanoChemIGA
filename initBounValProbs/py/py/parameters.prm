@@ -1,0 +1,28 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 2
+set L = 1 x 1
+set N = 10 x 10
+
+# Material parameters
+set mobility = 0.1
+set kinetic_coeff = 2.
+set kappa = 0.0005  # gradient energy parameter
+
+# Time stepping
+set dtVal = 0.01
+set totalTime = .1
+
+# Restart
+set RESTART_TIME = 0
+set RESTART_IT = 0
+set adapTS = false
+set maxTimeSteps = 1 #-1
+
+# Output
+set skipOutput = 10
+
+# Splines
+set polyOrder = 2
+set globalContinuity = 1
