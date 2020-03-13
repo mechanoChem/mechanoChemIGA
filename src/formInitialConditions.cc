@@ -19,7 +19,6 @@ PetscErrorCode FormInitialCondition(IGA iga, Vec U, AppCtx<DIM> *user)
   unsigned int nSclrs = user->scalarSolnFields.size(), nVctrs = user->vectorSolnFields.size();
   PetscInt dof = nSclrs + DIM*nVctrs;
   ierr = IGACreateNodeDM(iga,dof,&da);CHKERRQ(ierr);
-
   Tensor<1,DIM,double> x;
   if (DIM == 1){
     PetscScalar **u;

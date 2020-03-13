@@ -148,6 +148,16 @@ struct AppCtx{
   PetscReal totalTime;
 
   /**
+   * Value defining the maximum number of time steps to run, ignored if set to -1. Defaults to -1.
+   */
+  PetscInt maxTimeSteps;
+
+  /**
+   * Flag specifying the use of adaptive time stepping. Defaults to false.
+   */
+  bool adapTS;
+
+  /**
    * Integer defining how frequently to output results. Defaults to 1 (i.e. every time step).
    */
   PetscInt skipOutput;
@@ -251,7 +261,7 @@ struct AppCtx{
   PFFunction<DIM> projectFields;
 
   //Define default values
-  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1) {}
+  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), maxTimeSteps(-1), adapTS(false), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1) {}
 };
 
 #endif

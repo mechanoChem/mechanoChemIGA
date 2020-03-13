@@ -52,16 +52,18 @@ int ReadParameters(AppCtx<dim> &user){
     std::map<std::string,double*> doubles;
     std::map<std::string,int*> ints;
     std::map<std::string,std::string*> strings;
-    //std::map<std::string,bool*> bools;
+    std::map<std::string,bool*> bools;
     std::map<std::string,Tensor<1,dim,int>* > tensorsInt;
     std::map<std::string,Tensor<1,dim,double>* > tensorsDouble;
     doubles["dtVal"] = &user.dtVal;
     doubles["totalTime"] = &user.totalTime;
     doubles["RESTART_TIME"] = &user.RESTART_TIME;
+    ints["maxTimeSteps"] = &user.maxTimeSteps;
     ints["RESTART_IT"] = &user.RESTART_IT;
     ints["skipOutput"] = &user.skipOutput;
     ints["polyOrder"] = &user.polyOrder;
     ints["globalContinuity"] = &user.globalContinuity;
+    bools["adapTS"] = &user.adapTS;
     tensorsInt["N"] = &user.N;
     tensorsDouble["L"] = &user.L;
     strings["outputDir"] = &user.outputDir;
@@ -91,9 +93,9 @@ int ReadParameters(AppCtx<dim> &user){
 	  else if(ints.count(temp1) == 1){
 	    iss >> *ints[temp1];
 	  }
-	  //else if(bools.count(temp1) == 1){
-	  //  iss >> std::boolalpha >> *bools[temp1];
-	  //}
+	  else if(bools.count(temp1) == 1){
+	    iss >> std::boolalpha >> *bools[temp1];
+	  }
 	  else if(strings.count(temp1) == 1){
 	    iss >> *strings[temp1];
 	  }

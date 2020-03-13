@@ -230,7 +230,7 @@ PetscErrorCode StepUpdate(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<dim> 
   PetscFunctionBegin;
   PetscErrorCode ierr;
   PetscInt step = it_number;
- 
+
   //output to file
   char filename[256];
   if (step%user.skipOutput==0){
@@ -241,6 +241,7 @@ PetscErrorCode StepUpdate(PetscInt it_number,PetscReal c_time,Vec U,AppCtx<dim> 
       ProjectSolution<dim>(user.igaProject, step, U, &user); 
     }
   }
+
 
   // Call adaptive stepping functions
   user.loadStep(step,user);

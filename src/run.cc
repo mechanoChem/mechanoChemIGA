@@ -26,7 +26,8 @@ PetscErrorCode Run(){
   user.time = user.RESTART_TIME;
   PetscInt step = user.RESTART_IT;
   ierr = StepUpdate<dim>(step,user.time,*(user.U),user);
-  while (user.time < user.totalTime){
+  int step0 = step;
+  while (user.time < user.totalTime && (user.maxTimeSteps == -1 || (step - step0) < user.maxTimeSteps)){
     PetscPrintf(PETSC_COMM_WORLD,"Step %i, dt %g, time %g\n",step,user.dt,user.time);
     ierr = SNESSolve(snes,NULL,*(user.U));CHKERRQ(ierr);
     ierr = SNESGetIterationNumber(snes,&n_iter);
@@ -42,8 +43,10 @@ PetscErrorCode Run(){
 	  //If converged really fast for multiple iterations, scale up time step
 	  //PetscPrintf(PETSC_COMM_WORLD,"Doubling time step...\n");
 	  //user.dt *= 2.;
-	  PetscPrintf(PETSC_COMM_WORLD,"Increasing time step...\n");
-	  user.dt *= std::pow(2.,1./3.);
+	  if (user.adapTS){
+	    PetscPrintf(PETSC_COMM_WORLD,"Increasing time step...\n");
+	    user.dt *= std::pow(2.,1./3.);
+	  }
 	  counter = 0;
 	}
       }
@@ -54,8 +57,10 @@ PetscErrorCode Run(){
     }
     else{
       //If it didn't converge fast enough, scale back time step and try again.
-      PetscPrintf(PETSC_COMM_WORLD,"Halving time step and trying again...\n");
-      user.dt *= 0.5;
+      if (user.adapTS){
+	PetscPrintf(PETSC_COMM_WORLD,"Halving time step and trying again...\n");
+	user.dt *= 0.5;
+      }
       counter = 0;
       //PetscPrintf(PETSC_COMM_WORLD,"Decreasing time step and trying again...\n");
       //user.dt /= std::pow(2.,1./3.);
@@ -70,7 +75,9 @@ PetscErrorCode Run(){
   ierr = VecDestroy(user.Up);CHKERRQ(ierr);
   ierr = VecDestroy(user.Upp);CHKERRQ(ierr);
   ierr = IGADestroy(&user.iga);CHKERRQ(ierr);
-  ierr = IGADestroy(&user.igaProject);CHKERRQ(ierr);  
+  if (user.scalarProjectnFields.size() + user.vectorProjectnFields.size() > 0){
+    ierr = IGADestroy(&user.igaProject);CHKERRQ(ierr);  
+  }
 
   return 0;
 }
