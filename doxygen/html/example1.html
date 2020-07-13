@@ -197,8 +197,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">    }</div>
 <div class="line">  } <span class="comment">//end C_e</span></div>
 </div><!-- fragment --></p>
-<p>We specify a scalar coefficient to the Neumann boundary condition.</p>
+<p>We specify a scalar coefficient and additive constant to the Neumann boundary condition.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h&quot;</span>] = 1.e11;</div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h0&quot;</span>] = 0.;</div>
 </div><!-- fragment --></p>
 <p>Finally, we redirect the desired user function pointers to the <code>boundaryConditions</code> and <code>projectFields</code> functions that we defined above. This completes the <code>defineParameters</code> function.</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a86be433132a33a67de55e6b137326c16">boundaryConditions</a> = <a class="code" href="configurational_forces_2bending2_d_2user_functions_8cc.html#a36a086407db8194a41f565f2bf6100fd">userBoundaryConditions</a>;</div>
@@ -256,11 +257,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>det( )</code> - determinant of 2nd order tensor <br/>
 <code>inv( )</code> - inverse of 2nd order tensor <br/>
 </p>
-<p>The example code here implements the weak form for finite strain elasticity, <img class="formulaInl" alt="$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$" src="form_0.png"/> with the Neumann boundary condtion <img class="formulaInl" alt="$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle$" src="form_45.png"/> on <img class="formulaInl" alt="$x_3=1$" src="form_2.png"/>. First, we get the values for <img class="formulaInl" alt="$\boldsymbol{P}$" src="form_3.png"/> and <img class="formulaInl" alt="$\boldsymbol{h}$" src="form_4.png"/>, based on the current quadrature point.</p>
+<p>The example code here implements the weak form for finite strain elasticity, <img class="formulaInl" alt="$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0$" src="form_0.png"/> with the Neumann boundary condtion <img class="formulaInl" alt="$\boldsymbol{h} = \langle 0,0,1.e11x_1 + 0\rangle$" src="form_51.png"/> on <img class="formulaInl" alt="$x_3=1$" src="form_2.png"/>. First, we get the values for <img class="formulaInl" alt="$\boldsymbol{P}$" src="form_3.png"/> and <img class="formulaInl" alt="$\boldsymbol{h}$" src="form_4.png"/>, based on the current quadrature point.</p>
 <p><div class="fragment"><div class="line">  <span class="comment">//Elasticity</span></div>
 <div class="line">  <a class="code" href="class_tensor.html">Tensor&lt;2,dim,T&gt;</a> P = <a class="code" href="non_gradient_mechanics_23_d_2user_functions_8cc.html#a7db7c311d4557eda3537454f2642d8af">get1stPiolaKirchhoff</a>(x,c,u,user,0);</div>
 <div class="line">  <a class="code" href="class_tensor_3_011_00_01dim_00_01_t_01_4.html">Tensor&lt;1,dim,T&gt;</a> h;</div>
-<div class="line">  h[2] = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h&quot;</span>]*x[0]*(x[2] == user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[2]);</div>
+<div class="line">  h[2] = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h&quot;</span>]*x[0]*(x[2] == user.<a class="code" href="struct_app_ctx.html#a789652912f4d6df6c0836aa22ae93de0">L</a>[2]) + user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;h0&quot;</span>];</div>
 </div><!-- fragment --></p>
 <p>Now, we compute the residual in a manner very similar to the analytical form</p>
 <p><div class="fragment"><div class="line">  <span class="comment">// \int_\Omega (grad{w}:P) dV - \int_{\partial\Omega} (w\cdot h) dS</span></div>
@@ -287,8 +288,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><span class="preprocessor"></span>set E = 2.0e11  # Young<span class="stringliteral">&#39;s modulus</span></div>
 <div class="line"><span class="stringliteral">set nu = 0.3  # Poisson&#39;</span>s ratio</div>
 <div class="line"></div>
-<div class="line"><span class="preprocessor"># Loading scalar - Neumann condition: h*x in z-direction at z_max</span></div>
-<div class="line"><span class="preprocessor">set h = 1.e11</span></div>
+<div class="line"><span class="preprocessor"># Loading scalar - Neumann condition: h*x + h0 in z-direction at z_max</span></div>
+<div class="line"><span class="preprocessor"></span>set h = 1.e11</div>
+<div class="line">set h0 = 1e11</div>
 </div><!-- fragment --></p>
 <p>We then define spline parameters (linear is fine for this problem).</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor"># Splines</span></div>

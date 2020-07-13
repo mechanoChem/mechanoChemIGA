@@ -103,7 +103,7 @@
  * in the parameters file.
  *
  * \skip "mobility"
- * \until "kappa"
+ * \until "influx"
  *
  * We define the time step and total simulation time. We also have the options to use restart files, in which case
  * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
@@ -257,7 +257,7 @@
  * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
  *
  * \skip mobility
- * \until kappa
+ * \until influx
  *
  * We then define time stepping, restart information, output frequency, and spline parameters.
  *

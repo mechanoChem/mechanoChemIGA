@@ -40,6 +40,9 @@ void defineParameters(AppCtx<dim>& user){
   user.matParam["mobility"] = .1; //Mobility
   user.matParam["kappa"] = .0005; //Gradient energy parameter
 
+  user.matParam["influx1"] = 0.;
+  user.matParam["influx2"] = 0.;
+
   user.dtVal = .1;
   user.totalTime = 20;
   user.RESTART_IT = 0;
@@ -48,9 +51,6 @@ void defineParameters(AppCtx<dim>& user){
 
   user.scalarSolnFields.push_back("c1");
   user.scalarSolnFields.push_back("c2");
-
-  user.matParam["influx1"] = 0.;
-  user.matParam["influx2"] = 0.;
 
   user.polyOrder = 2;
   user.globalContinuity = 1;

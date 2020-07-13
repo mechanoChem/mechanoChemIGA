@@ -95,12 +95,12 @@
  * \skip user.L[0]
  * \until user.L[1]
  *
- * We can define additional material parameters that are not explicity listed in the \c user structure by
+ * We can define additional material parameters and flux values that are not explicity listed in the \c user structure by
  * defining elements of the \c matParam C++ map, which maps \c std::string to \c double. These values can also be overwritten
  * in the parameters file.
  *
  * \skip "mobility"
- * \until "kappa"
+ * \until "influx2"
  *
  * We define the initial time step and total simulation time. We also have the options to use restart files, in which case
  * we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation.
@@ -250,7 +250,7 @@
  * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
  *
  * \skip mobility
- * \until kappa
+ * \until influx2
  *
  * We then define time stepping, restart information, output frequency, and spline parameters.
  *

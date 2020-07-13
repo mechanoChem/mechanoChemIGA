@@ -105,10 +105,10 @@
  * \skip user.matParam["E"]
  * \until //end
  *
- * We specify a scalar coefficient to the Neumann boundary condition.
+ * We specify a scalar coefficient and additive constant to the Neumann boundary condition.
  *
  * \skip user.matParam["h"]
- * \until user.matParam["h"]
+ * \until user.matParam["h0"]
  *
  * Finally, we redirect the desired user function pointers to the \c boundaryConditions and \c projectFields functions that we
  * defined above. This completes the \c defineParameters function.
@@ -176,7 +176,7 @@
  *
  * The example code here implements the weak form for finite strain elasticity,
  * \f$\int_\Omega (\nabla{\boldsymbol{w}}:\boldsymbol{P}) dV - \int_{\partial\Omega} (\boldsymbol{w}\cdot\boldsymbol{h}) dS = 0\f$
- * with the Neumann boundary condtion \f$\boldsymbol{h} = \langle 0,0,1.e11x_1\rangle\f$ on \f$x_3=1\f$.
+ * with the Neumann boundary condtion \f$\boldsymbol{h} = \langle 0,0,1.e11x_1 + 0\rangle\f$ on \f$x_3=1\f$.
  * First, we get the values for \f$\boldsymbol{P}\f$ and \f$\boldsymbol{h}\f$, based on the current quadrature point.
  *
  * \skip //Elasticity
@@ -220,7 +220,7 @@
  * so they become elements of \c matParam (see the \c residual and \defineParameters functions above).
  *
  * \skip Young's
- * \until set h
+ * \until set h0
  *
  * We then define spline parameters (linear is fine for this problem).
  *

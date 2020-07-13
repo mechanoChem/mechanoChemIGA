@@ -172,6 +172,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>] = .1; <span class="comment">//Mobility</span></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kinetic_coeff&quot;</span>] = 2.; <span class="comment">//Kinetic coefficient</span></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>] = .0005; <span class="comment">//Gradient energy parameter</span></div>
+<div class="line"></div>
+<div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;influx&quot;</span>] = 0.; <span class="comment">//Influx</span></div>
 </div><!-- fragment --></p>
 <p>We define the time step and total simulation time. We also have the options to use restart files, in which case we would set the iteration index and time at which to start. We leave these values at zero to begin a new simulation. We also have the option to output results at regular intervals (e.g. every 5 time steps).</p>
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a4c155b92216444548c4457f18e050630">dtVal</a> = .1;</div>
@@ -246,7 +248,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>The example code here implements the weak form for the coupled Cahn-Hilliard and Allen-Cahn equations, as shown above.</p>
 <p>First, we set the values for necessary parameters.</p>
 <p><div class="fragment"><div class="line">  <span class="keywordtype">double</span> dt = user.<a class="code" href="struct_app_ctx.html#a102ae36ef6e9df9f12c7e988659b5ff0">dt</a>;</div>
-<div class="line">  <span class="keywordtype">double</span> jn = 0;</div>
+<div class="line">  <span class="keywordtype">double</span> jn = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;influx&quot;</span>];</div>
 <div class="line">  <span class="keywordtype">double</span> M = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>],</div>
 <div class="line">    L = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kinetic_coeff&quot;</span>]; <span class="comment">//Mobility, kinetic coefficient</span></div>
 <div class="line">  <span class="keywordtype">double</span> kappa1 = user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>],</div>
@@ -297,6 +299,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><div class="fragment"><div class="line">set mobility = 0.1</div>
 <div class="line">set kinetic_coeff = 2.</div>
 <div class="line">set kappa = 0.0005  # gradient energy parameter</div>
+<div class="line"></div>
+<div class="line">set influx = 0.</div>
 </div><!-- fragment --></p>
 <p>We then define time stepping, restart information, output frequency, and spline parameters.</p>
 <p><div class="fragment"><div class="line"><span class="preprocessor"># Time stepping</span></div>
