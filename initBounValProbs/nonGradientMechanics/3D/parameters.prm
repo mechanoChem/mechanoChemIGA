@@ -9,8 +9,9 @@ set N = 10 x 10 x 10 # mesh discretization
 set E = 2.0e11  # Young's modulus
 set nu = 0.3  # Poisson's ratio
 
-# Loading scalar - Neumann condition: h*x in z-direction at z_max
+# Loading scalar - Neumann condition: h*x + h0 in z-direction at z_max
 set h = 1.e11
+set h0 = 1e11
 
 # Splines
 set polyOrder = 1

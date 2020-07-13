@@ -49,6 +49,9 @@ void defineParameters(AppCtx<dim>& user){
   user.scalarSolnFields.push_back("c1");
   user.scalarSolnFields.push_back("c2");
 
+  user.matParam["influx1"] = 0.;
+  user.matParam["influx2"] = 0.;
+
   user.polyOrder = 2;
   user.globalContinuity = 1;
 
@@ -70,7 +73,7 @@ void residual(bool dV,
 
   //Chemistry
   double dt = user.dt;
-  double jn1 = 0, jn2 = 0;
+  double jn1 = user.matParam["influx1"], jn2 = user.matParam["influx2"];
   double M = user.matParam["mobility"]; //Mobility
   double kappa1 = user.matParam["kappa"],
     kappa2 = user.matParam["kappa"];
