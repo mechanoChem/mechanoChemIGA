@@ -48,6 +48,12 @@ template<unsigned int dim>
 using adaptiveTSFunction = void(*)(unsigned int step,AppCtx<dim> &user);
 
 /**
+ * Function pointer definition called immmediately after the parameters file is read
+ */
+template<unsigned int dim>
+using postParams = void(*)(AppCtx<dim> &user);
+
+/**
  * Function pointer definition for user definition of fields to project
  */
 template<unsigned int dim>
@@ -216,6 +222,16 @@ struct AppCtx{
   double *par_mat;
 
   /**
+   * Flag specifying whether to solve Cahn-Hilliard equations or not. Defaults to false
+   */
+  bool CahnHilliard;
+
+  /**
+   * Flag specifying whether to solve finite strain elasticity equations or not. Defaults to false
+   */
+  bool Elasticity;
+
+  /**
    * Object for random number generation
    */
   std::mt19937 gen;
@@ -246,12 +262,17 @@ struct AppCtx{
   adaptiveTSFunction<DIM> adaptiveTimeStep;
 
   /**
+   * Pointer to function called immediately after reading parameters file.
+   */
+  postParams<DIM> postParameters;
+
+  /**
    * Pointer to function defining fields to project.
    */
   PFFunction<DIM> projectFields;
 
   //Define default values
-  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1) {}
+  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1), CahnHilliard(false), Elasticity(false) {}
 };
 
 #endif

@@ -52,7 +52,7 @@ int ReadParameters(AppCtx<dim> &user){
     std::map<std::string,double*> doubles;
     std::map<std::string,int*> ints;
     std::map<std::string,std::string*> strings;
-    //std::map<std::string,bool*> bools;
+    std::map<std::string,bool*> bools;
     std::map<std::string,Tensor<1,dim,int>* > tensorsInt;
     std::map<std::string,Tensor<1,dim,double>* > tensorsDouble;
     doubles["dtVal"] = &user.dtVal;
@@ -65,6 +65,8 @@ int ReadParameters(AppCtx<dim> &user){
     tensorsInt["N"] = &user.N;
     tensorsDouble["L"] = &user.L;
     strings["outputDir"] = &user.outputDir;
+    bools["Elasticity"] = &user.Elasticity;
+    bools["CahnHilliard"] = &user.CahnHilliard;
 
     while( std::getline(file,line) ){
       if (line.find("=") != -1){
@@ -91,9 +93,9 @@ int ReadParameters(AppCtx<dim> &user){
 	  else if(ints.count(temp1) == 1){
 	    iss >> *ints[temp1];
 	  }
-	  //else if(bools.count(temp1) == 1){
-	  //  iss >> std::boolalpha >> *bools[temp1];
-	  //}
+	  else if(bools.count(temp1) == 1){
+	    iss >> std::boolalpha >> *bools[temp1];
+	  }
 	  else if(strings.count(temp1) == 1){
 	    iss >> *strings[temp1];
 	  }

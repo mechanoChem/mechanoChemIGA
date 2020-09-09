@@ -26,6 +26,7 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   user.loadStep = loadStep;
   user.adaptiveTimeStep = adaptiveTimeStep;
   user.projectFields = projectFields;
+  user.postParameters = postParameters;
 
   //Set periodicity to be false by default (can be overridden by user)
   for (unsigned int i=0; i<DIM; ++i){
@@ -35,6 +36,7 @@ int Setup(AppCtx<DIM>& user,Vec *U,Vec *Up,Vec *Upp,SNES &snes){
   //Define user parameters and functions
   defineParameters<DIM>(user);
   ReadParameters<DIM>(user);
+  user.postParameters(user);
   user.dt = user.dtVal;
   //Check that the output directory does not end with a "/"
   if (user.outputDir.back()=='/'){

@@ -286,6 +286,52 @@ template<unsigned int dim,typename T,typename U>
 /**
  * @relates Tensor
  *
+ * Multiplication operator of a 2nd order Tensor object with a 3rd order Tensor object (single contraction). Returns a 3rd order Tensor object.
+ */
+template<unsigned int dim,typename T,typename U>
+  auto operator*(const Tensor<2,dim,T> a, const Tensor<3,dim,U> &b) -> Tensor<3,dim,decltype(std::declval<T>()*std::declval<U>())>{
+  
+  Tensor<3,dim,decltype(std::declval<T>()*std::declval<U>())> tmp;
+  for (unsigned int i=0; i<dim; ++i){
+    for (unsigned int j=0; j<dim; ++j){
+      for (unsigned int k=0; k<dim; ++k){
+	for (unsigned int l=0; l<dim; ++l){
+	  tmp[i][k][l] += a[i][j]*b[j][k][l];
+	}
+      }
+    }
+  }
+  
+  return tmp;
+  
+}
+
+/**
+ * @relates Tensor
+ *
+ * Multiplication operator of a 3rd order Tensor object with a 2nd order Tensor object (single contraction). Returns a 3rd order Tensor object.
+ */
+template<unsigned int dim,typename T,typename U>
+  auto operator*(const Tensor<3,dim,T> a, const Tensor<2,dim,U> &b) -> Tensor<3,dim,decltype(std::declval<T>()*std::declval<U>())>{
+  
+  Tensor<3,dim,decltype(std::declval<T>()*std::declval<U>())> tmp;
+  for (unsigned int i=0; i<dim; ++i){
+    for (unsigned int j=0; j<dim; ++j){
+      for (unsigned int k=0; k<dim; ++k){
+	for (unsigned int l=0; l<dim; ++l){
+	  tmp[i][j][l] += a[i][j][k]*b[k][l];
+	}
+      }
+    }
+  }
+  
+  return tmp;
+  
+}
+
+/**
+ * @relates Tensor
+ *
  * Converts the 2nd order Tensor object to an isotropic tensor (equivalent to the identity matrix).
  */
 template<unsigned int dim,typename T>
@@ -354,6 +400,20 @@ T det(const Tensor<2,3,T>& a) {
   return (a[0][0]*(a[1][1]*a[2][2] - a[1][2]*a[2][1])
 	  - a[0][1]*(a[1][0]*a[2][2] - a[1][2]*a[2][0])
 	  + a[0][2]*(a[1][0]*a[2][1] - a[1][1]*a[2][0]));
+}
+
+/**
+ * @relates Tensor
+ *
+ * Returns the inverse of the 2nd order Tensor object (dim==1).
+ */
+template<typename T>
+Tensor<2,1,T> inv(const Tensor<2,1,T>& a) {
+  
+  Tensor<2,1,T> tmp;
+  tmp[0][0] = 1./a[0][0];
+
+  return tmp;
 }
 
 /**
