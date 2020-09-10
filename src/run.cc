@@ -56,16 +56,20 @@ PetscErrorCode Run(){
       ierr = VecCopy(*user.U, *user.Up);CHKERRQ(ierr);
     }
     else{
+      counter = 0;
       //If it didn't converge fast enough, scale back time step and try again.
       if (user.adapTS){
 	PetscPrintf(PETSC_COMM_WORLD,"Halving time step and trying again...\n");
 	user.dt *= 0.5;
+ 
+	//PetscPrintf(PETSC_COMM_WORLD,"Decreasing time step and trying again...\n");
+	//user.dt /= std::pow(2.,1./3.);
+	//Reset the current to the previous converged U
+	ierr = VecCopy(*user.Up, *user.U);CHKERRQ(ierr);
       }
-      counter = 0;
-      //PetscPrintf(PETSC_COMM_WORLD,"Decreasing time step and trying again...\n");
-      //user.dt /= std::pow(2.,1./3.);
-      //Reset the current to the previous converged U
-      ierr = VecCopy(*user.Up, *user.U);CHKERRQ(ierr);
+      else{
+	break;
+      }
     }
   }
 

@@ -282,7 +282,7 @@ struct AppCtx{
   PFFunction<DIM> projectFields;
 
   //Define default values
-  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), maxTimeSteps(-1), adapTS(false), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1), CahnHilliard(false), Elasticity(false) {}
+  AppCtx<DIM>() : GridScale(1.), ADSacado(PETSC_TRUE), uDirichlet(0.), dtVal(1.), totalTime(1.), maxTimeSteps(-1), adapTS(true), skipOutput(1), RESTART_IT(0), RESTART_TIME(0.), outputDir("."), polyOrder(2), globalContinuity(1), CahnHilliard(false), Elasticity(false) {}
 };
 
 #endif
