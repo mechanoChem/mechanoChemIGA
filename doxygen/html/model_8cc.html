@@ -84,7 +84,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_3487132e8ceb310eecfd0c8e4dfdf7d5.html">src</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_1dab22048af7df39430ae6ae5ac7b4f0.html">src</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -113,10 +113,14 @@ Functions</h2></td></tr>
 <tr class="memitem:gaaa30f566761cb94fc5aefe7affc203cc"><td class="memTemplParams" colspan="2">template&lt;class T , unsigned int DIM&gt; </td></tr>
 <tr class="memitem:gaaa30f566761cb94fc5aefe7affc203cc"><td class="memTemplItemLeft" align="right" valign="top">PetscErrorCode&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__core_functions.html#gaaa30f566761cb94fc5aefe7affc203cc">QuadPtResidual</a> (IGAPoint p, const T *U, const PetscScalar *Up, const PetscScalar *Upp, T *R, void *ctx)</td></tr>
 <tr class="separator:gaaa30f566761cb94fc5aefe7affc203cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90f1b12035919a3a23ef878a21edeb9b"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#a90f1b12035919a3a23ef878a21edeb9b">QuadPtResidual&lt; PetscReal, 1 &gt;</a> (IGAPoint p, const PetscReal *U, const PetscScalar *Up, const PetscScalar *Upp, PetscReal *R, void *ctx)</td></tr>
+<tr class="separator:a90f1b12035919a3a23ef878a21edeb9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a659422d191d7acd7772e81cbf0685cf7"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#a659422d191d7acd7772e81cbf0685cf7">QuadPtResidual&lt; PetscReal, 2 &gt;</a> (IGAPoint p, const PetscReal *U, const PetscScalar *Up, const PetscScalar *Upp, PetscReal *R, void *ctx)</td></tr>
 <tr class="separator:a659422d191d7acd7772e81cbf0685cf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad5df32f6c38c1743ba9f7e5c37bda5e"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#aad5df32f6c38c1743ba9f7e5c37bda5e">QuadPtResidual&lt; PetscReal, 3 &gt;</a> (IGAPoint p, const PetscReal *U, const PetscScalar *Up, const PetscScalar *Upp, PetscReal *R, void *ctx)</td></tr>
 <tr class="separator:aad5df32f6c38c1743ba9f7e5c37bda5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62865811255080e1cd66530b11027231"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#a62865811255080e1cd66530b11027231">QuadPtResidual&lt; Sacado::Fad::SimpleFad&lt; double &gt;, 1 &gt;</a> (IGAPoint p, const Sacado::Fad::SimpleFad&lt; double &gt; *U, const PetscScalar *Up, const PetscScalar *Upp, Sacado::Fad::SimpleFad&lt; double &gt; *R, void *ctx)</td></tr>
+<tr class="separator:a62865811255080e1cd66530b11027231"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae82a099994cabfb273e6ccd992628ad9"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#ae82a099994cabfb273e6ccd992628ad9">QuadPtResidual&lt; Sacado::Fad::SimpleFad&lt; double &gt;, 2 &gt;</a> (IGAPoint p, const Sacado::Fad::SimpleFad&lt; double &gt; *U, const PetscScalar *Up, const PetscScalar *Upp, Sacado::Fad::SimpleFad&lt; double &gt; *R, void *ctx)</td></tr>
 <tr class="separator:ae82a099994cabfb273e6ccd992628ad9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac25b91fafc051dfd13c9444afbb27137"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="model_8cc.html#ac25b91fafc051dfd13c9444afbb27137">QuadPtResidual&lt; Sacado::Fad::SimpleFad&lt; double &gt;, 3 &gt;</a> (IGAPoint p, const Sacado::Fad::SimpleFad&lt; double &gt; *U, const PetscScalar *Up, const PetscScalar *Upp, Sacado::Fad::SimpleFad&lt; double &gt; *R, void *ctx)</td></tr>
@@ -136,6 +140,56 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a90f1b12035919a3a23ef878a21edeb9b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">template PetscErrorCode <a class="el" href="group__core_functions.html#gaaa30f566761cb94fc5aefe7affc203cc">QuadPtResidual</a>&lt; PetscReal, 1 &gt; </td>
+          <td>(</td>
+          <td class="paramtype">IGAPoint&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscReal *&#160;</td>
+          <td class="paramname"><em>U</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Up</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Upp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PetscReal *&#160;</td>
+          <td class="paramname"><em>R</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a659422d191d7acd7772e81cbf0685cf7"></a>
 <div class="memitem">
 <div class="memproto">
@@ -218,6 +272,56 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">PetscReal *&#160;</td>
+          <td class="paramname"><em>R</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a62865811255080e1cd66530b11027231"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">template PetscErrorCode <a class="el" href="group__core_functions.html#gaaa30f566761cb94fc5aefe7affc203cc">QuadPtResidual</a>&lt; Sacado::Fad::SimpleFad&lt; double &gt;, 1 &gt; </td>
+          <td>(</td>
+          <td class="paramtype">IGAPoint&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Sacado::Fad::SimpleFad&lt; double &gt; *&#160;</td>
+          <td class="paramname"><em>U</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Up</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Upp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Sacado::Fad::SimpleFad&lt; double &gt; *&#160;</td>
           <td class="paramname"><em>R</em>, </td>
         </tr>
         <tr>

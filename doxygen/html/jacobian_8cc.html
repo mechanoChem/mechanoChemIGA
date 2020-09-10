@@ -84,7 +84,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_3487132e8ceb310eecfd0c8e4dfdf7d5.html">src</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_1dab22048af7df39430ae6ae5ac7b4f0.html">src</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -116,10 +116,14 @@ Functions</h2></td></tr>
 <tr class="memitem:gabe697234628a48d75eaeb63c189930bf"><td class="memTemplParams" colspan="2">template&lt;unsigned int DIM&gt; </td></tr>
 <tr class="memitem:gabe697234628a48d75eaeb63c189930bf"><td class="memTemplItemLeft" align="right" valign="top">PetscErrorCode&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__core_functions.html#gabe697234628a48d75eaeb63c189930bf">Jacobian</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *K, void *ctx)</td></tr>
 <tr class="separator:gabe697234628a48d75eaeb63c189930bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade224d2a973f0cd73178346fceaf21d1"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#ade224d2a973f0cd73178346fceaf21d1">Residual&lt; 1 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *R, void *ctx)</td></tr>
+<tr class="separator:ade224d2a973f0cd73178346fceaf21d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcb4681440eb54a6b101a210f1c36ee3"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#afcb4681440eb54a6b101a210f1c36ee3">Residual&lt; 2 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *R, void *ctx)</td></tr>
 <tr class="separator:afcb4681440eb54a6b101a210f1c36ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef9f6e9d615af421fee8c3ae0a4035fe"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#aef9f6e9d615af421fee8c3ae0a4035fe">Residual&lt; 3 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *R, void *ctx)</td></tr>
 <tr class="separator:aef9f6e9d615af421fee8c3ae0a4035fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d641e2f31e48f7e90434716558dc1c7"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#a2d641e2f31e48f7e90434716558dc1c7">Jacobian&lt; 1 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *K, void *ctx)</td></tr>
+<tr class="separator:a2d641e2f31e48f7e90434716558dc1c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a44535372aa883eba7f1e3263d94e87"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#a0a44535372aa883eba7f1e3263d94e87">Jacobian&lt; 2 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *K, void *ctx)</td></tr>
 <tr class="separator:a0a44535372aa883eba7f1e3263d94e87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb0c231cf6d904ae3863167136ba01cd"><td class="memItemLeft" align="right" valign="top">template PetscErrorCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jacobian_8cc.html#adb0c231cf6d904ae3863167136ba01cd">Jacobian&lt; 3 &gt;</a> (IGAPoint p, const PetscScalar *U, const PetscScalar *Up, const PetscScalar *Upp, PetscScalar *K, void *ctx)</td></tr>
@@ -151,6 +155,56 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a2d641e2f31e48f7e90434716558dc1c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">template PetscErrorCode <a class="el" href="group__core_functions.html#gabe697234628a48d75eaeb63c189930bf">Jacobian</a>&lt; 1 &gt; </td>
+          <td>(</td>
+          <td class="paramtype">IGAPoint&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>U</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Up</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Upp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PetscScalar *&#160;</td>
+          <td class="paramname"><em>K</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a0a44535372aa883eba7f1e3263d94e87"></a>
 <div class="memitem">
 <div class="memproto">
@@ -234,6 +288,56 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">PetscScalar *&#160;</td>
           <td class="paramname"><em>K</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ctx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ade224d2a973f0cd73178346fceaf21d1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">template PetscErrorCode <a class="el" href="group__core_functions.html#ga08632a46fbc727b23c073844cfcd205a">Residual</a>&lt; 1 &gt; </td>
+          <td>(</td>
+          <td class="paramtype">IGAPoint&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>U</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Up</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const PetscScalar *&#160;</td>
+          <td class="paramname"><em>Upp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">PetscScalar *&#160;</td>
+          <td class="paramname"><em>R</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>

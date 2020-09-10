@@ -28,7 +28,7 @@ void defineParameters(AppCtx<dim>& user){
   user.periodic[0] = PETSC_TRUE;
 
   //Define some material parameters (can be overwritten by parameters file)
-  user.matParam["inFlux"] = 0; //Infux through top
+  user.matParam["inFlux"] = 0; //Influx through top
   user.matParam["mobility"] = .1; //Mobility
   user.matParam["kappa"] = .0001; //Gradient energy parameter
 

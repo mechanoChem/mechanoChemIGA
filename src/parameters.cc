@@ -67,6 +67,8 @@ int ReadParameters(AppCtx<dim> &user){
     tensorsInt["N"] = &user.N;
     tensorsDouble["L"] = &user.L;
     strings["outputDir"] = &user.outputDir;
+    bools["Elasticity"] = &user.Elasticity;
+    bools["CahnHilliard"] = &user.CahnHilliard;
 
     while( std::getline(file,line) ){
       if (line.find("=") != -1){

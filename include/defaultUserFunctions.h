@@ -82,6 +82,16 @@ void adaptiveTimeStep(unsigned int step,AppCtx<dim> &user){};
 
 /**
  * @ingroup userFunctions
+ * Define any operation/parameter immediately after reading in the parameters file
+ *
+ * Defaults to no action.
+ */
+
+template<unsigned int dim>
+void postParameters(AppCtx<dim> &user){};
+
+/**
+ * @ingroup userFunctions
  * Function defining the scalar and vector fields (defined at the quadrature point) to be projected to the nodes 
  * and included in the output file.
  *

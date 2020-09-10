@@ -9,6 +9,10 @@ set N = 100 x 100
 set mobility = 0.1
 set kappa = 0.0005  # gradient energy parameter
 
+# Neumann boundary value
+set influx1 = 0.
+set influx2 = 0.
+
 # Time stepping
 set dtVal = 0.1
 set totalTime = 20

@@ -48,6 +48,8 @@ void defineParameters(AppCtx<dim>& user){
   user.matParam["kinetic_coeff"] = 2.; //Kinetic coefficient
   user.matParam["kappa"] = .0005; //Gradient energy parameter
 
+  user.matParam["influx"] = 0.; //Influx
+
   user.dtVal = .1;
   user.totalTime = 20;
   user.RESTART_IT = 0;
@@ -78,7 +80,7 @@ void residual(bool dV,
 
   //Chemistry
   double dt = user.dt;
-  double jn = 0;
+  double jn = user.matParam["influx"];
   double M = user.matParam["mobility"],
     L = user.matParam["kinetic_coeff"]; //Mobility, kinetic coefficient
   double kappa1 = user.matParam["kappa"],

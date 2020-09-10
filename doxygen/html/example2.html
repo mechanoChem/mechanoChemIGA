@@ -150,7 +150,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#ac77e8a2af239ac3f36a49dfc69ad5c69">periodic</a>[0] = PETSC_TRUE;</div>
 </div><!-- fragment --></p>
 <p>We can define additional material parameters that are not explicity listed in the <code>user</code> structure by defining elements of the <code>matParam</code> C++ map, which maps <code>std::string</code> to <code>double</code>. These values can also be overwritten in the parameters file.</p>
-<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>] = 0; <span class="comment">//Infux through top</span></div>
+<p><div class="fragment"><div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;inFlux&quot;</span>] = 0; <span class="comment">//Influx through top</span></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;mobility&quot;</span>] = .1; <span class="comment">//Mobility</span></div>
 <div class="line">  user.<a class="code" href="struct_app_ctx.html#a36448fa26553468f32e3cab046566bea">matParam</a>[<span class="stringliteral">&quot;kappa&quot;</span>] = .0001; <span class="comment">//Gradient energy parameter</span></div>
 <div class="line"></div>

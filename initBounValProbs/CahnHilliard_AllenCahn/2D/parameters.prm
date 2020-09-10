@@ -10,6 +10,8 @@ set mobility = 0.1
 set kinetic_coeff = 2.
 set kappa = 0.0005  # gradient energy parameter
 
+set influx = 0.
+
 # Time stepping
 set dtVal = 0.1
 set totalTime = 20

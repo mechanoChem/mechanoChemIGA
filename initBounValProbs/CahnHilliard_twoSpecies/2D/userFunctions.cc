@@ -40,6 +40,9 @@ void defineParameters(AppCtx<dim>& user){
   user.matParam["mobility"] = .1; //Mobility
   user.matParam["kappa"] = .0005; //Gradient energy parameter
 
+  user.matParam["influx1"] = 0.;
+  user.matParam["influx2"] = 0.;
+
   user.dtVal = .1;
   user.totalTime = 20;
   user.RESTART_IT = 0;
@@ -70,7 +73,7 @@ void residual(bool dV,
 
   //Chemistry
   double dt = user.dt;
-  double jn1 = 0, jn2 = 0;
+  double jn1 = user.matParam["influx1"], jn2 = user.matParam["influx2"];
   double M = user.matParam["mobility"]; //Mobility
   double kappa1 = user.matParam["kappa"],
     kappa2 = user.matParam["kappa"];

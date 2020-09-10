@@ -1,0 +1,31 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 3  # spatial dimension
+set L = 1 x 1 x 0.5 # dimensions of geometry
+set N = 10 x 10 x 5 # mesh discretization
+
+# Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2
+set alpha = 0.25  # free energy coefficient
+set c_a = 0.2  # composition of phase a
+set c_b = 0.7  # composition of phase b
+
+# Material parameters
+set mobility = 0.1
+set kappa = 0.0005  # gradient energy parameter
+set c_avg = 0.3
+
+# Time stepping
+set dtVal = 1.  # initial time step size
+set totalTime = 10.
+
+# Restart
+set RESTART_TIME = 0.
+set RESTART_IT = 0
+
+# Output
+set skipOutput = 1
+
+# Splines
+set polyOrder = 2
+set globalContinuity = 1
