@@ -1,0 +1,48 @@
+# Parameters file
+
+# Geometry and mesh
+set dim = 2  # spatial dimension
+set L = 1 x 1 # dimensions of geometry
+set N = 30 x 30 # mesh discretization
+
+# Specify physics to solve
+set Elasticity = true
+set CahnHilliard = true
+
+# Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2
+set alpha = 250  # free energy coefficient
+set c_a = 0.2  # composition of phase a
+set c_b = 0.8  # composition of phase b
+
+# Material parameters
+set mobility = 0.0002
+set kappa = .1  # gradient energy parameter
+set E = 200 #GPa
+set nu = 0.3
+set c_avg = 0.35
+
+# Misfit strain
+set Feiga_11 = 1
+set Feiga_22 = 1
+set Feiga_33 = 1
+
+set Feigb_11 = 1.1
+set Feigb_22 = 1
+set Feigb_33 = 1.
+
+# Time stepping
+set dtVal = .5  # initial time step size
+set totalTime = 100.
+set adapTS = true
+set maxTimeSteps = 1
+
+# Restart
+set RESTART_TIME = 0.
+set RESTART_IT = 0
+
+# Output
+set skipOutput = 1
+
+# Splines
+set polyOrder = 2
+set globalContinuity = 1
