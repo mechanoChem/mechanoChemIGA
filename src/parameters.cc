@@ -50,7 +50,7 @@ int ReadParameters(AppCtx<dim> &user){
     user.param.update(j_tmp); //Update values from parameters file
     file.close();
 
-    copy_if_contains(user.param,"Dtval",user.dtVal);
+    copy_if_contains(user.param,"dtVal",user.dtVal);
     copy_if_contains(user.param,"totalTime",user.totalTime);
     copy_if_contains(user.param,"RESTART_TIME",user.RESTART_TIME);
     copy_if_contains(user.param,"maxTimeSteps",user.maxTimeSteps);

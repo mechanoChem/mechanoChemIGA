@@ -158,14 +158,16 @@ void residual(bool dV,
 
   //Chemistry
   double dt = user.dt;
-  double M, kappa;
+  double M, kappa, c_a, c_b;
   param["mobility"].get_to(M); //Mobility
   param["kappa"].get_to(kappa);
-  
+  param["c_a"].get_to(c_a);
+  param["c_b"].get_to(c_b);
+
   //Get the second derivative of the free energy
   T f_cc;
   if(user.CahnHilliard){
-    f_cc = fcc(c.val(0),param["alpha"].get<double>(),param["c_a"].get<double>(),param["c_b"].get<double>());
+    f_cc = fcc(c.val(0),param["alpha"].get<double>(),c_a,c_b);
   }
 
   Tensor<2,dim,T> F, Fe, Feig, Feiga, Feigb, invFeig, Ee, E, S, eye;
@@ -188,16 +190,16 @@ void residual(bool dV,
 	}
       }
       //Eigenstrain is linearly interpolated
-      Feig = (c.val(0) - param["c_a"].get<double>())/(param["c_b"].get<double>() - param["c_a"].get<double>())*(Feigb - Feiga) + Feiga;
+      Feig = (c.val(0) - c_a)/(c_b - c_a)*(Feigb - Feiga) + Feiga;
       invFeig = inv(Feig);
       Fe = F*invFeig;
       Ee = 0.5*(trans(Fe)*Fe - eye);
       S = double_contract(user.C_e,Ee); //S = C_e:Ee
 
 
-      E_c = -1./(param["c_b"].get<double>() - param["c_a"].get<double>())*(trans(Fe)*Fe*(Feigb - Feiga)*invFeig);
+      E_c = -1./(c_b - c_a)*(trans(Fe)*Fe*(Feigb - Feiga)*invFeig);
       E_c = 0.5*(E_c + trans(E_c));
-      E_cc = 1./pow(param["c_b"].get<double>() - param["c_a"].get<double>(),2)*(trans(invFeig)*(trans(Feigb) - trans(Feiga))*
+      E_cc = 1./pow(c_b - c_a,2)*(trans(invFeig)*(trans(Feigb) - trans(Feiga))*
 								    trans(Fe)*Fe*(Feigb - Feiga)*invFeig +
 								    2.*trans(Fe)*Fe*(Feigb - Feiga)*invFeig*(Feigb - Feiga)*invFeig);
       E_cc = 0.5*(E_cc + trans(E_cc));
@@ -231,7 +233,7 @@ void residual(bool dV,
     if(user.Elasticity){
       r += M*w1.grad(0)*psi_cc*c.grad(0)*dV;
       r += M*w1.grad(0)*(custom_contract(Fe*double_contract(user.C_e,E_c)*trans(invFeig),u.hess(0)) + 
-			 -1./(param["c_b"].get<double>() - param["c_a"].get<double>())*
+			 -1./(c_b - c_a)*
 			 custom_contract(Fe*((Feigb - Feiga)*invFeig*S*trans(invFeig) +
 					     S*trans(invFeig)*trans(Feigb - Feiga))*trans(invFeig),u.hess(0)))*dV;
       // Elasticity w/ Cahn Hilliard: \int_\Omega (grad{w}:(P*Feig^{-T})) dV
