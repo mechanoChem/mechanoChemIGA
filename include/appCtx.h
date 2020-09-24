@@ -6,6 +6,7 @@
 //}
 #include "tensor.h"
 #include "solutionClass.h"
+#include "json.hpp"
 //#include "DNN.h"
 #include <map>
 #include <string>
@@ -222,6 +223,11 @@ struct AppCtx{
    * C++ map available for including additional double variables.
    */
   std::map<std::string,PetscReal> matParam;
+
+  /**
+   * json object for reading and store parameters.
+   */
+  nlohmann::json param;
 
   /**
    * Void pointer available for additional user objects.

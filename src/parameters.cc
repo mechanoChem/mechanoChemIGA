@@ -6,136 +6,74 @@
 #include "coreFunctions.h"
 #include "tensor.h"
 #include "appCtx.h"
+#include "json.hpp"
 
 int ReadDim(){
   int dim = 0;
 
-  std::fstream file("parameters.prm");
+  nlohmann::json j_tmp;
+
+  std::fstream file("parameters.json");
   if (!file){
     file.close();
-    file.open("../parameters.prm");
+    file.open("../parameters.json");
   }
   if(file){
-    std::string line, temp1;
-
-    while( std::getline(file,line) ){
-      if (line.find("=") != -1){
-	//Remove equals signs
-	line.replace(line.find("="),1," ");
-	std::istringstream iss(line);
-	iss >> temp1;
-	if(temp1=="set"){
-	  iss >> temp1;
-	  if(temp1 == "dim" || temp1 == "DIM"){
-	    iss >> dim;
-	  }
-	}
-      }
-    }
+    file >> j_tmp;
     file.close();
-  }
 
+    if (j_tmp.contains("dim")){
+      dim = j_tmp["dim"].get<int>();
+    }
+  }
   return dim;
+}
+
+template<typename T>
+void copy_if_contains(nlohmann::json j, std::string name, T &val){
+  if (j.contains(name)){
+    j[name].get_to(val);
+  }
 }
 
 template<int dim>
 int ReadParameters(AppCtx<dim> &user){
-  
-  std::fstream file("parameters.prm");
+
+  std::fstream file("parameters.json");
   if (!file){
     file.close();
-    file.open("../parameters.prm");
+    file.open("../parameters.json");
   }
   if(file){
-    std::string line, temp1;
-  
-    std::map<std::string,double*> doubles;
-    std::map<std::string,int*> ints;
-    std::map<std::string,std::string*> strings;
-    std::map<std::string,bool*> bools;
-    std::map<std::string,Tensor<1,dim,int>* > tensorsInt;
-    std::map<std::string,Tensor<1,dim,double>* > tensorsDouble;
-    doubles["dtVal"] = &user.dtVal;
-    doubles["totalTime"] = &user.totalTime;
-    doubles["RESTART_TIME"] = &user.RESTART_TIME;
-    ints["maxTimeSteps"] = &user.maxTimeSteps;
-    ints["RESTART_IT"] = &user.RESTART_IT;
-    ints["skipOutput"] = &user.skipOutput;
-    ints["polyOrder"] = &user.polyOrder;
-    ints["globalContinuity"] = &user.globalContinuity;
-    bools["adapTS"] = &user.adapTS;
-    tensorsInt["N"] = &user.N;
-    tensorsDouble["L"] = &user.L;
-    strings["outputDir"] = &user.outputDir;
-    bools["Elasticity"] = &user.Elasticity;
-    bools["CahnHilliard"] = &user.CahnHilliard;
-    bools["Diffusion"] = &user.Diffusion;
-    bools["adapTS"] = &user.adapTS;
+    nlohmann::json j_tmp;
+    file >> j_tmp;
+    user.param.update(j_tmp); //Update values from parameters file
+    file.close();
 
-    while( std::getline(file,line) ){
-      if (line.find("=") != -1){
-	//Remove equals signs
-	line.replace(line.find("="),1," ");
-	//Remove commas
-	while (line.find(",") != -1){
-	  line.replace(line.find(","),1," ");
-	}
-	//Remove brackets
-	while (line.find("[") != -1){
-	  line.replace(line.find("["),1," ");
-	}
-	while (line.find("]") != -1){
-	  line.replace(line.find("]"),1," ");
-	}
-	std::istringstream iss(line);
-	iss >> temp1;
-	if(temp1=="set"){
-	  iss >> temp1;
-	  if(doubles.count(temp1) == 1){
-	    iss >> *doubles[temp1];
-	  }
-	  else if(ints.count(temp1) == 1){
-	    iss >> *ints[temp1];
-	  }
-	  else if(bools.count(temp1) == 1){
-	    iss >> std::boolalpha >> *bools[temp1];
-	  }
-	  else if(strings.count(temp1) == 1){
-	    iss >> *strings[temp1];
-	  }
-	  else if(tensorsInt.count(temp1) == 1){
-	    //If a tensor, go back and remove "x" from the line
-	    while (line.find("x") != -1){
-	      line.replace(line.find("x"),1," ");
-	    }
-	    std::istringstream iss2(line);
-	    iss2 >> temp1;
-	    iss2 >> temp1;
-	    for(unsigned int i=0; i<dim; ++i){
-	      iss2 >> (*tensorsInt[temp1])[i];
-	    }
-	  }
-	  else if(tensorsDouble.count(temp1) == 1){
-	    //If a tensor, go back and remove "x" from the line
-	    while (line.find("x") != -1){
-	      line.replace(line.find("x"),1," ");
-	    }
-	    std::istringstream iss2(line);
-	    iss2 >> temp1;
-	    iss2 >> temp1;
-	    for(unsigned int i=0; i<dim; ++i){
-	      iss2 >> (*tensorsDouble[temp1])[i];
-	    }
-	  }
-	  //Otherwise, put it in the matParam map
-	  else if(temp1 != "DIM" && temp1 != "dim"){
-	    iss >> user.matParam[temp1];
-	    //PetscPrintf(PETSC_COMM_WORLD,"%s is not a valid variable.\n",temp1.c_str());
-	  }
-	}
+    copy_if_contains(user.param,"Dtval",user.dtVal);
+    copy_if_contains(user.param,"totalTime",user.totalTime);
+    copy_if_contains(user.param,"RESTART_TIME",user.RESTART_TIME);
+    copy_if_contains(user.param,"maxTimeSteps",user.maxTimeSteps);
+    copy_if_contains(user.param,"RESTART_IT",user.RESTART_IT);
+    copy_if_contains(user.param,"skipOutput",user.skipOutput);
+    copy_if_contains(user.param,"polyOrder",user.polyOrder);
+    copy_if_contains(user.param,"globalContinuity",user.globalContinuity);
+    copy_if_contains(user.param,"adapTS",user.adapTS);
+    copy_if_contains(user.param,"outputDir",user.outputDir);
+    copy_if_contains(user.param,"Elasticity",user.Elasticity);
+    copy_if_contains(user.param,"CahnHilliard",user.CahnHilliard);
+    copy_if_contains(user.param,"Diffusion",user.Diffusion);
+    copy_if_contains(user.param,"adapTS",user.adapTS);
+    if (user.param.contains("N")){
+      for (unsigned int i = 0; i<dim; ++i){
+	user.param["N"][i].get_to(user.N[i]);
       }
     }
-    file.close();
+    if (user.param.contains("L")){
+      for (unsigned int i = 0; i<dim; ++i){
+	user.param["L"][i].get_to(user.L[i]);
+      }
+    }
   }
 
   return 0;
