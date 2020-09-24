@@ -11,6 +11,6 @@ problem = PYmechanoChem()
 problem.setup_mechanoChemIGA()
 
 begin = time()
-for i in range(3):
+for i in range(10):
     problem.simulate()
 print(time() - begin)

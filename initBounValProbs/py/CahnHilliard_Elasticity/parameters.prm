@@ -20,7 +20,13 @@ set mobility = 0.0002
 set kappa = .1  # gradient energy parameter
 set E = 200 #GPa
 set nu = 0.3
+
+# Initial conditions
 set c_avg = 0.35
+set c_slope_x = 0.2
+set c_slope_y = 0.1
+#set c_slope_z = 0
+set random_perturb = 0.05
 
 # Misfit strain
 set Feiga_11 = 1

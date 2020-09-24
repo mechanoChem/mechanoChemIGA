@@ -5,8 +5,22 @@ template<unsigned int dim>
 double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
 {
 
-  //  return user.matParam["c_avg"] + 0.1*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
-  return user.matParam["c_avg"]*x[0];
+  double cons = user.matParam["c_avg"] - 0.5*user.matParam["c_slope_x"]*user.L[0];
+  if (dim > 1){
+    cons -=  0.5*user.matParam["c_slope_y"]*user.L[1];
+    if (dim == 3){
+      cons -= 0.5*user.matParam["c_slope_z"]*user.L[2];
+    }
+  }
+  double val = user.matParam["c_slope_x"]*x[0] + cons;
+  if (dim > 1){
+    val += user.matParam["c_slope_y"]*x[1];
+    if (dim == 3){
+      val += user.matParam["c_slope_z"]*x[2];
+    }
+  }
+  val += user.matParam["random_perturb"]*(2*(0.5 - (double)(rand() % 100 )/100.0));
+  return val;
 
 } //end scalarInitialConditions
 
@@ -102,6 +116,11 @@ void defineParameters(AppCtx<dim>& user){
   user.matParam["alpha"] = 0.25; //Free energy coefficient
   user.matParam["c_a"] = 0.2; //Composition of phase a
   user.matParam["c_b"] = 0.9; //Composition of phase b
+
+  user.matParam["c_slope_x"] = 0.;
+  user.matParam["c_slope_y"] = 0.;
+  user.matParam["c_slope_z"] = 0.;
+  user.matParam["random_perturb"] = 0.;
 
   //Define elasticity tensor
   user.matParam["E"] = 2.;//0e11;
