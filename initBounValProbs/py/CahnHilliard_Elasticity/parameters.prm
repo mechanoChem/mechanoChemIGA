@@ -7,7 +7,8 @@ set N = 30 x 30 # mesh discretization
 
 # Specify physics to solve
 set Elasticity = true
-set CahnHilliard = true
+set CahnHilliard = false
+set Diffusion = true
 
 # Free energy parameters, f(c) = alpha*(c-c_a)^2*(c-c_b)^2
 set alpha = 250  # free energy coefficient
@@ -31,7 +32,7 @@ set Feigb_22 = 1
 set Feigb_33 = 1.
 
 # Time stepping
-set dtVal = .5  # initial time step size
+set dtVal = 0.001 #.5  # initial time step size
 set totalTime = 100.
 set adapTS = true
 set maxTimeSteps = 1

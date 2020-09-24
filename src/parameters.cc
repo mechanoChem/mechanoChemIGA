@@ -69,6 +69,7 @@ int ReadParameters(AppCtx<dim> &user){
     strings["outputDir"] = &user.outputDir;
     bools["Elasticity"] = &user.Elasticity;
     bools["CahnHilliard"] = &user.CahnHilliard;
+    bools["Diffusion"] = &user.Diffusion;
     bools["adapTS"] = &user.adapTS;
 
     while( std::getline(file,line) ){

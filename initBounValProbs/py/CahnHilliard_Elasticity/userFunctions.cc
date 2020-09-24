@@ -5,8 +5,8 @@ template<unsigned int dim>
 double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
 {
 
-  return user.matParam["c_avg"] + 0.1*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
-
+  //  return user.matParam["c_avg"] + 0.1*(0.5 - (double)(rand() % 100 )/100.0); //Random about 0.5
+  return user.matParam["c_avg"]*x[0];
 
 } //end scalarInitialConditions
 
@@ -51,7 +51,7 @@ void userPostParameters(AppCtx<dim> &user)
     }
   } //end C_e
 
-  if(user.CahnHilliard){
+  if(user.CahnHilliard || user.Diffusion){
     if(user.scalarSolnFields.size() == 0){
       user.scalarSolnFields.push_back("c");
     }
@@ -86,6 +86,7 @@ void defineParameters(AppCtx<dim>& user){
   //Define some material parameters (can be overwritten by parameters file)
   user.matParam["mobility"] = .1; //Mobility
   user.matParam["kappa"] = .0001; //Gradient energy parameter
+  user.matParam["D"] = 20; //diffusivity
 
   user.matParam["c_avg"] = 0.5;
 
@@ -151,7 +152,7 @@ void residual(bool dV,
   // Deformation gradient, stress, etc.
   if(user.Elasticity){
     F = u.grad(0) + eye;
-    if(user.CahnHilliard){
+    if(user.CahnHilliard || user.Diffusion){
       Feiga[0][0] = user.matParam["Feiga_11"];
       Feigb[0][0] = user.matParam["Feigb_11"];
       if (dim >= 2){
@@ -184,20 +185,31 @@ void residual(bool dV,
       S = double_contract(user.C_e,E);
     }
   }
+  double tau = 0.1*(user.N[0]/user.L[0]);
 
   //Cahn-Hilliard - c
   r = 0;
-  if(user.CahnHilliard){
-    r += ( w1.val(0)*(c.val(0) - c.valP(0))/dt )*dV;  
-    r += M*w1.grad(0)*f_cc*c.grad(0)*dV;
-    r += M*kappa*w1.laplacian(0)*c.laplacian(0)*dV;
+  if(user.CahnHilliard || user.Diffusion){
+    r += ( w1.val(0)*(c.val(0) - c.valP(0))/dt )*dV;
+    if (user.CahnHilliard){
+      r += M*w1.grad(0)*f_cc*c.grad(0)*dV;
+      r += M*kappa*w1.laplacian(0)*c.laplacian(0)*dV;
+
+      //r += -w1.val(0)*jn*dS; //Boundary flux
+
+      //Nitche's method for higher order BC
+      r += -M*kappa*( c.laplacian(0)*(w1.grad(0)*normal) + w1.laplacian(0)*(c.grad(0)*normal) )*dS;
+      r += tau*(w1.grad(0)*normal)*(c.grad(0)*normal)*dS;
+    }
+    else{ //Diffusion
+      r += user.matParam["D"]*w1.grad(0)*c.grad(0)*dV;
+    }
     if(user.Elasticity){
       r += M*w1.grad(0)*psi_cc*c.grad(0)*dV;
       r += M*w1.grad(0)*(custom_contract(Fe*double_contract(user.C_e,E_c)*trans(invFeig),u.hess(0)) + 
 			 -1./(user.matParam["c_b"] - user.matParam["c_a"])*
 			 custom_contract(Fe*((Feigb - Feiga)*invFeig*S*trans(invFeig) +
 					     S*trans(invFeig)*trans(Feigb - Feiga))*trans(invFeig),u.hess(0)))*dV;
-
       // Elasticity w/ Cahn Hilliard: \int_\Omega (grad{w}:(P*Feig^{-T})) dV
       r += double_contract(w2.grad(0),Fe*S*trans(invFeig))*dV;
     }
@@ -207,6 +219,7 @@ void residual(bool dV,
   else if(user.Elasticity){
     r += double_contract(w2.grad(0),F*S)*dV;
   }
+
 
 } //end residual
 
