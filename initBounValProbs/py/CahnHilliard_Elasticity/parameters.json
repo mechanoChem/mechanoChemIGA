@@ -23,6 +23,20 @@
     "Feigb_11" : 1.1,
     "Feigb_22" : 1,
     "Feigb_33" : 1,
+    "boundary_conditions": {
+	"u_x" : {
+	    "x_min" : {
+		"type" : "Dirichlet",
+		"value" : 0.0
+	    }
+	},
+	"u_y" : {
+	    "y_min" : {
+		"type" : "Dirichlet",
+		"value" : 0.0
+	    }
+	}
+    },
     "dtVal" : 0.001,
     "totalTime" : 100,
     "adapTS" : true,

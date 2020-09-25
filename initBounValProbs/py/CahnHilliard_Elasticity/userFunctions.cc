@@ -1,6 +1,8 @@
 #include "userFunctions.h"
 #include "json.hpp"
 #include <iostream>
+#include <map>
+#include <string>
 
 template<unsigned int dim>
 double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int scalar_i, AppCtx<dim> &user)
@@ -24,6 +26,56 @@ double userScalarInitialConditions(const Tensor<1,dim,double> &x, unsigned int s
   return val;
 
 } //end scalarInitialConditions
+
+
+template<unsigned int dim>
+void userBoundaryConditions(AppCtx<dim>& user, double scale){
+
+  unsigned int nScalars = user.scalarSolnFields.size();
+
+  std::map<std::string,int> bndry2axis = {
+    {"x_min",0},
+    {"x_max",0},
+    {"y_min",1},
+    {"y_max",1},
+    {"z_min",2},
+    {"z_max",2}
+  };
+  std::map<std::string,int> bndry2side = {
+    {"x_min",0},
+    {"x_max",1},
+    {"y_min",0},
+    {"y_max",1},
+    {"z_min",0},
+    {"z_max",1}
+  };
+  std::map<std::string,int> field2dof = {
+    {"comp",0},
+    {"u_x",nScalars},
+    {"u_y",nScalars + 1},
+    {"u_z",nScalars + 2}
+  };
+
+  nlohmann::json bc;
+  if (user.param.contains("boundary_conditions")){
+    bc = user.param["boundary_conditions"];
+
+    // Loop over boundary conditions
+    for (auto field = bc.begin(); field != bc.end(); ++field){
+      for (auto bndry = field.value().begin(); bndry != field.value().end(); ++bndry){
+	if (bndry.value()["type"].get<std::string>() == "Dirichlet"){
+	  //IGASetBoundaryValue(user.iga,"axis","side","dof","val")
+	  IGASetBoundaryValue(user.iga,
+			      bndry2axis[bndry.key()],
+			      bndry2side[bndry.key()],
+			      field2dof[field.key()],
+			      bndry.value()["value"].get<double>()); 
+	}
+      }
+    }
+  }
+
+} //end boundaryConditions
 
 template<typename T>
 T fcc(T c, double alpha, double ca, double cb){
@@ -95,9 +147,9 @@ void defineParameters(AppCtx<dim>& user){
   }
 
   //Set the domain to be periodic in all directions
-  for (unsigned int i=0; i<dim; ++i){
-    user.periodic[i] = PETSC_TRUE;
-  }
+  //for (unsigned int i=0; i<dim; ++i){
+  //  user.periodic[i] = PETSC_TRUE;
+  //}
 
   //Define some material parameters (can be overwritten by parameters file)
   user.param["mobility"] = .1; //Mobility
@@ -139,6 +191,7 @@ void defineParameters(AppCtx<dim>& user){
 
   user.postParameters = userPostParameters;
   user.scalarInitialConditions = userScalarInitialConditions;
+  user.boundaryConditions = userBoundaryConditions;
 
 } //end defineParameters
 
@@ -200,8 +253,8 @@ void residual(bool dV,
       E_c = -1./(c_b - c_a)*(trans(Fe)*Fe*(Feigb - Feiga)*invFeig);
       E_c = 0.5*(E_c + trans(E_c));
       E_cc = 1./pow(c_b - c_a,2)*(trans(invFeig)*(trans(Feigb) - trans(Feiga))*
-								    trans(Fe)*Fe*(Feigb - Feiga)*invFeig +
-								    2.*trans(Fe)*Fe*(Feigb - Feiga)*invFeig*(Feigb - Feiga)*invFeig);
+				  trans(Fe)*Fe*(Feigb - Feiga)*invFeig +
+				  2.*trans(Fe)*Fe*(Feigb - Feiga)*invFeig*(Feigb - Feiga)*invFeig);
       E_cc = 0.5*(E_cc + trans(E_cc));
 
       psi_cc = full_contract(E_c,user.C_e,E_c) + double_contract(S,E_cc);
