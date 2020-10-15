@@ -1,34 +1,38 @@
 {
     "dim" : 2,
-    "L" : [1,1],
-    "N" : [30,30],
-    "Elasticity" : true,
-    "CahnHilliard" : false,
-    "Diffusion" : true,
-    "alpha" : 250,
-    "c_a" : 0.2,
-    "c_b" : 0.8,
-    "mobility" : 0.0002,
-    "kappa" : 0.1,
-    "E" : 200,
-    "nu" : 0.3,
-    "c_avg" : 0.35,
-    "c_slope_x" : 0.2,
-    "c_slope_y" : 0.1,
-    "c_slope_z" : 0,
-    "random_perturb" : 0.05,
-    "Feiga_11" : 1,
-    "Feiga_22" : 1,
-    "Feiga_33" : 1,
-    "Feigb_11" : 1.1,
-    "Feigb_22" : 1,
-    "Feigb_33" : 1,
+    "box_geom" : [1,1],
+    "mesh" : [30,30],
+    "physics" : [
+	"elasticity",
+	"cahn_hilliard"
+    ],
+    "material_parameters" : {
+	"omega" : 250,
+	"c_alpha" : 0.2,
+	"c_beta" : 0.8,
+	"mobility" : 0.001,
+	"kappa" : 0.1,
+	"youngs_modulus" : 200,
+	"poissons_ratio" : 0.3,
+	"F_eig_alpha" : [[1,0,0],
+			 [0,1,0],
+			 [0,0,1]],
+	"F_eig_beta" : [[1.1,0,0],
+			[0,1,0],
+			[0,0,1]]
+    },
+    "initial_conditions": {
+	"c_avg" : 0.35,
+	"c_slope_x" : 0.2,
+	"c_slope_y" : 0.1,
+	"random_perturb" : 0.05
+    },
     "boundary_conditions": {
 	"u_x" : {
 	    "x_min" : {
 		"type" : "Dirichlet",
 		"value" : 0.0
-	    }
+	    },
 	},
 	"u_y" : {
 	    "y_min" : {
@@ -37,13 +41,13 @@
 	    }
 	}
     },
-    "dtVal" : 0.001,
-    "totalTime" : 100,
-    "adapTS" : true,
-    "maxTimeSteps" : 1,
-    "RESTART_TIME" : 0,
-    "RESTART_IT" : 0,
-    "skipOutput" : 1,
-    "polyOrder" : 2,
-    "globalContinuity" : 1
+    "dt" : 0.001,
+    "max_time" : 100,
+    "adaptive_ts" : true,
+    "max_timesteps" : 1,
+    "restart_time" : 0,
+    "restart_it" : 0,
+    "skip_output" : 1,
+    "poly_order" : 2,
+    "global_continuity" : 1
 }
